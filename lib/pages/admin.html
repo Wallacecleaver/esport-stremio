@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard · Esport</title>
+<style>
+:root{--bg:#0b0e14;--p:#141923;--p2:#1b2230;--b:#283044;--t:#eef1f7;--m:#9aa5bb;--a:#00c8c8;--ok:#22c55e;--ko:#ef4444;--w:#f59e0b}
+*{box-sizing:border-box}html{color-scheme:dark}body{margin:0;background:var(--bg);color:var(--t);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--b);background:var(--p);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+header h1{font-size:1.05rem;margin:0}header .sp{flex:1}
+nav{display:flex;gap:4px;flex-wrap:wrap}nav button{font:inherit;color:var(--m);background:none;border:0;padding:8px 12px;border-radius:8px;cursor:pointer}nav button.on{background:var(--p2);color:var(--t)}
+main{max-width:1100px;margin:0 auto;padding:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:var(--p);border:1px solid var(--b);border-radius:12px;padding:14px}.kpi b{display:block;font-size:1.7rem}.kpi span{color:var(--m);font-size:.8rem}
+.card{background:var(--p);border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:16px}.card h2{font-size:.95rem;margin:0 0 10px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:800px){.two{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--b);vertical-align:top}th{color:var(--m);font-weight:600}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}.m{color:var(--m)}
+input,select,textarea,button.b{font:inherit;color:var(--t);background:var(--p2);border:1px solid var(--b);border-radius:8px;padding:8px 10px}input[type=text],input[type=number],select,textarea{width:100%}
+button.b{cursor:pointer}button.b.pr{background:var(--a);border-color:var(--a);color:#042;font-weight:700}button.b.dg{color:#fda4af}
+label.f{display:grid;gap:4px;margin-bottom:12px;font-size:13px}label.f small{color:var(--m)}
+.chk{display:flex;gap:8px;align-items:center;margin-bottom:8px}.chk input{width:auto}
+.bars{display:flex;align-items:flex-end;gap:6px;height:110px}.bars div{flex:1;background:var(--a);border-radius:4px 4px 0 0;position:relative;min-height:2px}.bars div span{position:absolute;top:-16px;left:0;right:0;text-align:center;font-size:11px;color:var(--m)}.bars em{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-size:10px;color:var(--m);font-style:normal}
+.lv{display:inline-block;padding:1px 6px;border-radius:4px;font-size:11px}.lv.ERROR{background:#4a1d24;color:#fda4af}.lv.WARN{background:#4a3a14;color:#fcd34d}.lv.INFO{background:#16313a;color:#7dd3fc}
+.hide{display:none}.ok{color:var(--ok)}.ko{color:var(--ko)}
+</style></head><body>
+<header><h1>🏆 Dashboard Esport</h1>
+<nav id="nav"><button data-t="dash" class="on">Vue d'ensemble</button><button data-t="users">Utilisateurs</button><button data-t="log">Journal</button><button data-t="set">Paramètres</button><button data-t="diag">Diagnostic</button></nav>
+<span class="sp"></span><span class="m" id="stor"></span><a href="/admin/logout" style="color:var(--m)">Déconnexion</a></header>
+<main>
+<section id="t-dash">
+  <div class="grid" id="kpis"></div>
+  <div class="two"><div class="card"><h2>Demandes · 7 jours</h2><div class="bars" id="bars"></div><div style="height:20px"></div></div><div class="card"><h2>Appareils uniques · 7 jours</h2><div class="bars" id="bars2"></div><div style="height:20px"></div></div></div>
+  <div class="two"><div class="card"><h2>Équipes les plus ouvertes</h2><table id="teams"></table></div><div class="card"><h2>Chaînes les plus lues &amp; jeux</h2><table id="chans"></table></div></div>
+</section>
+<section id="t-users" class="hide"><div class="card"><h2>Profils enregistrés</h2><table id="profs"></table></div><div class="card"><h2>Activité par pseudo</h2><table id="users"></table></div></section>
+<section id="t-log" class="hide"><div class="card"><div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap"><select id="lvl" style="width:auto"><option value="">Tous niveaux</option><option>ERROR</option><option>WARN</option><option>INFO</option></select><input type="text" id="q" placeholder="Rechercher…" style="flex:1;min-width:160px"><button class="b" id="pause">Pause</button><a class="b" href="/admin/api/export?fmt=csv" style="text-decoration:none;color:var(--t)">Export CSV</a><button class="b dg" id="clrlog">Vider</button></div><table id="logs"></table></div></section>
+<section id="t-set" class="hide"><div class="card"><h2>Site</h2>
+  <div class="two"><label class="f">Nom<input type="text" id="s-name" maxlength="40"></label><label class="f">Couleur<input type="text" id="s-color" placeholder="#00c8c8"></label></div>
+  <label class="f">Titre de la page /config<input type="text" id="s-title"></label><label class="f">Bandeau (message affiché sur /config)<input type="text" id="s-banner"></label>
+  <div class="two"><label class="f">Code d'invitation<small>Vide = aucun code demandé pour créer un profil.</small><input type="text" id="s-code"></label><div><div class="chk" style="margin-top:22px"><input type="checkbox" id="s-open"><label for="s-open">Inscriptions ouvertes</label></div></div></div></div>
+  <div class="card"><h2>Jeux et calendrier</h2><div id="s-games"></div>
+  <label class="f">Ligues LoL suivies<small>Identifiants lolesports, séparés par des virgules (ex. worlds, msi, first_stand, lec, lck, lpl, lcs).</small><input type="text" id="s-leagues"></label>
+  <div class="two"><label class="f">Matchs à venir affichés<input type="number" id="s-up" min="6" max="60"></label><label class="f">Derniers matchs terminés affichés dans « En direct &amp; à venir »<input type="number" id="s-past" min="0" max="40"></label></div>
+  <div class="chk"><input type="checkbox" id="s-years"><label for="s-years">Garder les catalogues des années précédentes</label></div></div>
+  <div class="card"><h2>Maintenance &amp; journal</h2>
+  <div class="chk"><input type="checkbox" id="s-maint"><label for="s-maint">Mode maintenance (les sources affichent un message)</label></div><label class="f">Message<input type="text" id="s-mmsg"></label>
+  <div class="chk"><input type="checkbox" id="s-logs"><label for="s-logs">Journal des lectures (les erreurs sont toujours gardées)</label></div>
+  <label class="f">Relais coupés<small>Un nom de relais par ligne (voir le diagnostic).</small><textarea id="s-off" rows="3"></textarea></label></div>
+  <button class="b pr" id="saveS">Enregistrer</button> <span id="savedS" class="m"></span>
+  <div class="card" style="margin-top:20px"><h2>Zone sensible</h2><button class="b dg" id="rstAll">Remettre les statistiques à zéro</button></div></section>
+<section id="t-diag" class="hide"><div class="card"><h2>Sources de données</h2><p class="m">Teste ce que le serveur peut atteindre : Twitch, calendriers des jeux, base Upstash, affiches.</p><button class="b pr" id="runDiag">Lancer le test</button><pre id="diag" class="mono" style="white-space:pre-wrap;margin-top:12px"></pre></div>
+<div class="card"><h2>Système</h2><pre id="sys" class="mono"></pre></div></section>
+</main>
+<script>
+const $=s=>document.querySelector(s),api=(u,b)=>fetch('/admin/api/'+u,b?{method:'POST',body:JSON.stringify(b)}:{}).then(r=>r.json());
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let S=null,paused=false;
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('main>section').forEach(s=>s.classList.add('hide'));$('#t-'+b.dataset.t).classList.remove('hide');if(b.dataset.t==='users')loadProfs();if(b.dataset.t==='set')fillSet()});
+const ago=t=>{const s=Math.round((Date.now()-t)/1000);return s<60?s+' s':s<3600?Math.round(s/60)+' min':s<86400?Math.round(s/3600)+' h':Math.round(s/86400)+' j'};
+function render(){
+  const s=S.stats||{};$('#stor').textContent=S.persistent?'Base Upstash : active':'⚠ Sans base : stats en mémoire';
+  $('#kpis').innerHTML=[['Demandes',s.req],['Sources ouvertes',s.stream],['Lives lancés',s.play],['Rediffs lancées',s.replay],['Erreurs',s.err],['Profils',(S.users||[]).length]].map(([l,v])=>`<div class="kpi"><b>${v||0}</b><span>${l}</span></div>`).join('');
+  const bars=(arr,days)=>{const mx=Math.max(1,...arr);return arr.map((v,i)=>`<div style="height:${Math.round(v/mx*100)}%"><span>${v||''}</span><em>${days[i].slice(5)}</em></div>`).join('')};
+  const days=S.days||[];$('#bars').innerHTML=bars(days.map(d=>s['d:'+d+':req']||0),days);$('#bars2').innerHTML=bars(S.uniq||[],days);
+  const tm=Object.entries(s).filter(([k])=>k.startsWith('t|')).map(([k,v])=>[k.slice(2).replace('|',' · '),v]).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  $('#teams').innerHTML=tm.length?tm.map(([k,v])=>`<tr><td>${esc(k)}</td><td>${v}</td></tr>`).join(''):'<tr><td class="m">Pas encore de données</td></tr>';
+  const gm=Object.entries(s).filter(([k])=>k.startsWith('g|')).map(([k,v])=>['Jeu · '+k.slice(2),v]);
+  $('#chans').innerHTML=[...(S.top||[]).map(([k,v])=>['Chaîne · '+k,v]),...gm].map(([k,v])=>`<tr><td>${esc(k)}</td><td>${v}</td></tr>`).join('')||'<tr><td class="m">Pas encore de données</td></tr>';
+  $('#users').innerHTML='<tr><th>Pseudo</th><th>Appareil</th><th>Lectures</th><th>Incidents</th><th>Dernière activité</th><th>Réglages</th></tr>'+(S.users||[]).sort((a,b)=>(b.last||0)-(a.last||0)).map(u=>`<tr><td>${esc(u.pseudo)}</td><td>${esc(u.dev||'')}</td><td>${u.n}</td><td>${u.inc||0}</td><td>${u.last?ago(u.last):''}</td><td class="mono">${esc(u.cfg?(u.cfg.games||[]).join('+')+' '+Object.values(u.cfg.teams||{}).flat().map(x=>'⭐'+x).join(' '):'')}</td></tr>`).join('');
+  drawLogs();$('#sys').textContent=JSON.stringify({up:Math.round(S.up)+' s',...S.sys,matchs:S.matchCounts},null,1);
+}
+function drawLogs(){
+  const lv=$('#lvl').value,q=$('#q').value.toLowerCase();
+  $('#logs').innerHTML=(S.logs||[]).filter(l=>(!lv||l.lvl===lv)&&(!q||JSON.stringify(l).toLowerCase().includes(q))).slice(0,300).map(l=>{const{t,lvl,k,u,...r}=l;return`<tr><td class="m">${new Date(t).toLocaleTimeString('fr-FR')}</td><td><span class="lv ${lvl}">${lvl}</span></td><td>${esc(k)}</td><td>${esc(u||'')}</td><td class="mono m">${esc(JSON.stringify(r)).slice(0,220)}</td></tr>`}).join('');
+}
+$('#lvl').onchange=drawLogs;$('#q').oninput=drawLogs;$('#pause').onclick=e=>{paused=!paused;e.target.textContent=paused?'Reprendre':'Pause'};
+$('#clrlog').onclick=async()=>{if(confirm('Vider le journal ?')){await api('reset?what=logs',{});load()}};
+$('#rstAll').onclick=async()=>{if(confirm('Tout remettre à zéro (stats, journal, utilisateurs) ?')){await api('reset?what=all',{});load()}};
+async function loadProfs(){
+  const r=await api('profiles');
+  $('#profs').innerHTML='<tr><th>Pseudo</th><th>Jeux</th><th>Équipes</th><th>Langue</th><th>MAJ</th><th></th></tr>'+(r.profils||[]).map(p=>`<tr><td>${esc(p.pseudo)}</td><td>${esc((p.games||[]).join(', '))}</td><td>${esc(Object.values(p.teams||{}).flat().join(', '))}</td><td>${esc(p.lang||'')}</td><td>${p.maj?ago(p.maj):''}</td><td><button class="b" data-a="reset" data-r="${p.ref}">Reset mdp</button> <button class="b dg" data-a="delete" data-r="${p.ref}">Supprimer</button></td></tr>`).join('')||'<tr><td class="m">Aucun profil enregistré</td></tr>';
+  $('#profs').querySelectorAll('button').forEach(b=>b.onclick=async()=>{if(!confirm(b.dataset.a==='delete'?'Supprimer ce profil ?':'Réinitialiser son mot de passe ?'))return;await api('profiles',{ref:b.dataset.r,action:b.dataset.a});loadProfs()});
+}
+function fillSet(){
+  const s=S.site;if(!s)return;
+  $('#s-name').value=s.name;$('#s-color').value=s.color;$('#s-title').value=s.title;$('#s-banner').value=s.banner||'';$('#s-code').value=s.code||'';$('#s-open').checked=s.open;
+  $('#s-games').innerHTML=(S.games||[]).map(g=>`<div class="chk"><input type="checkbox" data-g="${g.id}" id="g-${g.id}" ${s.feat.games[g.id]?'checked':''} ${g.ready?'':'disabled'}><label for="g-${g.id}">${esc(g.name)}${g.ready?'':' <span class="m">(module pas encore branché)</span>'}</label></div>`).join('');
+  $('#s-leagues').value=(s.feat.leagues||[]).join(', ');$('#s-up').value=s.feat.upcoming;$('#s-past').value=s.feat.past;$('#s-years').checked=s.feat.years;
+  $('#s-maint').checked=s.feat.maint;$('#s-mmsg').value=s.feat.maintMsg||'';$('#s-logs').checked=s.feat.logs;$('#s-off').value=(s.feat.offRelays||[]).join('\n');
+}
+$('#saveS').onclick=async()=>{
+  const games={};document.querySelectorAll('#s-games input').forEach(i=>{if(!i.disabled)games[i.dataset.g]=i.checked});
+  const r=await api('site',{name:$('#s-name').value,color:$('#s-color').value,title:$('#s-title').value,banner:$('#s-banner').value,code:$('#s-code').value,open:$('#s-open').checked,
+    feat:{games,leagues:$('#s-leagues').value.split(',').map(x=>x.trim()).filter(Boolean),upcoming:Number($('#s-up').value),past:Number($('#s-past').value),years:$('#s-years').checked,maint:$('#s-maint').checked,maintMsg:$('#s-mmsg').value,logs:$('#s-logs').checked,offRelays:$('#s-off').value.split('\n').map(x=>x.trim()).filter(Boolean)}});
+  $('#savedS').textContent=r.ok?'Enregistré ✓':(r.error||'Erreur');if(r.ok){S.site=r.site;setTimeout(()=>$('#savedS').textContent='',2500)}
+};
+$('#runDiag').onclick=async()=>{$('#diag').textContent='Test en cours…';const r=await api('sources');$('#diag').textContent=Object.entries(r).map(([k,v])=>typeof v==='object'?`${v.ok?'✅':'❌'} ${k} — ${v.ms} ms ${v.ok?JSON.stringify({...v,ok:undefined,ms:undefined}):v.err}`:`${v?'✅':'❌'} ${k}`).join('\n')};
+async function load(){if(paused&&S)return;try{S=await api('state?n=300');render()}catch{}}
+load();setInterval(load,8000);
+</script></body></html>

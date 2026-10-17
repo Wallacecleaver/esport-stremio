@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{NAME}} · Configuration</title>
+<meta name="theme-color" content="{{COLOR}}">
+<link rel="icon" type="image/png" href="/logo.png">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#070a10;--p:#10151f;--p2:#171e2b;--b:rgba(255,255,255,.1);--bx:rgba(255,255,255,.22);--t:#f2f5fa;--t2:#a5afc2;--t3:#6f7a90;--a:{{COLOR}};--ok:#34d399;--ko:#fb7185;--r:14px}
+html{color-scheme:dark;font-size:15px}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:radial-gradient(900px 420px at 50% -120px,color-mix(in srgb,var(--a) 28%,transparent),transparent 70%) no-repeat,var(--bg);color:var(--t);min-height:100vh;line-height:1.55}
+.wrap{max-width:760px;margin:0 auto;padding:28px 16px 80px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:1.2rem;margin-bottom:6px}.brand img{width:40px;height:40px;border-radius:11px}
+h1{font-size:1.7rem;line-height:1.2;margin:14px 0 6px}.sub{color:var(--t2);margin-bottom:22px}
+.banner{background:color-mix(in srgb,var(--a) 14%,transparent);border:1px solid color-mix(in srgb,var(--a) 40%,transparent);border-radius:var(--r);padding:12px 16px;margin-bottom:18px;font-size:.9rem}.banner:empty{display:none}
+.card{background:var(--p);border:1px solid var(--b);border-radius:18px;padding:22px;margin-bottom:16px}
+.card h2{font-size:1.05rem;margin-bottom:4px}.card .hint{color:var(--t3);font-size:.82rem;margin-bottom:14px}
+.games{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.game{position:relative;text-align:left;font:inherit;color:var(--t);background:var(--p2);border:1px solid var(--b);border-radius:var(--r);padding:14px;cursor:pointer;transition:.2s;overflow:hidden}
+.game::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--gc)}
+.game b{display:block;font-size:.95rem;margin-top:4px}.game span{font-size:.75rem;color:var(--t3)}
+.game:hover{border-color:var(--bx);transform:translateY(-2px)}
+.game.on{border-color:var(--gc);background:color-mix(in srgb,var(--gc) 16%,var(--p2));box-shadow:0 8px 24px -12px var(--gc)}
+.game.off{opacity:.45;cursor:not-allowed}.game.off:hover{transform:none;border-color:var(--b)}
+.tick{position:absolute;right:10px;top:12px;width:20px;height:20px;border-radius:50%;border:2px solid var(--bx);display:grid;place-items:center;font-size:.7rem}.game.on .tick{background:var(--gc);border-color:var(--gc);color:#041}
+input[type=text],input[type=password],select{width:100%;font:inherit;color:var(--t);background:var(--p2);border:1px solid var(--b);border-radius:12px;padding:12px 14px;outline:0;transition:.2s}
+input:focus,select:focus{border-color:var(--a);box-shadow:0 0 0 3px color-mix(in srgb,var(--a) 22%,transparent)}
+.row{display:grid;gap:6px;margin-bottom:14px}.lab{font-weight:600;font-size:.88rem}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:560px){.two{grid-template-columns:1fr}}
+.seg{display:flex;gap:8px;flex-wrap:wrap}.seg button{font:inherit;font-weight:600;color:var(--t2);background:var(--p2);border:1px solid var(--b);border-radius:12px;padding:10px 16px;cursor:pointer;transition:.2s}.seg button.on{color:#041;background:var(--a);border-color:var(--a)}
+.tg{display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--p2);border:1px solid var(--b);border-radius:12px;padding:12px 14px;cursor:pointer;margin-bottom:10px}.tg b{display:block;font-size:.9rem}.tg span{font-size:.78rem;color:var(--t3)}
+.sw{flex:none;width:44px;height:26px;border-radius:99px;background:rgba(255,255,255,.14);position:relative;transition:.25s}.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.25s}.tg.on .sw{background:var(--a)}.tg.on .sw::after{left:21px}
+.teams{display:flex;flex-wrap:wrap;gap:8px;max-height:260px;overflow:auto;margin-top:10px;padding:2px}
+.team{display:flex;align-items:center;gap:8px;font:inherit;font-size:.85rem;color:var(--t);background:var(--p2);border:1px solid var(--b);border-radius:99px;padding:6px 12px 6px 8px;cursor:pointer;transition:.2s}
+.team img{width:22px;height:22px;object-fit:contain}.team:hover{border-color:var(--bx)}.team.on{border-color:#ffc83d;background:rgba(255,200,61,.14)}.team.on::after{content:"⭐"}
+.gt{margin-top:16px}.gt h3{font-size:.92rem;display:flex;align-items:center;gap:8px}.dot{width:10px;height:10px;border-radius:50%;background:var(--gc)}
+.btn{font:inherit;font-weight:700;color:#041;background:var(--a);border:0;border-radius:12px;padding:14px 22px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:8px;text-decoration:none}.btn:hover{filter:brightness(1.1);transform:translateY(-1px)}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.sec{background:var(--p2);color:var(--t);border:1px solid var(--b)}
+.err{color:var(--ko);font-size:.85rem;min-height:1.2em;margin-top:8px}
+.result{display:none;text-align:center}.result.show{display:block}.url{display:flex;gap:8px;margin:14px 0}.url input{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.76rem}
+.acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.note{font-size:.82rem;color:var(--t3);margin-top:10px}
+.lock{display:none}.lock.show{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><img src="/logo.png" alt=""><span>{{NAME}}</span></div>
+  <h1>{{TITLE}}</h1>
+  <p class="sub">Choisis tes jeux et ton équipe : tu obtiens ton lien d'installation personnel pour Stremio.</p>
+  <div class="banner">{{BANNER}}</div>
+
+  <div class="card lock" id="lock">
+    <h2>🔒 Ce profil est protégé</h2><p class="hint">Entre ton mot de passe pour modifier tes réglages.</p>
+    <div class="row"><input type="password" id="lockpw" placeholder="Mot de passe" autocomplete="current-password"></div>
+    <button class="btn" id="unlock">Ouvrir mon profil</button><div class="err" id="lockerr"></div>
+  </div>
+
+  <div id="main">
+    <div class="card"><h2>1 · Tes jeux</h2><p class="hint">Un catalogue par jeu et par année apparaît dans Stremio. Les jeux grisés arrivent bientôt.</p><div class="games" id="games"></div></div>
+    <div class="card" id="teamsCard"><h2>2 · Ton équipe favorite</h2><p class="hint">Tes matchs apparaissent dans « ⭐ Mon équipe » et sont marqués d'une étoile partout. Tu peux en choisir plusieurs, ou aucune.</p><div id="teams"></div></div>
+    <div class="card">
+      <h2>3 · Options</h2><p class="hint">&nbsp;</p>
+      <div class="row"><div class="lab">Langue des sources en premier</div><div class="seg" id="lang"><button data-v="FR">Français</button><button data-v="EN">Anglais</button><button data-v="all">Toutes</button></div></div>
+      <div class="row"><div class="lab">Qualité maximale</div><select id="cap"><option value="0">Meilleure disponible</option><option value="1440">1440p</option><option value="1080">1080p</option><option value="720">720p</option><option value="480">480p</option><option value="360">360p</option></select></div>
+      <div class="tg" id="tgRelay"><div><b>Lives sans pub</b><span>Passe par des relais pour éviter les coupures publicitaires de Twitch.</span></div><i class="sw"></i></div>
+      <div class="tg" id="tgScore"><div><b>Afficher les scores sur les rediffusions</b><span>Désactivé = sans spoiler : seule la date apparaît sur les affiches.</span></div><i class="sw"></i></div>
+      <div class="row"><div class="lab">Nom de l'appareil (facultatif)</div><input type="text" id="device" maxlength="24" placeholder="Salon, PC, téléphone…"></div>
+    </div>
+    <div class="card" id="acct">
+      <h2>4 · Ton profil</h2><p class="hint" id="acctHint">Ton pseudo et un mot de passe te permettent de modifier tes réglages plus tard sans réinstaller l'addon.</p>
+      <div class="two"><div class="row"><div class="lab">Pseudo</div><input type="text" id="pseudo" maxlength="20" placeholder="ex. wallace" autocomplete="username"></div>
+      <div class="row" id="pwRow"><div class="lab" id="pwLab">Mot de passe</div><input type="password" id="pw" placeholder="6 caractères minimum" autocomplete="new-password"></div></div>
+      <div class="row" id="codeRow" style="display:none"><div class="lab">Code d'invitation</div><input type="text" id="code" placeholder="Demande-le à celui qui t'a partagé l'addon"></div>
+      <button class="btn" id="save">Enregistrer et obtenir mon lien</button><div class="err" id="err"></div>
+    </div>
+  </div>
+
+  <div class="card result" id="result">
+    <h2>✅ C'est prêt</h2><p class="hint">Ton lien personnel :</p>
+    <div class="url"><input type="text" id="link" readonly><button class="btn sec" id="copy">Copier</button></div>
+    <div class="acts"><a class="btn" id="install" href="#">Installer dans Stremio</a><button class="btn sec" id="again">Modifier mes réglages</button></div>
+    <p class="note" id="resNote"></p>
+  </div>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const st={games:['lol'],teams:{},lang:'FR',score:false,cap:0,relay:true,device:''};
+let G=[],profId=(location.pathname.match(/^\/u\/([A-Za-z0-9_-]{16,40})\/configure/)||[])[1]||'',persistent=false,locked=false,needCode=false,teamCache={};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const api=(u,b)=>fetch(u,b?{method:'POST',body:JSON.stringify(b)}:{}).then(r=>r.json());
+function renderGames(){
+  $('#games').innerHTML=G.map(g=>`<button class="game ${g.ready?'':'off'} ${st.games.includes(g.id)?'on':''}" data-id="${g.id}" style="--gc:${g.color}"><i class="tick">${st.games.includes(g.id)?'✓':''}</i><span>${g.short}</span><b>${esc(g.name)}</b><span>${g.ready?'':'Bientôt'}</span></button>`).join('');
+  $('#games').querySelectorAll('.game').forEach(b=>b.onclick=()=>{const g=G.find(x=>x.id===b.dataset.id);if(!g||!g.ready)return;const i=st.games.indexOf(g.id);if(i>=0){if(st.games.length>1)st.games.splice(i,1)}else st.games.push(g.id);renderGames();renderTeams()});
+}
+async function renderTeams(){
+  const box=$('#teams');box.innerHTML='';
+  for(const id of st.games){
+    const g=G.find(x=>x.id===id);if(!g)continue;
+    const sec=document.createElement('div');sec.className='gt';sec.style.setProperty('--gc',g.color);
+    sec.innerHTML=`<h3><i class="dot"></i>${esc(g.name)}</h3><input type="text" placeholder="Rechercher une équipe…" data-q="${id}" style="margin-top:8px"><div class="teams" data-g="${id}"><span class="hint">Chargement…</span></div>`;
+    box.appendChild(sec);
+    if(!teamCache[id])teamCache[id]=(await api('/api/teams?game='+id).catch(()=>({}))).teams||[];
+    const draw=()=>{const q=sec.querySelector('[data-q]').value.toLowerCase(),list=teamCache[id].filter(t=>!q||t.name.toLowerCase().includes(q)||t.code.toLowerCase().includes(q)),fav=st.teams[id]||[];
+      const el=sec.querySelector('.teams');
+      el.innerHTML=list.length?list.map(t=>`<button class="team ${fav.includes(t.code)?'on':''}" data-c="${esc(t.code)}">${t.logo?`<img src="${esc(t.logo)}" alt="" loading="lazy">`:''}${esc(t.code)}</button>`).join(''):'<span class="hint">'+(teamCache[id].length?'Aucune équipe trouvée.':'Les équipes apparaissent dès que le calendrier est disponible.')+'</span>';
+      el.querySelectorAll('.team').forEach(b=>b.onclick=()=>{const a=st.teams[id]||(st.teams[id]=[]),i=a.indexOf(b.dataset.c);i>=0?a.splice(i,1):a.push(b.dataset.c);draw()});};
+    sec.querySelector('[data-q]').oninput=draw;draw();
+  }
+}
+function syncOpts(){
+  document.querySelectorAll('#lang button').forEach(b=>b.classList.toggle('on',b.dataset.v===st.lang));
+  $('#cap').value=String(st.cap);$('#tgRelay').classList.toggle('on',st.relay);$('#tgScore').classList.toggle('on',st.score);$('#device').value=st.device||'';
+}
+document.querySelectorAll('#lang button').forEach(b=>b.onclick=()=>{st.lang=b.dataset.v;syncOpts()});
+$('#cap').onchange=e=>st.cap=Number(e.target.value);
+$('#tgRelay').onclick=()=>{st.relay=!st.relay;syncOpts()};$('#tgScore').onclick=()=>{st.score=!st.score;syncOpts()};
+$('#device').oninput=e=>st.device=e.target.value;
+function setCfg(c){Object.assign(st,c);renderGames();renderTeams();syncOpts()}
+const b64=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+function showResult(link,note){
+  $('#main').style.display='none';$('#lock').classList.remove('show');$('#result').classList.add('show');
+  $('#link').value=link;$('#install').href=link.replace(/^https?:\/\//,'stremio://');$('#resNote').textContent=note||'';scrollTo({top:0,behavior:'smooth'});
+}
+$('#copy').onclick=async()=>{try{await navigator.clipboard.writeText($('#link').value)}catch{$('#link').select();document.execCommand('copy')}$('#copy').textContent='Copié ✓';setTimeout(()=>$('#copy').textContent='Copier',1800)};
+$('#again').onclick=()=>{$('#result').classList.remove('show');$('#main').style.display='block'};
+$('#save').onclick=async()=>{
+  const err=$('#err');err.textContent='';
+  const pseudo=$('#pseudo').value.trim();
+  if(pseudo.length<2){err.textContent='Choisis un pseudo (2 caractères minimum).';return}
+  $('#save').disabled=true;
+  try{
+    if(!persistent){const l=location.origin+'/c/'+encodeURIComponent(pseudo.toLowerCase().replace(/[^a-z0-9_]/g,''))+'/'+b64(st)+'/manifest.json';showResult(l,'La base de données n\'est pas configurée : ce lien contient tes réglages, garde-le précieusement (pour changer un réglage, refais cette page).');return}
+    const r=await api('/api/profile',{id:profId||undefined,pseudo,cfg:st,password:profPw,newPassword:$('#pw').value,code:$('#code').value});
+    if(!r.ok){err.textContent=r.error||'Erreur';if(r.bad==='code'){$('#codeRow').style.display='grid'}return}
+    profId=r.id;history.replaceState(null,'','/u/'+r.id+'/configure');
+    showResult(location.origin+'/u/'+r.id+'/manifest.json','Enregistré. Tu peux changer tes jeux et ton équipe plus tard depuis cette page : pas besoin de réinstaller l\'addon (relance juste Stremio si un catalogue ne bouge pas).');
+  }catch(e){err.textContent='Erreur réseau, réessaie.'}finally{$('#save').disabled=false}
+};
+let profPw='';
+$('#unlock').onclick=async()=>{
+  profPw=$('#lockpw').value;const r=await api('/api/profile',{id:profId,action:'open',password:profPw});
+  if(!r.ok){$('#lockerr').textContent=r.error||'Erreur';return}
+  openProfile(r);
+};
+function openProfile(r){$('#lock').classList.remove('show');$('#main').style.display='block';$('#pseudo').value=r.pseudo||'';$('#pwLab').textContent='Nouveau mot de passe (facultatif)';$('#pw').placeholder='Laisse vide pour le garder';setCfg(r.cfg||{})}
+(async()=>{
+  const gm=await api('/api/games').catch(()=>({games:[]}));G=gm.games||[];persistent=!!gm.persistent;needCode=!!gm.code;
+  if(needCode&&!profId)$('#codeRow').style.display='grid';
+  if(!persistent)$('#pwRow').style.display='none';
+  if(profId){
+    const r=await api('/api/profile?id='+profId).catch(()=>({}));
+    if(r.ok&&r.locked){$('#main').style.display='none';$('#lock').classList.add('show');return}
+    if(r.ok&&r.nopw){openProfile(r);return}
+    if(!r.ok)profId='';
+  }
+  renderGames();renderTeams();syncOpts();
+})();
+</script>
+</body>
+</html>
