@@ -50,7 +50,7 @@ const RL_HTML = (ts, L, R, sc, bo, ev, win) => '<div class="match-info"><div cla
   '<div class="match-info-header-opponent' + (win === 1 ? ' match-info-header-winner' : '') + '"><div class="block-team"><span class="team-template-image-icon"><img src="/commons/images/' + R + '.png"></span><span class="name"><a title="' + R + ' Team">' + R + '</a></span></div></div></div>' +
   '<div class="match-info-tournament"><a title="' + ev + '">' + ev + '</a></div></div>';
 const FN_HTML = '<div class="divTable"><div class="divRow"><div class="divCell Tournament Header"><b>Tournoi</b></div></div>' +
-  '<div class="divRow"><div class="divCell Tournament Name"><a href="/fortnite/FNCS" title="FNCS Test">FNCS Test</a></div><div class="divCell Date">Oct 17, 2026 - Oct 19, 2026</div></div>' +
+  '<div class="divRow"><div class="divCell Tournament Name"><a href="/fortnite/FNCS" title="FNCS Major Test">FNCS Major Test</a></div><div class="divCell Date">Oct 17, 2026 - Oct 19, 2026</div></div>' +
   '<div class="divRow"><div class="divCell Tournament Name"><a href="/fortnite/Cup">Cash Cup Test</a></div><div class="divCell Date">Nov 2, 2026</div></div></div>';
 
 const calls = [];
@@ -82,7 +82,7 @@ global.fetch = async (url, init = {}) => {
     if (!globalThis.__fnOfficial) return t('off', 599);
     assert.equal(u.pathname, '/v1/tournaments');
     return j({ success: true, region: u.searchParams.get('region'), tournaments: [{ eventId: 'epicgames_Cup1', eventGroup: 'cup', regions: ['EU'], platforms: [], metadata: {},
-      displayData: { tournamentDisplayId: 'cup', longFormatTitle: 'Duos Ranked Cup', squarePosterImage: 'http://logos.test/FN.png', roundNames: ['Session 1', 'Finale'] },
+      displayData: { tournamentDisplayId: 'cup', longFormatTitle: 'FNCS Major 1', squarePosterImage: 'http://logos.test/FN.png', roundNames: ['Session 1', 'Finale'] },
       eventWindows: [{ eventWindowId: 'w-b', round: 2, beginTime: iso(NOW + 26 * H), endTime: iso(NOW + 29 * H) }, { eventWindowId: 'w-a', round: 1, beginTime: iso(NOW - 1 * H), endTime: iso(NOW + 2 * H) }] }] });
   }
   if (u.hostname === 'liquipedia.net') return j({ parse: { text: { '*': u.pathname.startsWith('/valorant') ? VAL_HTML : u.pathname.startsWith('/rocketleague') ? RL_HTML(NOW - 30 * H, 'KC', 'G2', [3, 1], 7, 'RLCS 2026: Test', 0) + RL_HTML(NOW + 24 * H, 'FAZE', 'NRG', [0, 0], 5, 'RLCS 2026: Test') : FN_HTML } } });
@@ -299,8 +299,8 @@ test('Valorant : matchs lus sur Liquipedia, saisons = événements, live Twitch 
 test('Fortnite : une journée = un épisode, affiche sans équipes', async () => {
   const cfg = cfgUrl({ games: ['fortnite'] });
   const s = (await get(cfg + '/meta/series/esp:s:fortnite:2026.json')).body.meta;
-  assert.equal(s.videos.length, 4); // 3 jours + 1
-  assert.equal(s.videos[0].title, 'FNCS Test · Jour 1/3');
+  assert.equal(s.videos.length, 3); // 3 jours ; la Cash Cup n'est pas un gros tournoi
+  assert.equal(s.videos[0].title, 'FNCS Major Test · Jour 1/3');
   const key = s.videos[0].id.replace('esp:v:', '');
   for (const k of ['poster', 'thumb']) { const img = await get('/img/m/' + encodeURIComponent(key) + '.png?k=' + k); assert.equal(img.r.status, 200); assert.match(img.r.headers.get('content-type'), /png/); }
   const live = (await get(cfg + '/catalog/tv/esport-live.json')).body.metas;
@@ -320,7 +320,7 @@ test('Valorant : source officielle valorantesports.com (sport = val), toutes les
 
 test('Liquipedia : liste de tournois, nouvelle mise en page (table2)', () => {
   const lp = require('../lib/liquipedia');
-  const html = '<div class="tournaments-listing"><div class="table2__row--body"><div class="tournament"><a title="FNCS Test">FNCS Test</a></div><div class="date">Oct 17 - 19, 2026</div></div></div>';
+  const html = '<div class="tournaments-listing"><div class="table2__row--body"><div class="tournament"><a title="FNCS Major Test">FNCS Major Test</a></div><div class="date">Oct 17 - 19, 2026</div></div></div>';
   const l = lp.tournamentList(html, { fallbackYear: 2026 });
   assert.equal(l.length, 1);
   assert.equal(l[0].name, 'FNCS Test');
@@ -342,10 +342,17 @@ test('Fortnite : API Osirion (sessions avec heures précises), affiche sans équ
   try {
     const l = await require('../lib/games/fortnite').official({ regions: ['EU'], now: NOW });
     assert.equal(l.length, 2);
-    assert.deepEqual(l.map(m => [m.event.name, m.stage, m.state]), [['Duos Ranked Cup', 'Session 1', 'live'], ['Duos Ranked Cup', 'Finale', 'upcoming']]);
+    assert.deepEqual(l.map(m => [m.event.name, m.stage, m.state]), [['FNCS Major 1', 'Session 1', 'live'], ['FNCS Major 1', 'Finale', 'upcoming']]);
     assert.ok(!l[0].allDay && l[0].solo);
     const { renderEvent } = require('../lib/poster');
     const png = await renderEvent(l[0], { name: 'Fortnite', color: '#a855f7' }, { kind: 'poster' });
     assert.ok(png.length > 5000);
   } finally { globalThis.__fnOfficial = false; }
+});
+
+test('Fortnite : seulement les gros tournois ; le catalogue annuel est plus strict que « en direct »', () => {
+  const { filterBig } = require('../lib/games/fortnite');
+  const mk = (name, tid = '') => ({ event: { name }, tid });
+  const r = filterBig([mk('Duos Ranked Cup'), mk('Reload ZB Duos Cash Cup'), mk('FNCS Pro-Am', 'epic_fncs'), mk('FNCS Major 2'), mk('Esports World Cup 2026'), mk('FNCS Global Championship')]);
+  assert.deepEqual(r.map(m => [m.event.name, m.inCatalog]), [['FNCS Pro-Am', false], ['FNCS Major 2', true], ['Esports World Cup 2026', true], ['FNCS Global Championship', true]]);
 });
