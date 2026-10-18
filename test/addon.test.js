@@ -305,3 +305,12 @@ test('Valorant : source officielle valorantesports.com (sport = val), toutes les
     assert.equal(l[0].id, 'valorant~vv1');
   } finally { globalThis.__valOfficial = false; }
 });
+
+test('Liquipedia : liste de tournois, nouvelle mise en page (table2)', () => {
+  const lp = require('../lib/liquipedia');
+  const html = '<div class="tournaments-listing"><div class="table2__row--body"><div class="tournament"><a title="FNCS Test">FNCS Test</a></div><div class="date">Oct 17 - 19, 2026</div></div></div>';
+  const l = lp.tournamentList(html, { fallbackYear: 2026 });
+  assert.equal(l.length, 1);
+  assert.equal(l[0].name, 'FNCS Test');
+  assert.equal(new Date(l[0].to).getUTCDate(), 19);
+});
