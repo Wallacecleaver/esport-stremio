@@ -51,9 +51,21 @@ async function fetchSchedule(gameId, SS) {
     const raw = await store.getKey('sched:' + gameId);
     if (raw) { const o = JSON.parse(raw); if (o && Date.now() - o.t < SCHEDULE_TTL - 30e3 && Array.isArray(o.m)) return o.m; }
   } catch { /* pas de copie partagée : on interroge la source */ }
-  const m = await g.matches({ leagues: SS.feat.leagues });
+  let m = await g.matches({ leagues: SS.feat.leagues });
+  if (g.accumulate) m = await withHistory(gameId, m); // la source ne garde que peu de matchs terminés : on les garde nous-mêmes
   store.setKey('sched:' + gameId, JSON.stringify({ t: Date.now(), m })).catch(() => {});
   return m;
+}
+// Historique : les matchs vus une fois restent (année >= START_YEAR) ; un match disparu de la source est considéré terminé.
+async function withHistory(gameId, fresh) {
+  let old = [];
+  try { const r = await store.getKey('hist:' + gameId); if (r) old = JSON.parse(r); } catch { /* pas d'historique */ }
+  const now = Date.now(), by = new Map();
+  for (const o of old) if (o && o.raw && o.year >= START_YEAR) by.set(o.raw, o.state === 'done' || now - o.startTime > 12 * 3600e3 ? { ...o, state: 'done' } : o);
+  for (const f of fresh) by.set(f.raw, f);
+  const all = [...by.values()].sort((a, b) => a.startTime - b.startTime).slice(-2500);
+  store.setKey('hist:' + gameId, JSON.stringify(all)).catch(() => {});
+  return all;
 }
 async function matchesOf(gameId, SS) {
   if (!games.get(gameId) || !games.get(gameId).ready || SS.feat.games[gameId] === false) return [];
@@ -75,15 +87,15 @@ function imgUrl(origin, m, cfg, kind, fav) {
   const sc = m.teams.map(t => (t.score == null ? '' : t.score)).join('-');
   return origin + '/img/m/' + encodeURIComponent(model.keyOf(m)) + '.png?k=' + kind + '&s=' + stateTag(m) + '&t=' + Math.floor(m.startTime / 60000).toString(36) + (fav ? '&f=1' : '') + (cfg.score && m.state === 'done' ? '&sp=1&c=' + sc : m.state === 'live' ? '&c=' + sc : '');
 }
-const statusLabel = m => (m.state === 'live' ? '🔴 En direct' : m.state === 'done' ? '📼 Rediffusion' : '🕒 ' + model.fmtDate(m.startTime));
+const statusLabel = m => (m.state === 'live' ? (m.allDay ? '🔴 Aujourd\'hui' : '🔴 En direct') : m.state === 'done' ? '📼 Rediffusion' : '🕒 ' + (m.allDay ? model.fmtDay(m.startTime) : model.fmtDate(m.startTime)));
 
 function matchMeta(m, cfg, origin, favs) {
   const g = games.get(m.game), fav = model.hasTeam(m, favs), [a, b] = model.teamsOf(m);
   return {
     id: 'esp:m:' + model.keyOf(m), type: 'tv', name: (fav ? '⭐ ' : '') + model.matchTitle(m),
     poster: imgUrl(origin, m, cfg, 'poster', fav), posterShape: 'poster', background: imgUrl(origin, m, cfg, 'thumb', fav),
-    description: [`${a.name} contre ${b.name}`, [m.event.name, m.stage, m.bestOf ? 'BO' + m.bestOf : ''].filter(Boolean).join(' · '), model.fmtDate(m.startTime) + ' (heure de Paris)', statusLabel(m), '', 'Ouvre la fiche pour voir les sources : lives Twitch, puis rediffusions.'].join('\n'),
-    releaseInfo: m.state === 'live' ? '🔴 En direct' : model.fmtDate(m.startTime), genres: [g.name],
+    description: [m.solo ? m.event.name : `${a.name} contre ${b.name}`, [m.event.name, m.stage, m.bestOf ? 'BO' + m.bestOf : ''].filter(Boolean).join(' · '), (m.allDay ? model.fmtDay(m.startTime) : model.fmtDate(m.startTime) + ' (heure de Paris)'), statusLabel(m), '', 'Ouvre la fiche pour voir les sources : lives Twitch, puis rediffusions.'].join('\n'),
+    releaseInfo: m.state === 'live' ? '🔴 En direct' : m.allDay ? model.fmtDay(m.startTime) : model.fmtDate(m.startTime), genres: [g.name],
   };
 }
 
@@ -100,8 +112,8 @@ function seriesMeta(gameId, year, matches, cfg, origin, favs, withVideos) {
   for (const s of seasons) s.matches.forEach((mm, i) => {
     const fav = model.hasTeam(mm, favs);
     m.videos.push({
-      id: 'esp:v:' + model.keyOf(mm), title: (fav ? '⭐ ' : '') + [s.event.name, mm.stage].filter(Boolean).join(' · ') + ' · ' + model.matchTitle(mm), season: s.n, episode: i + 1,
-      released: new Date(mm.startTime).toISOString(), thumbnail: imgUrl(origin, mm, cfg, 'thumb', fav), overview: [statusLabel(mm), model.fmtDate(mm.startTime), mm.bestOf ? 'BO' + mm.bestOf : ''].filter(Boolean).join(' · '),
+      id: 'esp:v:' + model.keyOf(mm), title: (fav ? '⭐ ' : '') + (mm.solo ? model.matchTitle(mm) : [s.event.name, mm.stage].filter(Boolean).join(' · ') + ' · ' + model.matchTitle(mm)), season: s.n, episode: i + 1,
+      released: new Date(mm.startTime).toISOString(), thumbnail: imgUrl(origin, mm, cfg, 'thumb', fav), overview: [statusLabel(mm), mm.allDay ? model.fmtDay(mm.startTime) : model.fmtDate(mm.startTime), mm.bestOf ? 'BO' + mm.bestOf : ''].filter(Boolean).join(' · '),
     });
   });
   return m;
@@ -115,7 +127,8 @@ const cut = (t, n) => (String(t).length > n ? String(t).slice(0, n - 1).trimEnd(
 const chansOf = (game, F) => (F && F.channels && F.channels[game]) || channelsDef[game] || [];
 
 async function liveSources(m, cfg, origin, base, F) {
-  const list = chansOf(m.game, F);
+  const list = chansOf(m.game, F).slice();
+  for (const l of m.streams || []) if (!list.some(c => c.login === l)) list.unshift({ login: l, label: l, lang: 'EN', role: 'Officiel' });
   const st = await withTimeout(tw.liveStatuses(list.map(c => c.login)).catch(() => ({})), 3500, {});
   const live = list.map((c, i) => ({ c, i, s: st[c.login] })).filter(x => x.s && x.s.live)
     .sort((a, b) => langRank(cfg, a.c.lang) - langRank(cfg, b.c.lang) || b.s.viewers - a.s.viewers || a.i - b.i);
@@ -305,7 +318,7 @@ async function handler(req, res) {
         if (seg[1] === 'm') { // match : /img/m/<jeu~id>.png?k=poster|thumb
           const key = strip(String(seg[2] || '').replace(/\.png$/, '')), m = await findMatch(key, SS);
           if (!m) return send(res, 404, 'text/plain', 'Match introuvable');
-          const png = await poster.renderMatch(m, games.get(m.game), { kind: q.get('k') === 'thumb' ? 'thumb' : 'poster', fav: q.get('f') === '1', showScore: q.get('sp') === '1' });
+          const png = await (m.solo ? poster.renderEvent : poster.renderMatch)(m, games.get(m.game), { kind: q.get('k') === 'thumb' ? 'thumb' : 'poster', fav: q.get('f') === '1', showScore: q.get('sp') === '1' });
           return send(res, 200, 'image/png', png, { 'Cache-Control': 'public, max-age=' + (m.state === 'done' ? 86400 : 60) + ', s-maxage=' + (m.state === 'done' ? 86400 : 60) });
         }
       } catch (e) { store.log({ k: 'erreur', ou: 'affiche', msg: e.message }); return send(res, 500, 'text/plain', 'Affiche indisponible'); }

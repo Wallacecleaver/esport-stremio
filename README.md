@@ -62,3 +62,16 @@ lib/site.js         réglages du site        lib/admin.js + pages/   dashboard e
 - La lecture des lives et des rediffs utilise l'interface interne de Twitch : méthode non officielle, qui peut cesser de fonctionner.
 - Twitch supprime les rediffs après un certain temps (7 à 60 jours selon les chaînes) : au-delà, un match terminé n'a plus de rediffusion.
 - Les sources de données (lolesports, Twitch) n'ont pas pu être jointes depuis l'environnement de développement : le diagnostic `/admin` → « Diagnostic » dit ce que Vercel atteint vraiment.
+
+## Jeux branchés
+
+| Jeu | Source | Saisons (dans Stremio) | Remarques |
+|---|---|---|---|
+| League of Legends | lolesports.com (Worlds, MSI, First Stand, LCK…) | un événement = une saison | rediffs officielles Twitch |
+| LEC | lolesports.com | un split (Hiver, Printemps, Été) = une saison | catalogue « LEC <année> » à part |
+| Valorant | Liquipedia (matchs à venir / en cours / récents) | un événement = une saison | Liquipedia ne garde que peu de matchs terminés : le serveur garde l'historique à partir du moment où il tourne (Upstash obligatoire) |
+| Fortnite | Liquipedia (liste des tournois) | un événement = une saison, une journée = un épisode | pas d'« équipe contre équipe » : affiche avec le logo de l'événement, horaires à la journée |
+
+Les chaînes Twitch de chaque jeu (lives et rediffs) se modifient dans le dashboard : **Réglages › Chaînes Twitch par jeu**. Format d'une ligne : `pseudo | nom affiché | FR ou EN | Officiel ou Co-stream`.
+
+⚠️ Les lectures Liquipedia (Valorant, Fortnite) ont été écrites d'après la structure connue des pages mais n'ont pas pu être testées sur les vraies pages : lance **Diagnostic** dans /admin après le déploiement.

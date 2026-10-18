@@ -37,6 +37,17 @@ const MASTER = id => '#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=6000000,RESOLUTION=19
 const MEDIA = n => '#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:10\n#EXT-X-MEDIA-SEQUENCE:0\n#EXT-X-PLAYLIST-TYPE:VOD\n' + Array.from({ length: n }, (_, i) => '#EXTINF:10.000,\n' + i + '-unmuted.ts').join('\n') + '\n#EXT-X-ENDLIST\n';
 const LIVE_MASTER = '#EXTM3U\n#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="chunked",NAME="1080p60 (source)"\n#EXT-X-STREAM-INF:BANDWIDTH=8000000,RESOLUTION=1920x1080,FRAME-RATE=60.000,VIDEO="chunked"\nhttps://relay-cdn.test/riot/1080.m3u8\n#EXT-X-STREAM-INF:BANDWIDTH=1400000,RESOLUTION=854x480,FRAME-RATE=30.000,VIDEO="480p30"\nhttps://relay-cdn.test/riot/480.m3u8\n';
 
+const side = (cls, code, name, extra = '') => '<td class="' + cls + '"><span class="team-template-team-standard"><span class="team-template-image-icon"><a href="/valorant/' + name + '"><img src="/commons/images/' + code + '.png" srcset="/commons/images/' + code + '.png 1x, /commons/images/' + code + '_2x.png 2x"></a></span><span class="team-template-text"><a href="/valorant/' + name + '" title="' + name + '">' + code + '</a></span></span></td>';
+const vm = (ts, L, R, score, bo, ev, concl, tw) => '<table class="infobox_matches_content"><tbody><tr>' + side(concl ? 'team-left recent-matches-left' : 'team-left', ...L) + '<td class="versus"><div>' + score + '</div><abbr title="Best of ' + bo + '">Bo' + bo + '</abbr></td>' + side(concl ? 'team-right recent-matches-right' : 'team-right', ...R) + '</tr><tr><td class="match-filler" colspan="3"><div><span class="timer-object" data-timestamp="' + Math.floor(ts / 1000) + '"' + (tw ? ' data-stream-twitch="' + tw + '"' : '') + '></span><div class="league-icon-small-image"><a href="/valorant/x" title="' + ev + '"><img src="/commons/images/ev.png"></a></div></div></td></tr></tbody></table>';
+const VAL_HTML = [
+  vm(NOW - 30 * H, ['G2', 'G2 Esports'], ['NRG', 'NRG'], '2:0', 3, 'VCT 2026: Masters Test', true),
+  vm(NOW - 1 * H, ['FNC', 'Fnatic'], ['KC', 'Karmine Corp'], '1:0', 3, 'VCT 2026: Masters Test', false, 'valorant_emea'),
+  vm(NOW + 24 * H, ['TBD', 'TBD'], ['T1', 'T1'], '0:0', 5, 'VCT 2026: Champions Test', false),
+].join('');
+const FN_HTML = '<div class="divTable"><div class="divRow"><div class="divCell Tournament Header"><b>Tournoi</b></div></div>' +
+  '<div class="divRow"><div class="divCell Tournament Name"><a href="/fortnite/FNCS" title="FNCS Test">FNCS Test</a></div><div class="divCell Date">Oct 17, 2026 - Oct 19, 2026</div></div>' +
+  '<div class="divRow"><div class="divCell Tournament Name"><a href="/fortnite/Cup">Cash Cup Test</a></div><div class="divCell Date">Nov 2, 2026</div></div></div>';
+
 const calls = [];
 const realFetch = global.fetch;
 global.fetch = async (url, init = {}) => {
@@ -56,13 +67,14 @@ global.fetch = async (url, init = {}) => {
       ] } } } });
     }
   }
+  if (u.hostname === 'liquipedia.net') return j({ parse: { text: { '*': u.pathname.startsWith('/valorant') ? VAL_HTML : FN_HTML } } });
   if (u.hostname === 'logos.test') return new Response(await png(), { status: 200, headers: { 'content-type': 'image/png' } });
   if (u.hostname === 'gql.twitch.tv') {
     const b = JSON.parse(init.body || '{}'), q = String(b.query || '');
     if (/u0: user/.test(q)) {
       const logins = [...q.matchAll(/u(\d+): user\(login: "([^"]+)"/g)];
       const data = {};
-      for (const [, i, l] of logins) data['u' + i] = { login: l, displayName: l === 'riotgames' ? 'Riot Games' : l, profileImageURL: '', stream: l === 'riotgames' || l === 'otplol_' ? { id: '1', title: 'Worlds', viewersCount: l === 'riotgames' ? 120000 : 40000, game: { displayName: 'League of Legends' } } : null };
+      for (const [, i, l] of logins) data['u' + i] = { login: l, displayName: l === 'riotgames' ? 'Riot Games' : l, profileImageURL: '', stream: l === 'riotgames' || l === 'otplol_' || l === 'valorant_emea' ? { id: '1', title: 'Worlds', viewersCount: l === 'riotgames' ? 120000 : 40000, game: { displayName: 'League of Legends' } } : null };
       return j({ data });
     }
     if (/video\(id: "(\d+)"\) \{ id createdAt/.test(q)) { const id = /video\(id: "(\d+)"\)/.exec(q)[1]; return j({ data: { video: { id, createdAt: iso(NOW - 3 * 24 * H), lengthSeconds: 9000, owner: { login: id.startsWith('1') ? 'otplol_' : 'riotgames', displayName: id.startsWith('1') ? 'OTP' : 'Riot Games' } } } }); }
@@ -110,8 +122,8 @@ test('manifeste : un catalogue par jeu et par année, ⭐ seulement avec une éq
   assert.ok(r.body.catalogs.some(c => c.id === 'esport-fav'));
   assert.equal(r.body.catalogs.find(c => c.id === 'esport-lol-2026').type, 'series');
   // un jeu pas encore branché est ignoré
-  r = await get(cfgUrl({ games: ['valorant'] }) + '/manifest.json');
-  assert.ok(!r.body.catalogs.some(c => c.id.includes('valorant')));
+  r = await get(cfgUrl({ games: ['rocketleague'] }) + '/manifest.json');
+  assert.ok(!r.body.catalogs.some(c => c.id.includes('rocketleague')));
 });
 
 test('catalogue en direct & à venir : en cours d\'abord, étoile sur l\'équipe favorite, affiche servie', async () => {
@@ -249,4 +261,30 @@ test('LEC : catalogue à part, saisons = splits, absent du catalogue LoL', async
   assert.match(s.videos[0].id, /^esp:v:lec~l1$/);
   const lol = (await get(cfg + '/meta/series/esp:s:lol:2026.json')).body.meta;
   assert.ok(!lol.videos.some(v => /LEC/.test(v.title)));
+});
+
+test('Valorant : matchs lus sur Liquipedia, saisons = événements, live Twitch indiqué par la source', async () => {
+  const cfg = cfgUrl({ games: ['valorant'], teams: { valorant: ['KC'] }, lang: 'FR' });
+  const s = (await get(cfg + '/meta/series/esp:s:valorant:2026.json')).body.meta;
+  assert.equal(s.name, 'Valorant 2026');
+  assert.deepEqual([...new Set(s.videos.map(v => v.season))], [1, 2]);
+  assert.match(s.videos[0].title, /VCT 2026: Masters Test/);
+  assert.equal(s.videos.length, 3);
+  const live = s.videos.find(v => /FNC vs KC/.test(v.title));
+  assert.match(live.title, /^⭐/);
+  const st = (await get(cfg + '/stream/tv/' + encodeURIComponent(live.id) + '.json')).body.streams;
+  assert.ok(st.some(x => /valorant_emea/.test(x.url)), JSON.stringify(st));
+  const img = await get('/img/m/' + encodeURIComponent(live.id.replace('esp:v:', '')) + '.png?k=poster');
+  assert.equal(img.r.status, 200);
+});
+
+test('Fortnite : une journée = un épisode, affiche sans équipes', async () => {
+  const cfg = cfgUrl({ games: ['fortnite'] });
+  const s = (await get(cfg + '/meta/series/esp:s:fortnite:2026.json')).body.meta;
+  assert.equal(s.videos.length, 4); // 3 jours + 1
+  assert.equal(s.videos[0].title, 'FNCS Test · Jour 1/3');
+  const key = s.videos[0].id.replace('esp:v:', '');
+  for (const k of ['poster', 'thumb']) { const img = await get('/img/m/' + encodeURIComponent(key) + '.png?k=' + k); assert.equal(img.r.status, 200); assert.match(img.r.headers.get('content-type'), /png/); }
+  const live = (await get(cfg + '/catalog/tv/esport-live.json')).body.metas;
+  assert.ok(live.length >= 1);
 });
