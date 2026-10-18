@@ -112,8 +112,10 @@ const langRank = (cfg, lang) => (cfg.lang === 'all' ? 0 : lang === cfg.lang ? 0 
 const fmtN = n => (n >= 1e6 ? (n / 1e6).toFixed(1).replace('.', ',') + ' M' : n >= 1000 ? (n / 1e3).toFixed(n >= 1e5 ? 0 : 1).replace('.', ',') + ' k' : String(n));
 const cut = (t, n) => (String(t).length > n ? String(t).slice(0, n - 1).trimEnd() + '…' : String(t));
 
-async function liveSources(m, cfg, origin, base) {
-  const list = channelsDef[m.game] || [];
+const chansOf = (game, F) => (F && F.channels && F.channels[game]) || channelsDef[game] || [];
+
+async function liveSources(m, cfg, origin, base, F) {
+  const list = chansOf(m.game, F);
   const st = await withTimeout(tw.liveStatuses(list.map(c => c.login)).catch(() => ({})), 3500, {});
   const live = list.map((c, i) => ({ c, i, s: st[c.login] })).filter(x => x.s && x.s.live)
     .sort((a, b) => langRank(cfg, a.c.lang) - langRank(cfg, b.c.lang) || b.s.viewers - a.s.viewers || a.i - b.i);
@@ -124,7 +126,7 @@ async function liveSources(m, cfg, origin, base) {
   }));
 }
 
-async function replaySources(m, cfg, origin, base) {
+async function replaySources(m, cfg, origin, base, F) {
   const g = games.mod(m.game), out = [], used = new Set();
   const entry = (label, lang, parts, official) => ({
     name: label + '\n' + lang, title: ['📼 Rediffusion · ' + lang, official ? '✅ Flux officiel' : '📺 Chaîne du streamer', '⏱ Match complet'].join('\n'),
@@ -143,7 +145,7 @@ async function replaySources(m, cfg, origin, base) {
   }
   // chaînes sans vidéo officielle : on retrouve le match dans leurs rediffs à partir de l'heure
   const span = replay.spanOf(m);
-  const extra = (channelsDef[m.game] || []).filter(c => !used.has(c.login));
+  const extra = chansOf(m.game, F).filter(c => !used.has(c.login));
   const found = await withTimeout(Promise.all(extra.map(async c => ({ c, parts: await replay.archiveParts(c.login, span).catch(() => []) }))), 6500, []);
   for (const { c, parts } of found) if (parts.length) out.push(entry(c.label, c.lang, parts, false));
   return out.sort((a, b) => langRank(cfg, a._lang) - langRank(cfg, b._lang) || (a.title.includes('officiel') ? 0 : 1) - (b.title.includes('officiel') ? 0 : 1)).map(({ _lang, ...s }) => s);
@@ -153,8 +155,8 @@ async function streamsFor(m, cfg, origin, base, F) {
   const info = (title, name = 'Esport') => ({ name, title, externalUrl: origin + '/config' });
   let live = [], reps = [];
   // lives : pendant le match, ou dans les 45 min avant (avant-match) ; un match lointain n'affiche pas les lives d'un autre match
-  if (m.state === 'live' || (m.state === 'upcoming' && m.startTime - Date.now() < 45 * 60e3)) live = await liveSources(m, cfg, origin, base);
-  if (m.state === 'done') reps = await replaySources(m, cfg, origin, base);
+  if (m.state === 'live' || (m.state === 'upcoming' && m.startTime - Date.now() < 45 * 60e3)) live = await liveSources(m, cfg, origin, base, F);
+  if (m.state === 'done') reps = await replaySources(m, cfg, origin, base, F);
   if (live.length || reps.length) return [...live, ...reps];
   if (m.state === 'done') return [info('📼 Rediffusion pas\nencore disponible\n(le live vient de\nse terminer ?)', '⏳ Bientôt')];
   if (m.state === 'live') return [info('Aucune chaîne en\ndirect pour ce match\nréessaie dans\nquelques minutes', '🔴 Live')];
@@ -241,7 +243,7 @@ async function checkSources(SS) {
 const adminRoute = makeAdmin({
   send, json,
   sources: async () => checkSources(await siteLib.load(true)),
-  extra: async () => ({ games: games.list().map(g => ({ id: g.id, name: g.name, ready: g.ready })) }),
+  extra: async () => ({ games: games.list().map(g => ({ id: g.id, name: g.name, ready: g.ready })), chanDef: channelsDef }),
 });
 
 async function handler(req, res) {

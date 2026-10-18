@@ -21,6 +21,12 @@ const SCHEDULES = {
     ev('m1', 'completed', Date.UTC(2026, 4, 20, 17), ['G2', 'G2', 3, 'win'], ['Karmine Corp', 'KC', 2, 'loss'], 'Finale', { name: 'MSI', slug: 'msi' }),
   ],
 };
+SCHEDULES['98767991302996019'] = [ // LEC : deux splits
+  ev('l1', 'completed', Date.UTC(2026, 0, 20, 17), ['G2 Esports', 'G2'], ['Fnatic', 'FNC', 1, 'loss'], 'Semaine 1', { name: 'LEC', slug: 'lec' }),
+  ev('l2', 'completed', Date.UTC(2026, 3, 8, 17), ['Karmine Corp', 'KC', 2, 'win'], ['Fnatic', 'FNC', 0, 'loss'], 'Semaine 1', { name: 'LEC', slug: 'lec' }),
+  ev('l3', 'unstarted', NOW + 24 * H, ['Karmine Corp', 'KC'], ['G2 Esports', 'G2'], 'Semaine 2', { name: 'LEC', slug: 'lec' }),
+];
+const TOURNAMENTS = [{ id: 't1', slug: 'lec_winter_2026', startDate: '2026-01-15', endDate: '2026-03-10' }, { id: 't2', slug: 'lec_spring_2026', startDate: '2026-04-01', endDate: '2026-05-20' }];
 const LEAGUES = [{ id: '98767975604431411', slug: 'worlds', name: 'Worlds' }, { id: '98767991325878492', slug: 'msi', name: 'MSI' }, { id: '98767991302996019', slug: 'lec', name: 'LEC' }];
 
 const png = () => sharp({ create: { width: 120, height: 120, channels: 4, background: { r: 0, g: 160, b: 255, alpha: 1 } } }).png().toBuffer();
@@ -39,6 +45,7 @@ global.fetch = async (url, init = {}) => {
   if (u.hostname === '127.0.0.1') return realFetch(url, init);
   if (u.hostname === 'esports-api.lolesports.com') {
     if (u.pathname.endsWith('/getLeagues')) return j({ data: { leagues: LEAGUES } });
+    if (u.pathname.endsWith('/getTournamentsForLeague')) return j({ data: { leagues: [{ tournaments: TOURNAMENTS }] } });
     if (u.pathname.endsWith('/getSchedule')) return j({ data: { schedule: { events: SCHEDULES[u.searchParams.get('leagueId')] || [], pages: {} } } });
     if (u.pathname.endsWith('/getEventDetails')) {
       const id = u.searchParams.get('id');
@@ -211,8 +218,8 @@ test('profil : création, mot de passe, lecture (Upstash simulé en mémoire)', 
 
 test('API équipes et jeux pour la page de configuration', async () => {
   const g = await get('/api/games');
-  assert.deepEqual(g.body.games.filter(x => x.ready).map(x => x.id), ['lol']);
-  assert.equal(g.body.games.length, 5);
+  assert.deepEqual(g.body.games.filter(x => x.ready).map(x => x.id).slice(0, 2), ['lol', 'lec']);
+  assert.equal(g.body.games.length, 6);
   const t = await get('/api/teams?game=lol');
   assert.ok(t.body.teams.some(x => x.code === 'KC'));
   const page = await get('/config');
@@ -229,4 +236,17 @@ test('icône de l\'addon', async () => {
   const r = await get('/logo.png');
   assert.equal(r.r.status, 200);
   assert.equal((await sharp(r.body).metadata()).width, 512);
+});
+
+test('LEC : catalogue à part, saisons = splits, absent du catalogue LoL', async () => {
+  const cfg = cfgUrl({ games: ['lol', 'lec'], lang: 'FR' });
+  const m = (await get(cfg + '/manifest.json')).body;
+  assert.ok(m.catalogs.some(c => c.id === 'esport-lec-2026' && c.name === 'LEC 2026'));
+  const s = (await get(cfg + '/meta/series/esp:s:lec:2026.json')).body.meta;
+  assert.deepEqual([...new Set(s.videos.map(v => v.season))], [1, 2]);
+  assert.match(s.videos[0].title, /LEC Hiver 2026/);
+  assert.match(s.videos[1].title, /LEC Printemps 2026/);
+  assert.match(s.videos[0].id, /^esp:v:lec~l1$/);
+  const lol = (await get(cfg + '/meta/series/esp:s:lol:2026.json')).body.meta;
+  assert.ok(!lol.videos.some(v => /LEC/.test(v.title)));
 });
