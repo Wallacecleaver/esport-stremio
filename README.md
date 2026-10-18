@@ -71,7 +71,7 @@ lib/site.js         réglages du site        lib/admin.js + pages/   dashboard e
 | LEC | lolesports.com | un split (Hiver, Printemps, Été) = une saison | catalogue « LEC <année> » à part |
 | Valorant | valorantesports.com (officiel), Liquipedia en repli | un championnat = une saison | par défaut : VCT, Game Changers, Masters, Champions, EWC (mots-clés réglables) |
 | Rocket League | Liquipedia | un événement = une saison | le serveur garde l'historique des matchs vus (Upstash obligatoire) |
-| Fortnite | Liquipedia (liste des tournois) | un événement = une saison, une journée = un épisode | pas d'« équipe contre équipe » : affiche avec le logo de l'événement, horaires à la journée |
+| Fortnite | API publique Osirion (sans clé), Liquipedia en repli | un tournoi = une saison, une session = un épisode | pas d'« équipe contre équipe » : affiche avec le visuel du tournoi ; régions réglables (EU par défaut) |
 
 Les chaînes Twitch de chaque jeu (lives et rediffs) se modifient dans le dashboard : **Réglages › Chaînes Twitch par jeu**. Format d'une ligne : `pseudo | nom affiché | FR ou EN | Officiel ou Co-stream`.
 

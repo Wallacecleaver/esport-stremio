@@ -78,6 +78,13 @@ global.fetch = async (url, init = {}) => {
     if (u.pathname.endsWith('/getLeagues')) return j({ data: { leagues: [{ id: 'v1', slug: 'vct_emea', name: 'VCT EMEA' }, { id: 'v2', slug: 'champions', name: 'Champions' }] } });
     if (u.pathname.endsWith('/getSchedule')) return j({ data: { schedule: { events: u.searchParams.get('leagueId') === 'v1' ? [ev('vv1', 'completed', Date.UTC(2026, 3, 2, 18), ['Fnatic', 'FNC', 2, 'win'], ['Team Heretics', 'TH', 0, 'loss'], 'Semaine 1', { name: 'VCT EMEA', slug: 'vct_emea' })] : [], pages: {} } } });
   }
+  if (u.hostname === 'fnapi.osirion.gg') {
+    if (!globalThis.__fnOfficial) return t('off', 599);
+    assert.equal(u.pathname, '/v1/tournaments');
+    return j({ success: true, region: u.searchParams.get('region'), tournaments: [{ eventId: 'epicgames_Cup1', eventGroup: 'cup', regions: ['EU'], platforms: [], metadata: {},
+      displayData: { tournamentDisplayId: 'cup', longFormatTitle: 'Duos Ranked Cup', squarePosterImage: 'http://logos.test/FN.png', roundNames: ['Session 1', 'Finale'] },
+      eventWindows: [{ eventWindowId: 'w-b', round: 2, beginTime: iso(NOW + 26 * H), endTime: iso(NOW + 29 * H) }, { eventWindowId: 'w-a', round: 1, beginTime: iso(NOW - 1 * H), endTime: iso(NOW + 2 * H) }] }] });
+  }
   if (u.hostname === 'liquipedia.net') return j({ parse: { text: { '*': u.pathname.startsWith('/valorant') ? VAL_HTML : u.pathname.startsWith('/rocketleague') ? RL_HTML(NOW - 30 * H, 'KC', 'G2', [3, 1], 7, 'RLCS 2026: Test', 0) + RL_HTML(NOW + 24 * H, 'FAZE', 'NRG', [0, 0], 5, 'RLCS 2026: Test') : FN_HTML } } });
   if (u.hostname === 'logos.test') return new Response(await png(), { status: 200, headers: { 'content-type': 'image/png' } });
   if (u.hostname === 'gql.twitch.tv') {
@@ -328,4 +335,17 @@ test('Rocket League : matchs Liquipedia (nouvelle mise en page), saison = évén
   assert.match(s.videos[0].title, /^⭐ RLCS 2026: Test · KC vs G2/);
   const t = await get('/api/teams?game=rocketleague');
   assert.ok(t.body.teams.some(x => x.code === 'KC'));
+});
+
+test('Fortnite : API Osirion (sessions avec heures précises), affiche sans équipes', async () => {
+  globalThis.__fnOfficial = true;
+  try {
+    const l = await require('../lib/games/fortnite').official({ regions: ['EU'], now: NOW });
+    assert.equal(l.length, 2);
+    assert.deepEqual(l.map(m => [m.event.name, m.stage, m.state]), [['Duos Ranked Cup', 'Session 1', 'live'], ['Duos Ranked Cup', 'Finale', 'upcoming']]);
+    assert.ok(!l[0].allDay && l[0].solo);
+    const { renderEvent } = require('../lib/poster');
+    const png = await renderEvent(l[0], { name: 'Fortnite', color: '#a855f7' }, { kind: 'poster' });
+    assert.ok(png.length > 5000);
+  } finally { globalThis.__fnOfficial = false; }
 });

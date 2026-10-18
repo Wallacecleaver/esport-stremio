@@ -51,7 +51,7 @@ async function fetchSchedule(gameId, SS) {
     const raw = await store.getKey('sched:' + gameId);
     if (raw) { const o = JSON.parse(raw); if (o && Date.now() - o.t < SCHEDULE_TTL - 30e3 && Array.isArray(o.m)) return o.m; }
   } catch { /* pas de copie partagée : on interroge la source */ }
-  let m = await g.matches({ leagues: SS.feat.leagues, valKeywords: SS.feat.valKeywords });
+  let m = await g.matches({ leagues: SS.feat.leagues, valKeywords: SS.feat.valKeywords, fnRegions: SS.feat.fnRegions });
   if (g.accumulate) m = await withHistory(gameId, m); // la source ne garde que peu de matchs terminés : on les garde nous-mêmes
   store.setKey('sched:' + gameId, JSON.stringify({ t: Date.now(), m })).catch(() => {});
   return m;
@@ -251,9 +251,10 @@ async function checkSources(SS) {
   const lp = require('./lib/liquipedia');
   out.valorant_officiel = await timed(async () => { const l = await games.mod('valorant').official(); return { matchs: l.length, evenements: [...new Set(l.map(m => m.event.name))].length }; });
   out.liquipedia_valorant = await Promise.all(['Liquipedia:Upcoming_and_ongoing_matches', 'Liquipedia:Matches', 'Matches'].map(t => lp.inspect('valorant', t)));
+  out.fortnite_osirion = await timed(async () => { const l = await games.mod('fortnite').official({ regions: SS.feat.fnRegions }); return { sessions: l.length, tournois: [...new Set(l.map(m => m.event.name))].length }; });
   out.liquipedia_rocketleague = await Promise.all(['Liquipedia:Matches'].map(t => lp.inspect('rocketleague', t)));
   out.liquipedia_fortnite = await Promise.all(['Portal:Tournaments', 'Tournaments'].map(t => lp.inspect('fortnite', t)));
-  for (const g of games.readyIds()) out[g] = await timed(async () => { const list = await games.mod(g).matches({ leagues: SS.feat.leagues, valKeywords: SS.feat.valKeywords }); return { matchs: list.length, evenements: [...new Set(list.map(m => m.event.name))].length }; });
+  for (const g of games.readyIds()) out[g] = await timed(async () => { const list = await games.mod(g).matches({ leagues: SS.feat.leagues, valKeywords: SS.feat.valKeywords, fnRegions: SS.feat.fnRegions }); return { matchs: list.length, evenements: [...new Set(list.map(m => m.event.name))].length }; });
   return out;
 }
 
