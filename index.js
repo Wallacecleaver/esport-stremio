@@ -249,6 +249,7 @@ async function checkSources(SS) {
   const out = { stockage: store.persistent, affiches: poster.available() };
   out.twitch = await timed(async () => { const r = await tw.liveStatuses(['riotgames']); return { riotgames: r.riotgames && r.riotgames.live ? 'en direct' : 'hors ligne' }; });
   const lp = require('./lib/liquipedia');
+  out.valorant_officiel = await timed(async () => { const l = await games.mod('valorant').official(); return { matchs: l.length, evenements: [...new Set(l.map(m => m.event.name))].length }; });
   out.liquipedia_valorant = await Promise.all(['Liquipedia:Upcoming_and_ongoing_matches', 'Liquipedia:Matches', 'Matches'].map(t => lp.inspect('valorant', t)));
   out.liquipedia_fortnite = await Promise.all(['Portal:Tournaments', 'Tournaments'].map(t => lp.inspect('fortnite', t)));
   for (const g of games.readyIds()) out[g] = await timed(async () => { const list = await games.mod(g).matches({ leagues: SS.feat.leagues }); return { matchs: list.length, evenements: [...new Set(list.map(m => m.event.name))].length }; });

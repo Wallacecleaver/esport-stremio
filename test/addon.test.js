@@ -67,6 +67,12 @@ global.fetch = async (url, init = {}) => {
       ] } } } });
     }
   }
+  if (u.hostname === 'esports-api.service.valorantesports.com') {
+    if (!globalThis.__valOfficial) return t('off', 599);
+    assert.equal(u.searchParams.get('sport'), 'val');
+    if (u.pathname.endsWith('/getLeagues')) return j({ data: { leagues: [{ id: 'v1', slug: 'vct_emea', name: 'VCT EMEA' }, { id: 'v2', slug: 'champions', name: 'Champions' }] } });
+    if (u.pathname.endsWith('/getSchedule')) return j({ data: { schedule: { events: u.searchParams.get('leagueId') === 'v1' ? [ev('vv1', 'completed', Date.UTC(2026, 3, 2, 18), ['Fnatic', 'FNC', 2, 'win'], ['Team Heretics', 'TH', 0, 'loss'], 'Semaine 1', { name: 'VCT EMEA', slug: 'vct_emea' })] : [], pages: {} } } });
+  }
   if (u.hostname === 'liquipedia.net') return j({ parse: { text: { '*': u.pathname.startsWith('/valorant') ? VAL_HTML : FN_HTML } } });
   if (u.hostname === 'logos.test') return new Response(await png(), { status: 200, headers: { 'content-type': 'image/png' } });
   if (u.hostname === 'gql.twitch.tv') {
@@ -287,4 +293,15 @@ test('Fortnite : une journée = un épisode, affiche sans équipes', async () =>
   for (const k of ['poster', 'thumb']) { const img = await get('/img/m/' + encodeURIComponent(key) + '.png?k=' + k); assert.equal(img.r.status, 200); assert.match(img.r.headers.get('content-type'), /png/); }
   const live = (await get(cfg + '/catalog/tv/esport-live.json')).body.metas;
   assert.ok(live.length >= 1);
+});
+
+test('Valorant : source officielle valorantesports.com (sport = val), toutes les ligues', async () => {
+  globalThis.__valOfficial = true;
+  try {
+    const l = await require('../lib/games/valorant').official();
+    assert.equal(l.length, 1);
+    assert.equal(l[0].game, 'valorant');
+    assert.equal(l[0].event.name, 'VCT EMEA 2026');
+    assert.equal(l[0].id, 'valorant~vv1');
+  } finally { globalThis.__valOfficial = false; }
 });
