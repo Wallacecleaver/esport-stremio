@@ -98,7 +98,7 @@ $('#saveS').onclick=async()=>{
     feat:{games,channels,leagues:$('#s-leagues').value.split(',').map(x=>x.trim()).filter(Boolean),upcoming:Number($('#s-up').value),past:Number($('#s-past').value),years:$('#s-years').checked,maint:$('#s-maint').checked,maintMsg:$('#s-mmsg').value,logs:$('#s-logs').checked,offRelays:$('#s-off').value.split('\n').map(x=>x.trim()).filter(Boolean)}});
   $('#savedS').textContent=r.ok?'Enregistré ✓':(r.error||'Erreur');if(r.ok){S.site=r.site;setTimeout(()=>$('#savedS').textContent='',2500)}
 };
-$('#runDiag').onclick=async()=>{$('#diag').textContent='Test en cours…';const r=await api('sources');$('#diag').textContent=Object.entries(r).map(([k,v])=>typeof v==='object'?`${v.ok?'✅':'❌'} ${k} — ${v.ms} ms ${v.ok?JSON.stringify({...v,ok:undefined,ms:undefined}):v.err}`:`${v?'✅':'❌'} ${k}`).join('\n')};
+$('#runDiag').onclick=async()=>{$('#diag').textContent='Test en cours…';const r=await api('sources');$('#diag').textContent=Object.entries(r).map(([k,v])=>Array.isArray(v)?`ℹ️ ${k}\n${v.map(x=>'   '+JSON.stringify(x)).join('\n')}`:typeof v==='object'?`${v.ok?'✅':'❌'} ${k} — ${v.ms} ms ${v.ok?JSON.stringify({...v,ok:undefined,ms:undefined}):v.err}`:`${v?'✅':'❌'} ${k}`).join('\n')};
 async function load(){if(paused&&S)return;try{S=await api('state?n=300');render()}catch{}}
 load();setInterval(load,8000);
 </script></body></html>
