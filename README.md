@@ -67,9 +67,10 @@ lib/site.js         réglages du site        lib/admin.js + pages/   dashboard e
 
 | Jeu | Source | Saisons (dans Stremio) | Remarques |
 |---|---|---|---|
-| League of Legends | lolesports.com (Worlds, MSI, First Stand, LCK…) | un événement = une saison | rediffs officielles Twitch |
+| League of Legends | lolesports.com (par défaut Worlds et Esports World Cup, réglable) | un événement = une saison | rediffs officielles Twitch |
 | LEC | lolesports.com | un split (Hiver, Printemps, Été) = une saison | catalogue « LEC <année> » à part |
-| Valorant | Liquipedia (matchs à venir / en cours / récents) | un événement = une saison | Liquipedia ne garde que peu de matchs terminés : le serveur garde l'historique à partir du moment où il tourne (Upstash obligatoire) |
+| Valorant | valorantesports.com (officiel), Liquipedia en repli | un championnat = une saison | par défaut : VCT, Game Changers, Masters, Champions, EWC (mots-clés réglables) |
+| Rocket League | Liquipedia | un événement = une saison | le serveur garde l'historique des matchs vus (Upstash obligatoire) |
 | Fortnite | Liquipedia (liste des tournois) | un événement = une saison, une journée = un épisode | pas d'« équipe contre équipe » : affiche avec le logo de l'événement, horaires à la journée |
 
 Les chaînes Twitch de chaque jeu (lives et rediffs) se modifient dans le dashboard : **Réglages › Chaînes Twitch par jeu**. Format d'une ligne : `pseudo | nom affiché | FR ou EN | Officiel ou Co-stream`.

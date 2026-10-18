@@ -17,8 +17,8 @@ const SCHEDULES = {
     ev('w2', 'inProgress', NOW - 0.5 * H, ['Karmine Corp', 'KC', 1, null], ['MVK', 'MVK', 0, null], 'Demi-finale'),
     ev('w3', 'unstarted', NOW + 2 * 24 * H, ['T1', 'T1'], ['Gen.G', 'GEN'], 'Finale'),
   ],
-  '98767991325878492': [ // MSI, plus tôt dans l'année
-    ev('m1', 'completed', Date.UTC(2026, 4, 20, 17), ['G2', 'G2', 3, 'win'], ['Karmine Corp', 'KC', 2, 'loss'], 'Finale', { name: 'MSI', slug: 'msi' }),
+  '98767991325878492': [ // EWC (retrouvé par l'alias « ewc »), plus tôt dans l'année
+    ev('m1', 'completed', Date.UTC(2026, 4, 20, 17), ['G2', 'G2', 3, 'win'], ['Karmine Corp', 'KC', 2, 'loss'], 'Finale', { name: 'Esports World Cup', slug: 'esports_world_cup' }),
   ],
 };
 SCHEDULES['98767991302996019'] = [ // LEC : deux splits
@@ -27,7 +27,7 @@ SCHEDULES['98767991302996019'] = [ // LEC : deux splits
   ev('l3', 'unstarted', NOW + 24 * H, ['Karmine Corp', 'KC'], ['G2 Esports', 'G2'], 'Semaine 2', { name: 'LEC', slug: 'lec' }),
 ];
 const TOURNAMENTS = [{ id: 't1', slug: 'lec_winter_2026', startDate: '2026-01-15', endDate: '2026-03-10' }, { id: 't2', slug: 'lec_spring_2026', startDate: '2026-04-01', endDate: '2026-05-20' }];
-const LEAGUES = [{ id: '98767975604431411', slug: 'worlds', name: 'Worlds' }, { id: '98767991325878492', slug: 'msi', name: 'MSI' }, { id: '98767991302996019', slug: 'lec', name: 'LEC' }];
+const LEAGUES = [{ id: '98767975604431411', slug: 'worlds', name: 'Worlds' }, { id: '98767991325878492', slug: 'esports_world_cup', name: 'Esports World Cup' }, { id: '98767991302996019', slug: 'lec', name: 'LEC' }];
 
 const png = () => sharp({ create: { width: 120, height: 120, channels: 4, background: { r: 0, g: 160, b: 255, alpha: 1 } } }).png().toBuffer();
 const j = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { 'content-type': 'application/json' } });
@@ -44,6 +44,11 @@ const VAL_HTML = [
   vm(NOW - 1 * H, ['FNC', 'Fnatic'], ['KC', 'Karmine Corp'], '1:0', 3, 'VCT 2026: Masters Test', false, 'valorant_emea'),
   vm(NOW + 24 * H, ['TBD', 'TBD'], ['T1', 'T1'], '0:0', 5, 'VCT 2026: Champions Test', false),
 ].join('');
+const RL_HTML = (ts, L, R, sc, bo, ev, win) => '<div class="match-info"><div class="match-info-countdown"><span class="timer-object" data-timestamp="' + Math.floor(ts / 1000) + '" data-stream-twitch="rocketleague"></span></div><div class="match-info-header">' +
+  '<div class="match-info-header-opponent match-info-header-opponent-left' + (win === 0 ? ' match-info-header-winner' : '') + '"><div class="block-team"><span class="team-template-image-icon"><img src="/commons/images/' + L + '.png"></span><span class="name"><a title="' + L + ' Team">' + L + '</a></span></div></div>' +
+  '<div class="match-info-header-scoreholder"><div class="match-info-header-scoreholder-upper"><span class="match-info-header-scoreholder-score">' + sc[0] + '</span>:<span class="match-info-header-scoreholder-score">' + sc[1] + '</span></div><div class="match-info-header-scoreholder-lower">(Bo' + bo + ')</div></div>' +
+  '<div class="match-info-header-opponent' + (win === 1 ? ' match-info-header-winner' : '') + '"><div class="block-team"><span class="team-template-image-icon"><img src="/commons/images/' + R + '.png"></span><span class="name"><a title="' + R + ' Team">' + R + '</a></span></div></div></div>' +
+  '<div class="match-info-tournament"><a title="' + ev + '">' + ev + '</a></div></div>';
 const FN_HTML = '<div class="divTable"><div class="divRow"><div class="divCell Tournament Header"><b>Tournoi</b></div></div>' +
   '<div class="divRow"><div class="divCell Tournament Name"><a href="/fortnite/FNCS" title="FNCS Test">FNCS Test</a></div><div class="divCell Date">Oct 17, 2026 - Oct 19, 2026</div></div>' +
   '<div class="divRow"><div class="divCell Tournament Name"><a href="/fortnite/Cup">Cash Cup Test</a></div><div class="divCell Date">Nov 2, 2026</div></div></div>';
@@ -73,7 +78,7 @@ global.fetch = async (url, init = {}) => {
     if (u.pathname.endsWith('/getLeagues')) return j({ data: { leagues: [{ id: 'v1', slug: 'vct_emea', name: 'VCT EMEA' }, { id: 'v2', slug: 'champions', name: 'Champions' }] } });
     if (u.pathname.endsWith('/getSchedule')) return j({ data: { schedule: { events: u.searchParams.get('leagueId') === 'v1' ? [ev('vv1', 'completed', Date.UTC(2026, 3, 2, 18), ['Fnatic', 'FNC', 2, 'win'], ['Team Heretics', 'TH', 0, 'loss'], 'Semaine 1', { name: 'VCT EMEA', slug: 'vct_emea' })] : [], pages: {} } } });
   }
-  if (u.hostname === 'liquipedia.net') return j({ parse: { text: { '*': u.pathname.startsWith('/valorant') ? VAL_HTML : FN_HTML } } });
+  if (u.hostname === 'liquipedia.net') return j({ parse: { text: { '*': u.pathname.startsWith('/valorant') ? VAL_HTML : u.pathname.startsWith('/rocketleague') ? RL_HTML(NOW - 30 * H, 'KC', 'G2', [3, 1], 7, 'RLCS 2026: Test', 0) + RL_HTML(NOW + 24 * H, 'FAZE', 'NRG', [0, 0], 5, 'RLCS 2026: Test') : FN_HTML } } });
   if (u.hostname === 'logos.test') return new Response(await png(), { status: 200, headers: { 'content-type': 'image/png' } });
   if (u.hostname === 'gql.twitch.tv') {
     const b = JSON.parse(init.body || '{}'), q = String(b.query || '');
@@ -107,10 +112,10 @@ const cfgUrl = o => '/c/wallace/' + Buffer.from(JSON.stringify(o)).toString('bas
 test('modèle : saisons = événements dans l\'ordre chronologique', async () => {
   const model = require('../lib/model');
   const lol = require('../lib/games/lol');
-  const ms = await lol.matches({ leagues: ['worlds', 'msi'] });
+  const ms = await lol.matches({ leagues: ['worlds', 'ewc'] });
   assert.equal(ms.length, 4);
   const seasons = model.seasonsOf(ms, 2026);
-  assert.deepEqual(seasons.map(s => [s.n, s.event.name]), [[1, 'MSI 2026'], [2, 'Worlds 2026']]);
+  assert.deepEqual(seasons.map(s => [s.n, s.event.name]), [[1, 'Esports World Cup 2026'], [2, 'Worlds 2026']]);
   assert.deepEqual(seasons[1].matches.map(m => m.raw), ['w1', 'w2', 'w3']);
   assert.equal(ms.find(m => m.raw === 'w2').state, 'live');
   assert.equal(ms.find(m => m.raw === 'w1').teams[0].win, true);
@@ -128,8 +133,8 @@ test('manifeste : un catalogue par jeu et par année, ⭐ seulement avec une éq
   assert.ok(r.body.catalogs.some(c => c.id === 'esport-fav'));
   assert.equal(r.body.catalogs.find(c => c.id === 'esport-lol-2026').type, 'series');
   // un jeu pas encore branché est ignoré
-  r = await get(cfgUrl({ games: ['rocketleague'] }) + '/manifest.json');
-  assert.ok(!r.body.catalogs.some(c => c.id.includes('rocketleague')));
+  r = await get(cfgUrl({ games: ['cod'] }) + '/manifest.json');
+  assert.ok(!r.body.catalogs.some(c => c.id.includes('cod')));
 });
 
 test('catalogue en direct & à venir : en cours d\'abord, étoile sur l\'équipe favorite, affiche servie', async () => {
@@ -159,9 +164,9 @@ test('série annuelle : saison = événement, épisode = match, sans score dans 
   const r = await get(cfgUrl({ games: ['lol'], teams: { lol: ['KC'] } }) + '/meta/series/esp:s:lol:2026.json');
   const v = r.body.meta.videos;
   assert.deepEqual(v.map(x => [x.season, x.episode]), [[1, 1], [2, 1], [2, 2], [2, 3]]);
-  assert.match(v[0].title, /^⭐ MSI 2026 · Finale · G2 vs KC$/);
+  assert.match(v[0].title, /^⭐ Esports World Cup 2026 · Finale · G2 vs KC$/);
   assert.ok(!/\d - \d/.test(v.map(x => x.title).join(' ')));
-  assert.match(r.body.meta.description, /Saison 1 : MSI 2026\nSaison 2 : Worlds 2026/);
+  assert.match(r.body.meta.description, /Saison 1 : Esports World Cup 2026\nSaison 2 : Worlds 2026/);
   assert.equal(v[1].id, 'esp:v:lol~w1');
 });
 
@@ -313,4 +318,14 @@ test('Liquipedia : liste de tournois, nouvelle mise en page (table2)', () => {
   assert.equal(l.length, 1);
   assert.equal(l[0].name, 'FNCS Test');
   assert.equal(new Date(l[0].to).getUTCDate(), 19);
+});
+
+test('Rocket League : matchs Liquipedia (nouvelle mise en page), saison = événement', async () => {
+  const cfg = cfgUrl({ games: ['rocketleague'], teams: { rocketleague: ['KC'] } });
+  const s = (await get(cfg + '/meta/series/esp:s:rocketleague:2026.json')).body.meta;
+  assert.equal(s.name, 'Rocket League 2026');
+  assert.equal(s.videos.length, 2);
+  assert.match(s.videos[0].title, /^⭐ RLCS 2026: Test · KC vs G2/);
+  const t = await get('/api/teams?game=rocketleague');
+  assert.ok(t.body.teams.some(x => x.code === 'KC'));
 });

@@ -84,9 +84,9 @@ test('dashboard : connexion, état, réglages du site, inscriptions par code', a
   assert.equal(st.persistent, true);
   assert.ok(st.users.some(u => u.pseudo === 'wallace'));
   assert.ok(st.stats.req > 0);
-  const saved = await (await post('/admin/api/site', { name: 'Esport Crew', code: 'amis2026', feat: { games: { lol: true, rocketleague: true }, upcoming: 10, maint: false } }, { cookie })).json();
+  const saved = await (await post('/admin/api/site', { name: 'Esport Crew', code: 'amis2026', feat: { games: { lol: true, cod: true }, upcoming: 10, maint: false } }, { cookie })).json();
   assert.equal(saved.site.name, 'Esport Crew');
-  assert.equal(saved.site.feat.games.rocketleague, false); // jeu non branché : reste désactivé
+  assert.equal(saved.site.feat.games.cod, false); // jeu non branché : reste désactivé
   assert.equal(saved.site.feat.upcoming, 10);
   // code d'invitation exigé pour un nouveau profil
   let p = await (await post('/api/profile', { pseudo: 'ami', newPassword: 'secret2', cfg: {} })).json();
