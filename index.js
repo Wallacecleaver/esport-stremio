@@ -114,7 +114,7 @@ const adminRoute = makeAdmin({
     const ms = data ? data.matches : [], by = k => ms.filter(m => m.state === k).length;
     const comps = prefs.COMPS.map(c => ({ id: c.id, name: c.name, on: S.comps.includes(c.id), n: ms.filter(m => m.comp === c.id).length, live: ms.filter(m => m.comp === c.id && m.state === 'live').length }));
     return { config: { rows: [
-      ['Version', require('./package.json').version, null], ['Stockage persistant (Upstash)', store.persistent ? 'actif' : 'mémoire temporaire', store.persistent],
+      ['Version', require('./package.json').version, null], ['Stockage persistant (Upstash)', store.persistent ? (store.fileOn ? 'fichier data/' : 'Upstash') : 'mémoire temporaire', store.persistent],
       ['Source des matchs', val.BASE.replace(/^https:\/\//, ''), !error], ['Affiches (sharp)', poster.available() ? 'actives' : 'indisponibles', poster.available()],
       ['ADMIN_PASSWORD', process.env.ADMIN_PASSWORD ? 'défini' : 'absent', !!process.env.ADMIN_PASSWORD] ] },
       data: { error, stale: data ? !!data.stale : null, at: data ? data.at : null, total: ms.length, live: by('live'), upcoming: by('upcoming'), done: by('done'), leagues: data ? data.leagues : [], errors: data ? data.errors || [] : [], comps }, site: S, channels: siteLib.channelsOf(S) };
