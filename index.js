@@ -128,7 +128,7 @@ const adminRoute = makeAdmin({
   },
   async matches(force) {
     const S = await siteLib.load(), d = await A.load(S, { force });
-    return { at: d.at, stale: !!d.stale, matches: d.matches.map(m => ({ raw: m.raw, comp: m.comp, event: m.event.name, stage: m.stage, start: m.startTime, state: m.state, bo: m.bestOf, a: M.teamsOf(m)[0].name, b: M.teamsOf(m)[1].name, ac: M.teamsOf(m)[0].code, bc: M.teamsOf(m)[1].code })).sort((x, y) => y.start - x.start) };
+    return { at: d.at, stale: !!d.stale, matches: d.matches.map(m => ({ raw: m.raw, comp: m.comp, event: m.event.name, stage: m.stage, start: m.startTime, state: m.state, bo: m.bestOf, a: M.teamsOf(m)[0].name, b: M.teamsOf(m)[1].name, ac: M.teamsOf(m)[0].code, bc: M.teamsOf(m)[1].code, al: M.teamsOf(m)[0].logo || null, bl: M.teamsOf(m)[1].logo || null })).sort((x, y) => y.start - x.start) };
   },
   async replay(raw) {
     const S = await siteLib.load(), d = await A.load(S), m = A.byRaw(d, raw);
