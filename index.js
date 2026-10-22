@@ -138,6 +138,11 @@ const adminRoute = makeAdmin({
     const test = reps[0] ? await tw.vodMaster(reps[0].parts[0].v).then(r => ({ ok: true, via: r.via, qualites: r.variants.map(v => v.h + 'p').join(' · ') }), e => ({ ok: false, err: e.message })) : null;
     return { match: M.matchTitle(m), officiel: official, sources: reps.map(r => ({ lang: r.lang, label: r.label, src: r.src, parties: r.parts.length })), lecture: test, ms: Date.now() - t0 };
   },
+  async relay(login) { return { ...(await tw.relayReport(login.toLowerCase())), stats: tw.relayStats() }; },
+  async chanstatus(logins) {
+    const l = logins.split(',').map(x => x.trim().toLowerCase()).filter(x => tw.LOGIN_RE.test(x)).slice(0, 40);
+    return l.length ? tw.liveStatus(l) : {};
+  },
   async diag() {
     const rows = [], timed = async (name, f) => { const t = Date.now(); try { const detail = await f(); rows.push({ name, ok: true, ms: Date.now() - t, detail }); } catch (e) { rows.push({ name, ok: false, ms: Date.now() - t, detail: e.message }); } };
     const S = await siteLib.load();
@@ -230,7 +235,7 @@ async function handler(req, res) {
     if (head === 'live') {
       const login = strip(seg[1]).toLowerCase();
       if (!tw.LOGIN_RE.test(login)) return send(res, 400, 'text/plain', 'chaîne invalide');
-      const txt = await tw.liveMaster(login, A.capOf(cfg, S));
+      const txt = await tw.liveMaster(login, A.capOf(cfg, S), { relay: S.feat.relay });
       return send(res, 200, 'application/vnd.apple.mpegurl', txt, { 'Cache-Control': 'no-store' });
     }
     if (head === 'vod') {

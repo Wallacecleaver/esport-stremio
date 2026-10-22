@@ -181,11 +181,21 @@ async function testReplay(raw, btn) {
 
 // ---- diagnostic
 function diag() {
-  put(`<div class="box"><h3>Diagnostic en direct <span class="sp"><button class="b pr" onclick="runDiag()">Lancer le test</button></span></h3><p class="mut">Teste la source des matchs (valorantesports.com) et Twitch depuis le serveur. En cas de problème, envoie une capture de cette page.</p><div id="dg" style="margin-top:8px"></div></div>`);
+  put(`<div class="box"><h3>Diagnostic en direct <span class="sp"><button class="b pr" onclick="runDiag()">Lancer le test</button></span></h3><p class="mut">Teste la source des matchs (valorantesports.com) et Twitch depuis le serveur. En cas de problème, envoie une capture de cette page.</p><div id="dg" style="margin-top:8px"></div></div>
+  <div class="box"><h3>Relais sans pub <span class="sp"></span></h3><p class="mut">Teste quels relais répondent pour une chaîne en direct (sinon l'addon utilise le flux officiel de Twitch).</p>
+    <div class="bar" style="margin-top:10px"><input id="rl" placeholder="Pseudo d'une chaîne en direct (ex : kameto)" value="${esc(S.channels[0] ? S.channels[0].login : '')}"><button class="b pr" onclick="runRelay()">Tester les relais</button></div><div id="rr"></div></div>`);
 }
 async function runDiag() {
   $('#dg').innerHTML = '<div class="empty">Test en cours…</div>'; const r = await api('diag');
   $('#dg').innerHTML = r.rows.map(x => `<div class="dg-row"><span class="pill ${x.ok ? 'ok' : 'ko'}">${x.ok ? '✓ OK' : '✕ Échec'}</span><div class="d"><b>${esc(x.name)}</b><br><small class="${x.ok ? '' : 'err'}">${esc(x.detail)}</small></div><span class="mut mono">${x.ms} ms</span></div>`).join('');
+}
+
+async function runRelay() {
+  const l = $('#rl').value.trim().toLowerCase(); if (!l) return; $('#rr').innerHTML = '<div class="empty">Test en cours…</div>'; const r = await api('relay?login=' + encodeURIComponent(l));
+  if (r.error) { $('#rr').innerHTML = `<div class="out err">${esc(r.error)}</div>`; return; }
+  const ok = r.rows.filter(x => x.ok).length;
+  $('#rr').innerHTML = `<p style="margin:6px 0 10px"><b>${ok}</b> relais sur ${r.rows.length} répondent · flux officiel : ${r.official.ok ? '<span class="pill ok">OK</span>' : '<span class="pill ko">' + esc(r.official.err || 'échec') + '</span>'}</p><div class="rp">${r.rows.map(x => `<span class="pill ${x.ok ? 'ok' : 'ko'}" title="${esc(x.err || '')}">${x.ok ? '✓' : '✕'} ${esc(x.name)}${x.ok ? ' · ' + x.ms + ' ms' : ''}</span>`).join('')}</div>
+    ${r.stats.length ? `<p class="mut" style="margin-top:14px;font-size:.82rem">Depuis le démarrage : ${r.stats.filter(x => x.win).map(x => esc(x.name) + ' ×' + x.win).join(' · ') || 'aucun relais utilisé pour l\'instant'}</p>` : ''}`;
 }
 
 // ---- équipes
@@ -202,15 +212,39 @@ async function saveTeams() {
 }
 
 // ---- chaînes
-function chans() {
-  put(`<div class="box"><h3>Chaînes Twitch surveillées</h3><p class="mut" style="margin-bottom:12px">Une chaîne par ligne : <span class="mono">login;Nom affiché;FR ou EN;Officiel ou Co-stream</span>. Les lives qui passent en direct apparaissent dans les sources d'un match. Vide = liste par défaut.</p>
-    <textarea id="cc" style="min-height:240px">${esc(S.channels.map(c => [c.login, c.label, c.lang, c.role].join(';')).join('\n'))}</textarea>
-    <div class="bar" style="margin-top:10px"><button class="b pr" onclick="saveChans()">Enregistrer</button></div></div>`);
+let CH = null, CS = {};
+const LOGIN = /^[a-z0-9_]{3,25}$/;
+async function chStatus() { try { CS = await api('chanstatus?logins=' + encodeURIComponent(CH.map(c => c.login).join(','))); } catch { CS = {}; } if (tab === 'chans') drawChans(); }
+function chans() { CH = S.channels.map(c => ({ ...c })); CS = {}; drawChans(); chStatus(); }
+async function chSave(msg) { const r = await saveSite({ channels: CH }); toast(r.ok === false ? 'Erreur' : msg || 'Enregistré', r.ok === false); }
+function drawChans() {
+  put(`<div class="box"><h3>Ajouter une chaîne Twitch</h3>
+    <div class="bar"><input id="nc" placeholder="Pseudo Twitch, ou lien twitch.tv/… (ex : kameto)" onkeydown="if(event.key==='Enter')addChan()">
+      <select id="nl" style="width:auto"><option value="FR">🇫🇷 Français</option><option value="EN">🇬🇧 Anglais</option></select>
+      <select id="nr" style="width:auto"><option>Co-stream</option><option>Officiel</option></select>
+      <button class="b pr" onclick="addChan()">Ajouter</button></div>
+    <p class="mut" style="font-size:.84rem">Le nom, la photo et l'état (en direct ou non) sont lus automatiquement sur Twitch. Les chaînes en direct apparaissent dans les sources d'un match.</p></div>
+  <div class="box"><h3>Chaînes surveillées <span class="mut">(${CH.length})</span><span class="sp"><button class="b sm" onclick="chStatus();toast('Actualisé')">Actualiser</button><button class="b sm dg" onclick="chReset()">Remettre la liste par défaut</button></span></h3>
+    ${CH.map((c, i) => { const st = CS[c.login]; return `<div class="dg-row"><span class="lgo" style="width:40px;height:40px;border-radius:50%">${st && st.avatar ? `<img src="${esc(st.avatar)}" alt="" style="padding:0">` : esc(c.login.slice(0, 2).toUpperCase())}</span>
+      <div class="d"><b>${esc(c.label)}</b> ${st ? (st.live ? '<span class="pill live"><i class="dot live"></i>en direct · ' + st.viewers + ' 👁</span>' : '<span class="pill">hors ligne</span>') : ''}<br><small class="mono">twitch.tv/${esc(c.login)}</small></div>
+      <input style="width:150px" value="${esc(c.label)}" onchange="CH[${i}].label=this.value.trim()||CH[${i}].login;chSave()" title="Nom affiché dans Stremio">
+      <select style="width:auto" onchange="CH[${i}].lang=this.value;chSave()"><option value="FR" ${c.lang === 'FR' ? 'selected' : ''}>🇫🇷 FR</option><option value="EN" ${c.lang === 'EN' ? 'selected' : ''}>🇬🇧 EN</option></select>
+      <select style="width:auto" onchange="CH[${i}].role=this.value;chSave()"><option ${c.role === 'Co-stream' ? 'selected' : ''}>Co-stream</option><option ${c.role === 'Officiel' ? 'selected' : ''}>Officiel</option></select>
+      <button class="b sm" onclick="chMove(${i},-1)" ${i ? '' : 'disabled'} title="Monter">↑</button><button class="b sm" onclick="chMove(${i},1)" ${i < CH.length - 1 ? '' : 'disabled'} title="Descendre">↓</button>
+      <button class="b sm dg" onclick="chDel(${i})" title="Supprimer">✕</button></div>`; }).join('') || '<div class="empty">Aucune chaîne</div>'}</div>`);
 }
-async function saveChans() {
-  const ch = $('#cc').value.split('\n').map(l => l.trim()).filter(Boolean).map(l => { const [login, label, lang, role] = l.split(';').map(x => (x || '').trim()); return { login, label, lang: lang === 'FR' ? 'FR' : 'EN', role: /^off/i.test(role) ? 'Officiel' : 'Co-stream' }; });
-  await saveSite({ channels: ch }); await load(); go('chans');
+async function addChan() {
+  let v = $('#nc').value.trim().toLowerCase().replace(/^https?:\/\/(www\.)?twitch\.tv\//, '').replace(/[/?#].*$/, '').replace(/^@/, '');
+  if (!LOGIN.test(v)) return toast('Pseudo Twitch invalide', true);
+  if (CH.some(c => c.login === v)) return toast('Cette chaîne est déjà dans la liste', true);
+  const r = await api('chanstatus?logins=' + v);
+  if (!r[v]) return toast('Chaîne introuvable sur Twitch', true);
+  CH.push({ login: v, label: r[v].name || v, lang: $('#nl').value, role: $('#nr').value }); CS = { ...CS, ...r };
+  await chSave((r[v].name || v) + ' ajoutée'); drawChans();
 }
+function chMove(i, d) { const j = i + d; if (j < 0 || j >= CH.length) return; [CH[i], CH[j]] = [CH[j], CH[i]]; chSave('Ordre enregistré'); drawChans(); }
+function chDel(i) { const c = CH[i]; if (!confirm('Retirer ' + c.label + ' ?')) return; CH.splice(i, 1); chSave('Chaîne retirée'); drawChans(); }
+async function chReset() { if (!confirm('Remettre la liste par défaut ?')) return; await saveSite({ channels: [] }); await load(); go('chans'); toast('Liste par défaut rétablie'); }
 
 // ---- réglages
 async function saveSite(o) { const r = await api('site', o); if (r.site) S.site = r.site; return r; }
@@ -226,7 +260,7 @@ function set() {
     <h3 style="margin-top:18px">Compétitions proposées</h3>${S.data.comps.map(c => `<label class="tg"><input type="checkbox" class="s_comp" value="${c.id}" ${c.on ? 'checked' : ''}><span>${esc(c.name)}</span></label>`).join('')}
     <div class="f" style="margin-top:12px"><label>Première année du catalogue</label><input id="s_year" type="number" min="2020" max="2100" value="${s.startYear}"></div>
     <div class="f"><label>Mots-clés de ligues en plus (virgules)</label><input id="s_kw" value="${esc(s.extraKeywords.join(', '))}" placeholder="showmatch, …"></div></div></div>
-  <div class="box"><h3>Fonctionnalités</h3><div class="two"><div>${tg('live', 'Lives Twitch', 'Sources en direct dans chaque match')}${tg('replays', 'Rediffusions', 'Catalogue et sources des matchs terminés')}${tg('posters', 'Affiches générées', 'Logos, heure et enjeu')}${tg('logs', 'Journal', 'Enregistre l\'activité')}</div>
+  <div class="box"><h3>Fonctionnalités</h3><div class="two"><div>${tg('live', 'Lives Twitch', 'Sources en direct dans chaque match')}${tg('relay', 'Relais sans pub', 'Lives passés par des relais sans publicité (flux officiel en secours)')}${tg('replays', 'Rediffusions', 'Catalogue et sources des matchs terminés')}${tg('posters', 'Affiches générées', 'Logos, heure et enjeu')}${tg('logs', 'Journal', 'Enregistre l\'activité')}</div>
     <div><div class="f"><label>Qualité maximale imposée</label><select id="f_capMax">${[0, 1440, 1080, 720, 480].map(x => `<option value="${x}" ${f.capMax === x ? 'selected' : ''}>${x ? x + 'p' : 'Aucune limite'}</option>`).join('')}</select></div>
     <div class="f"><label>Matchs à venir affichés</label><input id="f_upcoming" type="number" min="6" max="60" value="${f.upcoming}"></div><div class="f"><label>Rediffusions affichées</label><input id="f_doneMax" type="number" min="10" max="200" value="${f.doneMax}"></div></div></div>
     ${tg('maint', 'Mode maintenance', 'Les sources affichent le message ci-dessous')}<div class="f"><input id="f_maintMsg" value="${esc(f.maintMsg)}" placeholder="Message de maintenance"></div></div>
@@ -236,7 +270,7 @@ async function saveSettings() {
   const v = id => $('#' + id).value, c = id => $('#' + id).checked;
   const o = { name: v('s_name'), title: v('s_title'), text: v('s_text'), credit: v('s_credit'), color: v('s_color'), open: c('s_open'), code: v('s_code'), startYear: Number(v('s_year')),
     comps: [...document.querySelectorAll('.s_comp:checked')].map(x => x.value), extraKeywords: v('s_kw').split(',').map(x => x.trim()).filter(Boolean),
-    feat: { live: c('f_live'), replays: c('f_replays'), posters: c('f_posters'), logs: c('f_logs'), maint: c('f_maint'), maintMsg: v('f_maintMsg'), capMax: Number(v('f_capMax')), upcoming: Number(v('f_upcoming')), doneMax: Number(v('f_doneMax')) } };
+    feat: { live: c('f_live'), relay: c('f_relay'), replays: c('f_replays'), posters: c('f_posters'), logs: c('f_logs'), maint: c('f_maint'), maintMsg: v('f_maintMsg'), capMax: Number(v('f_capMax')), upcoming: Number(v('f_upcoming')), doneMax: Number(v('f_doneMax')) } };
   const r = await saveSite(o); toast(r.ok ? 'Réglages enregistrés' : 'Erreur', !r.ok); MT = null; await load(); go('set');
 }
 function upLogo(i) { const f = i.files[0]; if (!f) return; const r = new FileReader(); r.onload = async () => { const x = await api('site/logo', { data: r.result }); toast(x.ok ? 'Logo mis à jour' : x.error, !x.ok); await load(); go('set'); }; r.readAsDataURL(f); }
