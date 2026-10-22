@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Esport</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0b0d12;--p:#141821;--p2:#1b2030;--b:#2a3042;--t:#eef1f7;--m:#98a2b8;--a:#ff4655;--ok:#2dd4a0;--ko:#ff5d73;--w:#f5b942}
+html{color-scheme:dark;font-size:14px}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--t);line-height:1.5;min-height:100vh}
+header{position:sticky;top:0;z-index:5;background:rgba(11,13,18,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--b);display:flex;align-items:center;gap:18px;padding:0 20px;height:56px}
+header b{font-weight:800;font-size:1.02rem;white-space:nowrap}header b i{color:var(--a);font-style:normal}
+nav{display:flex;gap:2px;overflow-x:auto;flex:1;scrollbar-width:none}
+nav button{font:inherit;font-weight:600;color:var(--m);background:none;border:0;padding:8px 13px;border-radius:8px;cursor:pointer;white-space:nowrap}
+nav button:hover{color:var(--t)}nav button.on{color:var(--t);background:var(--p2)}
+header a{color:var(--m);text-decoration:none;font-size:.85rem;white-space:nowrap}
+main{max-width:1100px;margin:0 auto;padding:22px 16px 60px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-bottom:16px}
+.k{background:var(--p);border:1px solid var(--b);border-radius:12px;padding:15px 16px}
+.k small{display:block;color:var(--m);font-size:.74rem;text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+.k b{font-size:1.7rem;font-weight:800;letter-spacing:-.02em}
+.k.red b{color:var(--a)}
+.box{background:var(--p);border:1px solid var(--b);border-radius:12px;padding:18px;margin-bottom:16px}
+.box h3{font-size:.98rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.box h3 .sp{margin-left:auto;display:flex;gap:8px}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th{text-align:left;color:var(--m);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;padding:6px 8px;border-bottom:1px solid var(--b)}
+td{padding:8px;border-bottom:1px solid rgba(42,48,66,.6);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.74rem;font-weight:700;background:var(--p2);color:var(--m)}
+.pill.ok{background:rgba(45,212,160,.15);color:var(--ok)}.pill.ko{background:rgba(255,93,115,.15);color:var(--ko)}.pill.w{background:rgba(245,185,66,.15);color:var(--w)}.pill.live{background:rgba(255,70,85,.18);color:var(--a)}
+button.b,a.b{font:inherit;font-weight:600;font-size:.85rem;color:var(--t);background:var(--p2);border:1px solid var(--b);border-radius:9px;padding:7px 13px;cursor:pointer;text-decoration:none;display:inline-block}
+button.b:hover,a.b:hover{border-color:#44506f}
+button.b.pr{background:var(--a);border-color:var(--a)}button.b.dg{color:var(--ko)}
+input,select,textarea{font:inherit;color:var(--t);background:var(--p2);border:1px solid var(--b);border-radius:9px;padding:8px 11px;outline:none;width:100%}
+textarea{min-height:140px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem}
+input:focus,select:focus,textarea:focus{border-color:var(--a)}
+input[type=checkbox]{width:auto}input[type=color]{padding:2px;height:36px;width:60px}
+.f{display:grid;gap:5px;margin-bottom:12px}.f label{font-size:.76rem;font-weight:600;color:var(--m);text-transform:uppercase;letter-spacing:.05em}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tg{display:flex;align-items:center;gap:10px;padding:8px 0}.tg span{font-size:.9rem}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.bar>*{width:auto}.bar input{flex:1;min-width:150px}
+.mut{color:var(--m)}.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.8rem}
+.err{color:var(--ko)}.empty{color:var(--m);text-align:center;padding:24px}
+.ch{display:flex;align-items:flex-end;gap:6px;height:90px}
+.ch div{flex:1;background:linear-gradient(var(--a),#a32a36);border-radius:5px 5px 0 0;position:relative;min-height:3px}
+.ch div span{position:absolute;bottom:100%;left:0;right:0;text-align:center;font-size:.7rem;color:var(--m)}
+.ch-l{display:flex;gap:6px;margin-top:4px}.ch-l span{flex:1;text-align:center;font-size:.7rem;color:var(--m)}
+.out{background:var(--bg);border:1px solid var(--b);border-radius:9px;padding:12px;margin-top:10px;font-size:.84rem;white-space:pre-wrap;word-break:break-word}
+.logrow td:first-child{white-space:nowrap;color:var(--m)}
+@media(max-width:700px){.two{grid-template-columns:1fr}header{padding:0 12px;gap:10px}}
+</style>
+</head>
+<body>
+<header><b>⚡ Esport <i>Dashboard</i></b><nav id="nav"></nav><a href="/config" target="_blank">Page config ↗</a><a href="/admin/logout">Quitter</a></header>
+<main id="m"><div class="empty">Chargement…</div></main>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const api = (p, body) => fetch('/admin/api/' + p, body ? { method: 'POST', body: JSON.stringify(body) } : {}).then(r => r.json());
+const ago = t => { if (!t) return '—'; const s = Math.max(0, (Date.now() - t) / 1000); return s < 60 ? 'il y a ' + Math.floor(s) + ' s' : s < 3600 ? 'il y a ' + Math.floor(s / 60) + ' min' : s < 86400 ? 'il y a ' + Math.floor(s / 3600) + ' h' : 'il y a ' + Math.floor(s / 86400) + ' j'; };
+const when = t => new Date(t).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+const TABS = [['over', 'Vue d\'ensemble'], ['matches', 'Matchs'], ['diag', 'Diagnostic'], ['teams', 'Équipes'], ['chans', 'Chaînes'], ['set', 'Réglages'], ['prof', 'Profils'], ['logs', 'Journal']];
+let tab = (location.hash || '#over').slice(1), S = null, MT = null, mf = { comp: '', state: '', q: '' };
+$('#nav').innerHTML = TABS.map(([k, n]) => `<button data-k="${k}" onclick="go('${k}')">${n}</button>`).join('');
+function go(k) { tab = k; location.hash = k; document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.k === k)); draw(); }
+async function load() { S = await api('state'); draw(); }
+function draw() { if (!S) return; const f = { over, matches, diag, teams, chans, set, prof, logs }[tab] || over; $('#m').innerHTML = ''; document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.k === tab)); f(); }
+const put = h => { $('#m').innerHTML = h; };
+
+// ---- vue d'ensemble
+function over() {
+  const d = S.data, st = S.stats || {}, total = S.uniq.reduce((a, b) => a + b, 0), mx = Math.max(1, ...S.uniq);
+  put(`<div class="grid">
+    <div class="k red"><small>Matchs en direct</small><b>${d.live ?? '—'}</b></div><div class="k"><small>À venir</small><b>${d.upcoming ?? '—'}</b></div><div class="k"><small>Terminés</small><b>${d.done ?? '—'}</b></div>
+    <div class="k"><small>Requêtes</small><b>${st.req || 0}</b></div><div class="k"><small>Appareils · 7 j</small><b>${total}</b></div><div class="k"><small>Profils</small><b>${S.users.length}</b></div></div>
+  <div class="two"><div class="box"><h3>État du système</h3><div class="tw"><table>${S.config.rows.map(r => `<tr><td class="mut">${esc(r[0])}</td><td>${esc(r[1])}</td><td>${r[2] === true ? '<span class="pill ok">OK</span>' : r[2] === false ? '<span class="pill ko">!</span>' : ''}</td></tr>`).join('')}</table></div>
+    ${d.error ? `<div class="out err">Source : ${esc(d.error)}${d.stale ? ' (copie en cache utilisée)' : ''}</div>` : `<p class="mut" style="margin-top:10px">Dernière lecture ${ago(d.at)}${d.stale ? ' · copie en cache' : ''}</p>`}
+    ${(d.errors || []).length ? `<div class="out">${d.errors.map(esc).join('\n')}</div>` : ''}</div>
+  <div class="box"><h3>Appareils par jour</h3><div class="ch">${S.uniq.map(n => `<div style="height:${Math.max(3, n / mx * 100)}%"><span>${n}</span></div>`).join('')}</div><div class="ch-l">${S.days.map(x => `<span>${esc(String(x).slice(-5))}</span>`).join('')}</div></div></div>
+  <div class="box"><h3>Compétitions <span class="sp"><button class="b" onclick="refresh()">Relire la source</button></span></h3><div class="tw"><table><tr><th>Compétition</th><th>Proposée</th><th>Matchs</th><th>En direct</th></tr>
+    ${d.comps.map(c => `<tr><td>${esc(c.name)}</td><td>${c.on ? '<span class="pill ok">oui</span>' : '<span class="pill">non</span>'}</td><td>${c.n}</td><td>${c.live ? '<span class="pill live">' + c.live + '</span>' : '—'}</td></tr>`).join('')}</table></div>
+    ${d.leagues.length ? `<p class="mut" style="margin-top:10px">Ligues retenues : ${d.leagues.map(l => esc(l.name) + ' <span class="mono">[' + esc(l.comp) + ']</span>').join(' · ')}</p>` : ''}</div>`);
+}
+async function refresh() { await api('matches?force=1'); MT = null; await load(); }
+
+// ---- matchs
+async function matches() {
+  put('<div class="empty">Chargement des matchs…</div>');
+  if (!MT) MT = await api('matches');
+  drawMatches();
+}
+function drawMatches() {
+  const q = mf.q.toLowerCase(), list = MT.matches.filter(m => (!mf.comp || m.comp === mf.comp) && (!mf.state || m.state === mf.state) && (!q || (m.a + ' ' + m.b + ' ' + m.event + ' ' + m.stage).toLowerCase().includes(q)));
+  const sel = (k, opts) => `<select onchange="mf.${k}=this.value;drawMatches()">${opts.map(([v, n]) => `<option value="${v}" ${mf[k] === v ? 'selected' : ''}>${n}</option>`).join('')}</select>`;
+  put(`<div class="box"><h3>Matchs <span class="mut">(${list.length}/${MT.matches.length})</span><span class="sp"><button class="b" onclick="MT=null;api('matches?force=1').then(r=>{MT=r;drawMatches()})">Relire</button></span></h3>
+    <div class="bar"><input placeholder="Rechercher une équipe, un événement…" value="${esc(mf.q)}" oninput="mf.q=this.value;clearTimeout(window._t);window._t=setTimeout(drawMatches,250)">
+    ${sel('comp', [['', 'Toutes compétitions'], ['emea', 'VCT EMEA'], ['intl', 'Champions / Masters'], ['gc', 'Game Changers'], ['ewc', 'EWC']])}${sel('state', [['', 'Tous états'], ['live', 'En direct'], ['upcoming', 'À venir'], ['done', 'Terminés']])}</div>
+    <div class="tw"><table><tr><th>Date</th><th>Match</th><th>Événement</th><th>État</th><th></th></tr>
+    ${list.slice(0, 150).map(m => `<tr><td class="mut">${when(m.start)}</td><td><b>${esc(m.a)}</b> vs <b>${esc(m.b)}</b>${m.bo ? ' <span class="mut">BO' + m.bo + '</span>' : ''}</td><td>${esc(m.event)}<br><span class="mut">${esc(m.stage || '')}</span></td>
+      <td>${m.state === 'live' ? '<span class="pill live">direct</span>' : m.state === 'done' ? '<span class="pill">terminé</span>' : '<span class="pill w">à venir</span>'}</td>
+      <td>${m.state === 'done' ? `<button class="b" onclick="testReplay('${esc(m.raw)}',this)">Tester le replay</button>` : ''}<a class="b" target="_blank" href="/poster/${esc(m.raw)}.png">Affiche</a></td></tr>
+      <tr id="r${esc(m.raw)}" class="hidden-r"></tr>`).join('') || '<tr><td colspan="5" class="empty">Aucun match</td></tr>'}</table></div></div>`);
+}
+async function testReplay(raw, btn) {
+  btn.textContent = '…'; const r = await api('replay?raw=' + encodeURIComponent(raw)); btn.textContent = 'Tester le replay';
+  const row = document.getElementById('r' + raw); if (!row) return;
+  row.innerHTML = `<td colspan="5"><div class="out">${r.error ? esc(r.error) : esc(`${r.match} · ${r.ms} ms
+Source officielle : ${r.officiel.ok ? 'OK · ' + (r.officiel.langs.join(', ') || 'aucune vidéo') : 'erreur · ' + r.officiel.err}
+Sources proposées : ${r.sources.map(s => s.lang + ' (' + s.src + ', ' + s.parties + ' partie' + (s.parties > 1 ? 's' : '') + ')').join(' · ') || 'aucune'}
+Lecture Twitch : ${r.lecture ? (r.lecture.ok ? 'OK via ' + r.lecture.via + ' · ' + r.lecture.qualites : 'échec · ' + r.lecture.err) : 'non testée'}`)}</div></td>`;
+}
+
+// ---- diagnostic
+function diag() {
+  put(`<div class="box"><h3>Diagnostic en direct <span class="sp"><button class="b pr" onclick="runDiag()">Lancer le test</button></span></h3><p class="mut">Teste la source des matchs (valorantesports.com) et Twitch depuis le serveur. En cas de problème, envoie une capture de cette page.</p><div id="dg"></div></div>`);
+}
+async function runDiag() {
+  $('#dg').innerHTML = '<div class="empty">Test en cours…</div>'; const r = await api('diag');
+  $('#dg').innerHTML = `<div class="tw"><table>${r.rows.map(x => `<tr><td>${x.ok ? '<span class="pill ok">OK</span>' : '<span class="pill ko">Échec</span>'}</td><td><b>${esc(x.name)}</b></td><td class="mut">${x.ms} ms</td><td class="${x.ok ? '' : 'err'}">${esc(x.detail)}</td></tr>`).join('')}</table></div>`;
+}
+
+// ---- équipes
+async function teams() {
+  put('<div class="empty">Chargement…</div>'); const r = await api('teams'), cur = S.site.teams;
+  put(`<div class="box"><h3>Équipes proposées aux utilisateurs <span class="pill ${r.source === 'officiel' ? 'ok' : 'w'}">${r.source === 'officiel' ? 'lues sur le calendrier officiel' : r.source === 'dashboard' ? 'liste personnalisée' : 'liste de secours'}</span></h3>
+    <p class="mut" style="margin-bottom:12px">Europe uniquement : équipes du VCT EMEA et du Game Changers EMEA. Tu peux imposer ta propre liste (une équipe par ligne, <span class="mono">CODE;Nom</span>). Vide = automatique.</p>
+    <div class="tw"><table><tr><th>Code</th><th>Équipe</th></tr>${r.teams.map(t => `<tr><td class="mono">${esc(t.code)}</td><td>${esc(t.name)}</td></tr>`).join('')}</table></div></div>
+    <div class="box"><h3>Liste personnalisée</h3><textarea id="tt" placeholder="FNC;Fnatic&#10;TH;Team Heretics">${esc((cur || []).map(t => t.code + ';' + t.name).join('\n'))}</textarea><div class="bar" style="margin-top:10px"><button class="b pr" onclick="saveTeams()">Enregistrer</button></div></div>`);
+}
+async function saveTeams() {
+  const t = $('#tt').value.split('\n').map(l => l.trim()).filter(Boolean).map(l => { const [c, ...n] = l.split(';'); return n.length ? { code: c.trim(), name: n.join(';').trim() } : { code: '', name: c.trim() }; });
+  await saveSite({ teams: t.length ? t : [] , _clearTeams: !t.length }); S.site.teams = t.length ? t : null; teams();
+}
+
+// ---- chaînes
+function chans() {
+  put(`<div class="box"><h3>Chaînes Twitch surveillées</h3><p class="mut" style="margin-bottom:12px">Une chaîne par ligne : <span class="mono">login;Nom affiché;FR ou EN;Officiel ou Co-stream</span>. Les lives qui passent en direct apparaissent dans les sources d'un match. Vide = liste par défaut.</p>
+    <textarea id="cc" style="min-height:240px">${esc(S.channels.map(c => [c.login, c.label, c.lang, c.role].join(';')).join('\n'))}</textarea>
+    <div class="bar" style="margin-top:10px"><button class="b pr" onclick="saveChans()">Enregistrer</button></div></div>`);
+}
+async function saveChans() {
+  const ch = $('#cc').value.split('\n').map(l => l.trim()).filter(Boolean).map(l => { const [login, label, lang, role] = l.split(';').map(x => (x || '').trim()); return { login, label, lang: lang === 'FR' ? 'FR' : 'EN', role: /^off/i.test(role) ? 'Officiel' : 'Co-stream' }; });
+  await saveSite({ channels: ch }); await load(); go('chans');
+}
+
+// ---- réglages
+async function saveSite(o) { const r = await api('site', o); if (r.site) S.site = r.site; return r; }
+function set() {
+  const s = S.site, f = s.feat, tg = (k, n, d) => `<label class="tg"><input type="checkbox" id="f_${k}" ${f[k] ? 'checked' : ''}><span><b>${n}</b>${d ? '<br><span class="mut">' + d + '</span>' : ''}</span></label>`;
+  put(`<div class="two"><div class="box"><h3>Identité</h3>
+    <div class="f"><label>Nom de l'addon</label><input id="s_name" value="${esc(s.name)}"></div><div class="f"><label>Titre de la page config</label><input id="s_title" value="${esc(s.title)}"></div>
+    <div class="f"><label>Texte d'accueil (facultatif)</label><input id="s_text" value="${esc(s.text)}"></div><div class="f"><label>Crédit en bas de page</label><input id="s_credit" value="${esc(s.credit)}"></div>
+    <div class="f"><label>Couleur</label><input type="color" id="s_color" value="${esc(s.color)}"></div>
+    <div class="f"><label>Logo (PNG, JPG ou WebP · 300 Ko max)</label><input type="file" id="s_logo" accept="image/png,image/jpeg,image/webp" onchange="upLogo(this)"><div class="bar" style="margin-top:6px"><img src="/logo.png?v=${s.logoV}" width="44" height="44" style="border-radius:10px"><button class="b dg" onclick="rmLogo()">Retirer</button></div></div></div>
+  <div class="box"><h3>Accès</h3><label class="tg"><input type="checkbox" id="s_open" ${s.open ? 'checked' : ''}><span><b>Inscriptions ouvertes</b></span></label>
+    <div class="f"><label>Code d'invitation (vide = aucun)</label><input id="s_code" value="${esc(s.code)}"></div>
+    <h3 style="margin-top:18px">Compétitions proposées</h3>${S.data.comps.map(c => `<label class="tg"><input type="checkbox" class="s_comp" value="${c.id}" ${c.on ? 'checked' : ''}><span>${esc(c.name)}</span></label>`).join('')}
+    <div class="f" style="margin-top:12px"><label>Première année du catalogue</label><input id="s_year" type="number" min="2020" max="2100" value="${s.startYear}"></div>
+    <div class="f"><label>Mots-clés de ligues en plus (virgules)</label><input id="s_kw" value="${esc(s.extraKeywords.join(', '))}" placeholder="showmatch, …"></div></div></div>
+  <div class="box"><h3>Fonctionnalités</h3><div class="two"><div>${tg('live', 'Lives Twitch', 'Sources en direct dans chaque match')}${tg('replays', 'Rediffusions', 'Catalogue et sources des matchs terminés')}${tg('posters', 'Affiches générées', 'Logos, heure et enjeu')}${tg('logs', 'Journal', 'Enregistre l\'activité')}</div>
+    <div><div class="f"><label>Qualité maximale imposée</label><select id="f_capMax">${[0, 1440, 1080, 720, 480].map(x => `<option value="${x}" ${f.capMax === x ? 'selected' : ''}>${x ? x + 'p' : 'Aucune limite'}</option>`).join('')}</select></div>
+    <div class="f"><label>Matchs à venir affichés</label><input id="f_upcoming" type="number" min="6" max="60" value="${f.upcoming}"></div><div class="f"><label>Rediffusions affichées</label><input id="f_doneMax" type="number" min="10" max="200" value="${f.doneMax}"></div></div></div>
+    ${tg('maint', 'Mode maintenance', 'Les sources affichent le message ci-dessous')}<div class="f"><input id="f_maintMsg" value="${esc(f.maintMsg)}" placeholder="Message de maintenance"></div></div>
+  <div class="bar"><button class="b pr" onclick="saveSettings()">Enregistrer les réglages</button><span id="ok" class="mut"></span></div>`);
+}
+async function saveSettings() {
+  const v = id => $('#' + id).value, c = id => $('#' + id).checked;
+  const o = { name: v('s_name'), title: v('s_title'), text: v('s_text'), credit: v('s_credit'), color: v('s_color'), open: c('s_open'), code: v('s_code'), startYear: Number(v('s_year')),
+    comps: [...document.querySelectorAll('.s_comp:checked')].map(x => x.value), extraKeywords: v('s_kw').split(',').map(x => x.trim()).filter(Boolean),
+    feat: { live: c('f_live'), replays: c('f_replays'), posters: c('f_posters'), logs: c('f_logs'), maint: c('f_maint'), maintMsg: v('f_maintMsg'), capMax: Number(v('f_capMax')), upcoming: Number(v('f_upcoming')), doneMax: Number(v('f_doneMax')) } };
+  const r = await saveSite(o); $('#ok').textContent = r.ok ? 'Enregistré ✓' : 'Erreur'; MT = null; await load(); go('set');
+}
+function upLogo(i) { const f = i.files[0]; if (!f) return; const r = new FileReader(); r.onload = async () => { const x = await api('site/logo', { data: r.result }); alert(x.ok ? 'Logo mis à jour' : x.error); await load(); go('set'); }; r.readAsDataURL(f); }
+async function rmLogo() { await api('site/logo', { data: '' }); await load(); go('set'); }
+
+// ---- profils
+async function prof() {
+  put('<div class="empty">Chargement…</div>'); const r = await api('profiles');
+  put(`<div class="box"><h3>Profils <span class="mut">(${r.profils.length})</span></h3>${!S.persistent ? '<p class="err">Base Upstash non configurée : les profils n\'existent que sur les liens classiques.</p>' : ''}<div class="tw"><table><tr><th>Pseudo</th><th>Appareil</th><th>Réglages</th><th>Mis à jour</th><th></th></tr>
+    ${r.profils.map(p => `<tr><td><b>${esc(p.pseudo)}</b>${p.pw ? '' : ' <span class="pill w">sans mot de passe</span>'}</td><td>${esc(p.device)}</td><td class="mut">${esc((p.cfg.comps || []).join('+'))}${(p.cfg.teams || []).length ? ' · ⭐ ' + esc(p.cfg.teams.join(', ')) : ''} · ${esc(p.cfg.lang || '')}</td><td class="mut">${ago(p.maj)}</td>
+      <td><button class="b" onclick="pact('${p.ref}','reset')">Réinit. mot de passe</button> <button class="b dg" onclick="pact('${p.ref}','delete')">Supprimer</button></td></tr>`).join('') || '<tr><td colspan="5" class="empty">Aucun profil</td></tr>'}</table></div></div>
+    <div class="box"><h3>Activité des utilisateurs</h3><div class="tw"><table><tr><th>Pseudo</th><th>Requêtes</th><th>Dernière activité</th><th>Appareil</th></tr>${S.users.sort((a, b) => (b.last || 0) - (a.last || 0)).map(u => `<tr><td>${esc(u.pseudo)}</td><td>${u.n}</td><td class="mut">${ago(u.last)}</td><td class="mut">${esc(u.dev || '')}</td></tr>`).join('') || '<tr><td colspan="4" class="empty">Rien pour l\'instant</td></tr>'}</table></div></div>`);
+}
+async function pact(ref, action) { if (!confirm(action === 'delete' ? 'Supprimer ce profil ? Son lien cessera de fonctionner.' : 'Retirer le mot de passe ? La personne pourra en choisir un nouveau.')) return; await api('profiles', { ref, action }); prof(); }
+
+// ---- journal
+let lv = '';
+function logs() {
+  const rows = S.logs.filter(l => !lv || l.lvl === lv);
+  put(`<div class="box"><h3>Journal <span class="mut">(${rows.length})</span><span class="sp"><a class="b" href="/admin/api/export?fmt=csv">CSV</a><a class="b" href="/admin/api/export?fmt=json">JSON</a><button class="b dg" onclick="if(confirm('Vider le journal ?'))api('reset?what=logs',{}).then(load)">Vider</button></span></h3>
+    <div class="bar"><select onchange="lv=this.value;logs()">${[['', 'Tous les niveaux'], ['ERROR', 'Erreurs'], ['WARN', 'Alertes'], ['INFO', 'Infos']].map(([v, n]) => `<option value="${v}" ${lv === v ? 'selected' : ''}>${n}</option>`).join('')}</select><button class="b" onclick="load()">Actualiser</button></div>
+    <div class="tw"><table>${rows.slice(0, 250).map(l => { const { t, lvl, k, u, dev, ...r } = l; return `<tr class="logrow"><td>${when(t)}</td><td><span class="pill ${lvl === 'ERROR' ? 'ko' : lvl === 'WARN' ? 'w' : ''}">${esc(lvl)}</span></td><td>${esc(k || '')}${u ? ' · <b>' + esc(u) + '</b>' : ''}</td><td class="mono mut">${esc(Object.entries(r).map(([a, b]) => a + '=' + (typeof b === 'object' ? JSON.stringify(b) : b)).join('  '))}</td></tr>`; }).join('') || '<tr><td class="empty">Journal vide</td></tr>'}</table></div></div>`);
+}
+load();
+</script>
+</body>
+</html>

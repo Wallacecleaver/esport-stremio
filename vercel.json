@@ -1,0 +1,5 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": { "api/index.js": { "maxDuration": 30, "includeFiles": "{lib/**,package.json,node_modules/@fontsource/inter/files/inter-latin-500-normal.woff,node_modules/@fontsource/inter/files/inter-latin-700-normal.woff,node_modules/@fontsource/inter/files/inter-latin-800-normal.woff}" } },
+  "rewrites": [{ "source": "/(.*)", "destination": "/api/index" }]
+}

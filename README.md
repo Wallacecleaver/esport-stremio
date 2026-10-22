@@ -1,5 +1,9 @@
-# Esport pour Stremio
+# Valorant Esport — addon Stremio
 
-Dépôt remis à zéro. Le nouvel addon est reconstruit proprement, jeu par jeu.
+Matchs Valorant (VCT, VCT EMEA, Game Changers, Champions, Esports World Cup) : lives Twitch et rediffusions FR/EN.
+Source des matchs : valorantesports.com. Choix d'équipe : Europe uniquement.
 
-L'ancienne version reste dans l'historique Git (dernier commit avant le nettoyage : f5b7de9).
+- `/config` : page de configuration (profil, compétitions, équipes, options, vérification, lien d'installation)
+- `/admin` : dashboard esport (mot de passe = variable `ADMIN_PASSWORD`)
+- Variables Vercel : `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `ADMIN_PASSWORD`
+- Test local : `node test/mock.js 7311` puis `VAL_API=http://127.0.0.1:7311/persisted/val TW_GQL=http://127.0.0.1:7311/gql node index.js`

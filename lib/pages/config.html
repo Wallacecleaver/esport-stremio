@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{NAME}} · Configuration</title>
+<meta name="theme-color" content="{{COLOR}}">
+<link rel="icon" type="image/png" href="/logo.png?v={{V}}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0b0d12;--p:#141821;--p2:#1b2030;--b:#2a3042;--t:#eef1f7;--m:#98a2b8;--a:{{COLOR}};--ok:#2dd4a0;--ko:#ff5d73;--w:#f5b942;--r:14px}
+html{color-scheme:dark;font-size:15px}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(800px 360px at 50% -100px,color-mix(in srgb,var(--a) 26%,transparent),transparent 70%) no-repeat,var(--bg);color:var(--t);min-height:100vh;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:720px;margin:0 auto;padding:28px 16px 70px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:1.1rem;letter-spacing:-.01em;margin-bottom:22px}
+.brand img{width:36px;height:36px;border-radius:10px}
+.brand small{margin-left:auto;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--a);border:1px solid color-mix(in srgb,var(--a) 45%,transparent);padding:3px 11px;border-radius:99px}
+h1{font-size:1.75rem;line-height:1.15;letter-spacing:-.02em;font-weight:800;margin-bottom:6px}
+.sub{color:var(--m);margin-bottom:22px}
+.steps{display:flex;gap:6px;margin-bottom:18px}
+.steps i{flex:1;height:4px;border-radius:9px;background:var(--p2);transition:.3s}
+.steps i.on{background:var(--a)}
+.card{background:var(--p);border:1px solid var(--b);border-radius:var(--r);padding:22px}
+.card h2{font-size:1.15rem;font-weight:700;margin-bottom:4px}
+.card .hint{color:var(--m);font-size:.9rem;margin-bottom:16px}
+label.f{display:block;font-size:.8rem;font-weight:600;color:var(--m);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.06em}
+input[type=text],input[type=password],select{width:100%;font:inherit;color:var(--t);background:var(--p2);border:1px solid var(--b);border-radius:10px;padding:11px 13px;outline:none}
+input:focus,select:focus{border-color:var(--a)}
+.tabs{display:flex;background:var(--p2);border-radius:10px;padding:4px;gap:4px;margin-bottom:6px}
+.tabs button{flex:1;font:inherit;font-weight:600;color:var(--m);background:none;border:0;border-radius:8px;padding:8px;cursor:pointer}
+.tabs button.on{background:var(--p);color:var(--t);box-shadow:0 0 0 1px var(--b)}
+.opt{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border:1px solid var(--b);border-radius:12px;background:var(--p2);cursor:pointer;margin-bottom:9px;transition:.15s;user-select:none}
+.opt:hover{border-color:#3a4260}
+.opt.on{border-color:var(--a);background:color-mix(in srgb,var(--a) 11%,var(--p2))}
+.opt .ck{flex:none;width:20px;height:20px;border-radius:6px;border:2px solid #4a5270;margin-top:2px;display:grid;place-items:center;font-size:.8rem;color:#fff}
+.opt.on .ck{background:var(--a);border-color:var(--a)}
+.opt.on .ck::after{content:"✓"}
+.opt b{display:block;font-weight:600}.opt span{color:var(--m);font-size:.88rem}
+.teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;margin-top:12px}
+.team{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--b);border-radius:12px;background:var(--p2);cursor:pointer;font-weight:600;font-size:.9rem;user-select:none;position:relative}
+.team img{width:30px;height:30px;object-fit:contain;flex:none}
+.team .lg{width:30px;height:30px;border-radius:8px;background:var(--p);display:grid;place-items:center;font-size:.7rem;color:var(--m);flex:none}
+.team.on{border-color:var(--a);background:color-mix(in srgb,var(--a) 12%,var(--p2))}
+.team.on::after{content:"⭐";position:absolute;top:4px;right:7px;font-size:.75rem}
+.note{font-size:.82rem;color:var(--m);margin-top:10px}
+.row{display:flex;gap:10px;margin-top:22px}
+.btn{font:inherit;font-weight:700;border:0;border-radius:11px;padding:12px 20px;cursor:pointer;background:var(--a);color:#fff;flex:1;transition:.15s}
+.btn:hover{filter:brightness(1.1)}.btn:disabled{opacity:.5;cursor:default}
+.btn.g{background:var(--p2);color:var(--t);border:1px solid var(--b);flex:none}
+.err{color:var(--ko);font-size:.88rem;margin-top:12px;min-height:1.2em}
+.vf{display:grid;gap:8px;margin-top:8px}
+.vr{display:flex;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--b);border-radius:12px;background:var(--p2)}
+.vr .ic{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.8rem;background:var(--p);color:var(--m)}
+.vr.ok .ic{background:rgba(45,212,160,.16);color:var(--ok)}.vr.ko .ic{background:rgba(255,93,115,.16);color:var(--ko)}.vr.w .ic{background:rgba(245,185,66,.16);color:var(--w)}
+.vr.run .ic{animation:sp 1s linear infinite;border:2px solid var(--b);border-top-color:var(--a);background:none;font-size:0}
+.vr b{display:block;font-weight:600;font-size:.93rem}.vr span{color:var(--m);font-size:.84rem;word-break:break-word}
+.vr em{margin-left:auto;font-style:normal;color:var(--m);font-size:.78rem;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+.big{text-align:center;padding:8px 0}
+.big .em{font-size:2.6rem}
+.link{display:flex;gap:8px;margin-top:14px}
+.link input{font-size:.8rem;color:var(--m)}
+.link button{flex:none;font:inherit;font-weight:600;background:var(--p2);color:var(--t);border:1px solid var(--b);border-radius:10px;padding:0 16px;cursor:pointer}
+a.btn{display:block;text-align:center;text-decoration:none}
+.foot{text-align:center;color:var(--m);font-size:.8rem;margin-top:26px}
+.hidden{display:none!important}
+@media(max-width:480px){h1{font-size:1.45rem}.card{padding:18px}.teams{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><img src="/logo.png?v={{V}}" alt=""><span>{{NAME}}</span><small>Esport</small></div>
+  <h1>{{TITLE}}</h1>
+  <p class="sub">VCT, VCT EMEA, Game Changers, Champions et Esports World Cup : lives Twitch et rediffusions, directement dans Stremio.{{TEXT}}</p>
+  <div class="steps" id="steps"><i></i><i></i><i></i><i></i><i></i></div>
+  <div id="view"></div>
+  <p class="foot">{{CREDIT}}</p>
+</div>
+<script>
+const SITE = {{SITE}};
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const PID = (location.pathname.match(/^\/u\/([A-Za-z0-9_-]{16,40})\/configure/) || [])[1] || '';
+const st = { step: 0, mode: PID ? 'edit' : 'new', id: PID, password: '', pseudo: '', code: '', cfg: JSON.parse(JSON.stringify(SITE.def)), persistent: false, locked: !!PID, teams: null, tq: '', err: '', busy: false, newpw: '', report: null, link: '' };
+const b64 = o => btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const api = (path, opt) => fetch(path, opt).then(r => r.json());
+const post = (path, body) => api(path, { method: 'POST', body: JSON.stringify(body) });
+
+function bar() { document.querySelectorAll('#steps i').forEach((e, i) => e.classList.toggle('on', i <= st.step)); }
+function set(k, v) { st[k] = v; }
+function render() { bar(); const v = $('#view'); v.innerHTML = [vProfile, vComps, vTeams, vOptions, vVerify, vDone][st.step](); after(); }
+function after() { const f = document.querySelector('[autofocus]'); if (f && !f.value) f.focus(); }
+
+// 1 · profil
+function vProfile() {
+  const pers = st.persistent;
+  if (PID && st.locked) return `<div class="card"><h2>Ton profil</h2><p class="hint">Entre ton mot de passe pour modifier tes réglages. Ton addon reste installé, rien à refaire dans Stremio.</p>
+    <label class="f">Mot de passe</label><input id="pw" type="password" autocomplete="current-password" autofocus onkeydown="if(event.key==='Enter')unlock()">
+    <div class="err">${esc(st.err)}</div><div class="row"><button class="btn" onclick="unlock()">Ouvrir</button></div></div>`;
+  return `<div class="card"><h2>${PID ? 'Ton profil · ' + esc(st.pseudo) : 'Crée ton profil'}</h2>
+    <p class="hint">${pers ? 'Un profil garde tes réglages : tu pourras les changer plus tard sans réinstaller l\'addon.' : 'Ton pseudo sert à reconnaître ton lien. Les réglages sont inclus dans l\'adresse d\'installation.'}</p>
+    <label class="f">Pseudo</label><input id="ps" type="text" maxlength="20" placeholder="ex : wallace" value="${esc(st.pseudo)}" autocomplete="off" autofocus oninput="set('pseudo',this.value)" ${PID ? 'disabled' : ''}>
+    ${pers ? `<label class="f">${PID ? 'Nouveau mot de passe (facultatif)' : 'Mot de passe (6 caractères minimum)'}</label><input id="np" type="password" autocomplete="new-password" value="${esc(st.newpw)}" oninput="set('newpw',this.value)">` : ''}
+    ${!PID && SITE.needCode ? `<label class="f">Code d'invitation</label><input type="text" value="${esc(st.code)}" oninput="set('code',this.value)">` : ''}
+    <div class="err">${esc(st.err)}</div>
+    <div class="row"><button class="btn" onclick="toComps()">Continuer</button></div></div>`;
+}
+async function unlock() {
+  const r = await post('/api/profile', { action: 'open', id: PID, password: $('#pw').value });
+  if (!r.ok) { st.err = r.error || 'Erreur'; return render(); }
+  st.password = $('#pw').value; st.pseudo = r.pseudo; st.cfg = r.cfg; st.locked = false; st.err = ''; render();
+}
+function toComps() {
+  const p = st.pseudo.toLowerCase().replace(/[^a-z0-9_]/g, '');
+  if (p.length < 2) { st.err = 'Pseudo trop court (2 caractères minimum, lettres et chiffres).'; return render(); }
+  if (st.persistent && !(PID && !st.newpw) && st.newpw.length < 6) { st.err = 'Choisis un mot de passe d\'au moins 6 caractères.'; return render(); }
+  st.pseudo = p; st.err = ''; go(1);
+}
+function go(n) { st.step = n; st.err = ''; render(); scrollTo(0, 0); }
+
+// 2 · compétitions
+function vComps() {
+  const rows = SITE.comps.map(c => `<div class="opt ${st.cfg.comps.includes(c.id) ? 'on' : ''}" onclick="togComp('${c.id}')"><div class="ck"></div><div><b>${esc(c.name)}</b><span>${esc(c.desc)}</span></div></div>`).join('');
+  return `<div class="card"><h2>Compétitions</h2><p class="hint">Choisis ce que tu veux voir dans tes catalogues. Les séries (« Valorant 2026 ») sont rangées par saison.</p>${rows}
+    <div class="err">${esc(st.err)}</div>
+    <div class="row"><button class="btn g" onclick="go(0)">Retour</button><button class="btn" onclick="nextComps()">Continuer</button></div></div>`;
+}
+function togComp(id) { const a = st.cfg.comps, i = a.indexOf(id); i < 0 ? a.push(id) : a.splice(i, 1); render(); }
+function nextComps() { if (!st.cfg.comps.length) { st.err = 'Garde au moins une compétition.'; return render(); } go(2); loadTeams(); }
+
+// 3 · équipes d'Europe
+async function loadTeams() {
+  if (st.teams) return;
+  try { const r = await api('/api/teams'); st.teams = r.teams || []; st.tsrc = r.source; } catch { st.teams = []; }
+  if (st.step === 2) render();
+}
+function vTeams() {
+  const q = st.tq.toLowerCase(), list = (st.teams || []).filter(t => !q || t.name.toLowerCase().includes(q) || (t.code || '').toLowerCase().includes(q));
+  const grid = !st.teams ? '<p class="note">Chargement des équipes…</p>' : list.map(t => `<div class="team ${st.cfg.teams.includes(t.name) ? 'on' : ''}" onclick="togTeam(${JSON.stringify(t.name).replace(/"/g, '&quot;')})">${t.logo ? `<img src="${esc(t.logo)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=lg>${esc((t.code || t.name).slice(0, 3))}</div>'">` : `<div class="lg">${esc((t.code || t.name).slice(0, 3))}</div>`}<span>${esc(t.name)}</span></div>`).join('') || '<p class="note">Aucune équipe trouvée.</p>';
+  return `<div class="card"><h2>Ton équipe <small style="color:var(--m);font-weight:500">· Europe uniquement</small></h2><p class="hint">Tes équipes passent en tête avec un ⭐, et tu as un catalogue « Mon équipe » avec tous leurs matchs. Tu peux en choisir plusieurs ou aucune.</p>
+    <input type="text" placeholder="Rechercher une équipe" value="${esc(st.tq)}" oninput="set('tq',this.value);renderTeams()" id="tq">
+    <div class="teams" id="tg">${grid}</div>
+    <p class="note">${st.cfg.teams.length ? '⭐ ' + st.cfg.teams.map(esc).join(' · ') : 'Aucune équipe choisie pour l\'instant.'}</p>
+    <div class="row"><button class="btn g" onclick="go(1)">Retour</button><button class="btn" onclick="go(3)">Continuer</button></div></div>`;
+}
+function renderTeams() { const p = $('#tq'), pos = p.selectionStart; render(); const n = $('#tq'); n.focus(); n.setSelectionRange(pos, pos); }
+function togTeam(n) { const a = st.cfg.teams, i = a.indexOf(n); i < 0 ? (a.length < 12 && a.push(n)) : a.splice(i, 1); const y = scrollY; render(); scrollTo(0, y); }
+
+// 4 · options
+function vOptions() {
+  const c = st.cfg, caps = SITE.caps.filter(x => !SITE.capMax || (x && x <= SITE.capMax));
+  return `<div class="card"><h2>Options</h2><p class="hint">Tout se change plus tard.</p>
+    <label class="f">Langue préférée des lives et rediffusions</label>
+    <select onchange="st.cfg.lang=this.value"><option value="FR" ${c.lang === 'FR' ? 'selected' : ''}>🇫🇷 Français d'abord</option><option value="EN" ${c.lang === 'EN' ? 'selected' : ''}>🇬🇧 Anglais d'abord</option><option value="all" ${c.lang === 'all' ? 'selected' : ''}>Toutes les langues</option></select>
+    <label class="f">Qualité maximale</label>
+    <select onchange="st.cfg.cap=Number(this.value)">${caps.map(x => `<option value="${x}" ${c.cap === x ? 'selected' : ''}>${x ? 'Jusqu\'à ' + x + 'p' : 'Meilleure qualité'}</option>`).join('')}</select>
+    <div style="height:14px"></div>
+    <div class="opt ${c.score ? 'on' : ''}" onclick="st.cfg.score=!st.cfg.score;render()"><div class="ck"></div><div><b>Afficher les scores</b><span>Désactivé par défaut pour éviter les spoilers sur les affiches et les épisodes.</span></div></div>
+    <label class="f">Nom de l'appareil (facultatif)</label><input type="text" maxlength="24" placeholder="ex : TV salon" value="${esc(c.device)}" oninput="st.cfg.device=this.value">
+    <div class="row"><button class="btn g" onclick="go(2)">Retour</button><button class="btn" onclick="save()">${st.busy ? '…' : 'Enregistrer et vérifier'}</button></div>
+    <div class="err">${esc(st.err)}</div></div>`;
+}
+async function save() {
+  if (st.busy) return; st.busy = true; st.err = ''; render();
+  try {
+    if (st.persistent) {
+      const r = await post('/api/profile', { id: st.id, pseudo: st.pseudo, password: st.password, newPassword: st.newpw, code: st.code, cfg: st.cfg });
+      if (!r.ok) { st.busy = false; st.err = r.error || 'Erreur'; return render(); }
+      st.id = r.id; st.link = location.origin + '/u/' + r.id + '/manifest.json';
+    } else st.link = location.origin + '/c/' + st.pseudo + '/' + b64(st.cfg) + '/manifest.json';
+  } catch { st.busy = false; st.err = 'Connexion impossible, réessaie.'; return render(); }
+  st.busy = false; st.report = null; go(4); runVerify();
+}
+
+// 5 · vérification
+const ROWS = [['source', 'Matchs Valorant', 'valorantesports.com'], ['twitch', 'Twitch', 'lives des streamers'], ['equipe', 'Tes équipes', 'matchs trouvés'], ['replay', 'Rediffusions', 'lecture d\'un match terminé'], ['catalogues', 'Catalogues', 'ce qui apparaîtra dans Stremio']];
+async function runVerify() {
+  try { st.report = await api('/check?cfg=' + b64(st.cfg)); } catch { st.report = { error: true }; }
+  if (st.step === 4) render();
+}
+function rowState(k) {
+  const r = st.report; if (!r) return ['run', '', 'Analyse…'];
+  const d = r[k];
+  if (k === 'catalogues') return d && d.length ? ['ok', '', d.join(' · ')] : ['ko', '', 'aucun'];
+  if (k === 'equipe') return !st.cfg.teams.length ? ['w', '', 'Aucune équipe choisie (facultatif)'] : d ? ['ok', '', d.teams.map(t => t.name + ' : ' + t.matches + ' match' + (t.matches > 1 ? 's' : '')).join(' · ')] : ['w', '', 'non vérifié'];
+  if (k === 'replay' && !d) return ['w', '', 'Pas encore de match terminé à tester'];
+  if (!d) return ['w', '', 'non vérifié'];
+  if (!d.ok) return ['ko', d.ms, d.err || 'Erreur'];
+  if (k === 'source') return d.n ? ['ok', d.ms, d.n + ' matchs · ' + d.live + ' en direct · ' + d.upcoming + ' à venir · ' + d.done + ' terminés' + (d.stale ? ' (copie en cache)' : '')] : ['w', d.ms, 'Source joignable mais aucun match trouvé'];
+  if (k === 'twitch') return ['ok', d.ms, d.chaines + ' chaînes lues' + (d.live.length ? ' · en direct : ' + d.live.join(', ') : ' · aucune en direct')];
+  if (k === 'replay') return d.n ? ['ok', d.ms, d.match + ' · ' + d.langs.join(' / ')] : ['w', d.ms, d.match + ' : pas de vidéo pour l\'instant'];
+  return ['ok', '', ''];
+}
+function vVerify() {
+  const rep = st.report, rows = ROWS.map(([k, n, s]) => { const [c, ms, t] = rowState(k); return `<div class="vr ${c}"><div class="ic">${c === 'ok' ? '✓' : c === 'ko' ? '✕' : c === 'w' ? '!' : ''}</div><div><b>${n}</b><span>${esc(t || s)}</span></div>${ms !== '' ? `<em>${ms} ms</em>` : ''}</div>`; }).join('');
+  const bad = rep && (rep.error || (rep.source && !rep.source.ok));
+  return `<div class="card"><h2>Analyse de ton lien</h2><p class="hint">${rep ? (bad ? 'Un point bloque : tu peux quand même installer, ça se réparera tout seul si la source revient.' : 'Tout est prêt.') : 'Vérification en cours…'}</p>
+    <div class="vf">${rows}</div>
+    <div class="row"><button class="btn g" onclick="go(3)">Modifier</button><button class="btn g" onclick="st.report=null;render();runVerify()">Relancer</button><button class="btn" onclick="go(5)" ${rep ? '' : 'disabled'}>Installer</button></div></div>`;
+}
+
+// 6 · installation
+function vDone() {
+  const stremio = st.link.replace(/^https?:\/\//, 'stremio://');
+  return `<div class="card"><div class="big"><div class="em">🎯</div><h2>C'est prêt, ${esc(st.pseudo)} !</h2></div>
+    <p class="hint" style="text-align:center">Installe l'addon dans Stremio, c'est tout.</p>
+    <a class="btn" href="${esc(stremio)}">Installer dans Stremio</a>
+    <p class="note" style="text-align:center">Sur PC, ça ouvre l'application. Sur téléphone ou TV, copie l'adresse ci-dessous : Stremio → Addons → coller l'adresse.</p>
+    <div class="link"><input type="text" readonly value="${esc(st.link)}" onclick="this.select()" id="lk"><button onclick="copy()" id="cb">Copier</button></div>
+    ${st.persistent ? `<p class="note">Pour changer tes réglages plus tard : ouvre <b>${esc(location.origin)}/u/${esc(st.id)}/configure</b> (ou « Configurer » dans Stremio), sans réinstaller.</p>` : '<p class="note">Pour changer tes réglages, refais cette page puis réinstalle l\'addon.</p>'}
+    <div class="row"><button class="btn g" onclick="go(4);runVerify()">Retour</button><button class="btn g" onclick="go(1)">Modifier mes réglages</button></div></div>`;
+}
+function copy() { const i = $('#lk'); i.select(); (navigator.clipboard ? navigator.clipboard.writeText(i.value) : Promise.resolve(document.execCommand('copy'))).then(() => { $('#cb').textContent = 'Copié ✓'; }); }
+
+(async function init() {
+  try { const r = await api('/api/profile' + (PID ? '?id=' + PID : '')); st.persistent = !!r.persistent; if (PID) { if (!r.ok) st.err = r.error; else if (!r.locked) { st.locked = false; st.pseudo = r.pseudo; st.cfg = r.cfg; } } } catch { /* mode lien classique */ }
+  render();
+})();
+</script>
+</body>
+</html>
