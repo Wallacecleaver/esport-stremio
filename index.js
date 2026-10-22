@@ -4,6 +4,13 @@ const http = require('http');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+// Fichier .env (à la racine) : lu au démarrage, sans écraser les variables déjà définies.
+try {
+  for (const l of fs.readFileSync(path.join(__dirname, '.env'), 'utf8').split(/\r?\n/)) {
+    const m = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/.exec(l);
+    if (m && !l.trim().startsWith('#') && process.env[m[1]] === undefined) process.env[m[1]] = m[2].replace(/^(["'])(.*)\1$/, '$2');
+  }
+} catch { /* pas de .env */ }
 const store = require('./lib/store');
 const siteLib = require('./lib/site');
 const prefs = require('./lib/prefs');

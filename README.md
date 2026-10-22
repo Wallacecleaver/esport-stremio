@@ -11,3 +11,6 @@ Source des matchs : valorantesports.com. Choix d'équipe : Europe uniquement.
 ## Stockage
 - Upstash configuré → profils et stats dans Upstash.
 - Sinon (PC / VPS) → fichier `data/esport.json` (dossier modifiable avec `DATA_DIR`). Sauvegarde à garder pour ne pas perdre les profils.
+
+## Configuration locale (.env)
+Copie `.env.example` en `.env` et remplis `ADMIN_PASSWORD` : il est lu à chaque démarrage (le fichier n'est pas envoyé sur GitHub).
