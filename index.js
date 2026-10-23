@@ -261,4 +261,4 @@ async function handler(req, res) {
 }
 
 module.exports = handler; module.exports.handler = handler;
-if (require.main === module) http.createServer(handler).listen(PORT, () => console.log('Esport addon : http://localhost:' + PORT));
+if (require.main === module) http.createServer(handler).listen(PORT, () => console.log('Esportio : http://localhost:' + PORT));

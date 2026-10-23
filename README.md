@@ -1,4 +1,4 @@
-# Valorant Esport — addon Stremio
+# Esportio — addon Stremio (Valorant)
 
 Matchs Valorant (VCT, VCT EMEA, Game Changers, Champions, Esports World Cup) : lives Twitch et rediffusions FR/EN.
 Source des matchs : valorantesports.com. Choix d'équipe : Europe uniquement.
