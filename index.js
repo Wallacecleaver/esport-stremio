@@ -139,10 +139,10 @@ const adminRoute = makeAdmin({
   async replay(raw) {
     const S = await siteLib.load(), d = await A.load(S), m = A.byRaw(d, raw);
     if (!m) return { error: 'match introuvable' };
-    const t0 = Date.now(), official = await val.replays(m.raw).then(r => ({ ok: true, langs: r.map(x => x.lang + ' (' + x.parts.length + ' vidéo' + (x.parts.length > 1 ? 's' : '') + ')') }), e => ({ ok: false, err: e.message }));
+    const t0 = Date.now(), official = await val.replays(m.raw).then(r => ({ ok: true, langs: r.map(x => x.lang + ' (' + [x.parts.length ? x.parts.length + ' Twitch' : '', x.yt && x.yt.length ? x.yt.length + ' YouTube' : ''].filter(Boolean).join(' + ') + ')') }), e => ({ ok: false, err: e.message }));
     const reps = await A.replaysOf(m, S);
-    const test = reps[0] ? await tw.vodMaster(reps[0].parts[0].v).then(r => ({ ok: true, via: r.via, qualites: r.variants.map(v => v.h + 'p').join(' · ') }), e => ({ ok: false, err: e.message })) : null;
-    return { match: M.matchTitle(m), officiel: official, sources: reps.map(r => ({ lang: r.lang, label: r.label, src: r.src, parties: r.parts.length })), lecture: test, ms: Date.now() - t0 };
+    const firstTw = reps.find(r => r.parts.length), test = firstTw ? await tw.vodMaster(firstTw.parts[0].v).then(r => ({ ok: true, via: r.via, qualites: r.variants.map(v => v.h + 'p').join(' · ') }), e => ({ ok: false, err: e.message })) : null;
+    return { match: M.matchTitle(m), officiel: official, sources: reps.map(r => ({ lang: r.lang, label: r.label, src: r.src, parties: r.parts.length + (r.yt && r.yt.length ? r.yt.length : 0) })), lecture: test, ms: Date.now() - t0 };
   },
   async relay(login) { return { ...(await tw.relayReport(login.toLowerCase())), stats: tw.relayStats() }; },
   async chanstatus(logins) {

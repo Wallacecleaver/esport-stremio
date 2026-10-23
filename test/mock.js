@@ -19,7 +19,7 @@ const server = http.createServer((req, res) => {
   if (u.pathname.endsWith('getSchedule')) return send({ data: { schedule: { events: (SCH[u.searchParams.get('leagueId')] || []), pages: {} } } });
   if (u.pathname.endsWith('getEventDetails')) {
     const id = u.searchParams.get('id'), done = ['101', '102', '201'].includes(id);
-    return send({ data: { event: { match: { games: done ? [{ number: 1, state: 'completed', vods: [vod('fr-FR', '9001', 600, 2400), vod('en-US', '9002', 700, 2500)] }, { number: 2, state: 'completed', vods: [vod('fr-FR', '9001', 3000, 5000), vod('en-US', '9002', 3100, 5200)] }] : [] } } } });
+    return send({ data: { event: { match: { games: done ? [{ number: 1, state: 'completed', vods: [vod('fr-FR', '9001', 600, 2400), vod('en-US', '9002', 700, 2500)] }, { number: 2, state: 'completed', vods: [vod('fr-FR', '9001', 3000, 5000), vod('en-US', '9002', 3100, 5200), { provider: 'youtube', parameter: 'YTabc123', locale: 'en-US' }] }] : [] } } } });
   }
   if (req.method === 'POST' && u.pathname === '/gql') {
     let b = ''; req.on('data', c => b += c); req.on('end', () => { const q = JSON.parse(b).query || ''; const d = {}; (q.match(/c\d+: user\(login: "[^"]+"\)/g) || []).forEach((m, i) => { const login = /"([^"]+)"/.exec(m)[1]; d['c' + i] = { login, displayName: login, profileImageURL: '', stream: login === 'itachi' ? { title: 'VCT EMEA', viewersCount: 1234, game: { displayName: 'VALORANT' } } : null }; }); if (/user\(login: "valorant"\) \{ id/.test(q)) d.user = { id: '1' }; send({ data: d }); });
