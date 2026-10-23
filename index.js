@@ -232,7 +232,10 @@ async function handler(req, res) {
     if (head === 'poster' || head === 'thumb' || head === 'bg') {
       if (!poster.available()) return send(res, 404, 'text/plain', 'affiches indisponibles');
       const png = b => send(res, 200, 'image/png', b, { 'Cache-Control': 'public, max-age=1800' });
-      if (head === 'poster' && seg[1] === 'series') { const y = Number(strip(seg[2])) || M.yearOf(Date.now()); return png(await poster.seriesPoster({ year: y, title: 'VALORANT', subtitle: 'VCT · EMEA · GAME CHANGERS · EWC' })); }
+      if (head === 'poster' && seg[1] === 'event') {
+        const e = await A.eventByKey(S, strip(seg[2]).toLowerCase()); if (!e) return send(res, 404, 'text/plain', 'événement inconnu');
+        return png(await poster.eventPoster({ name: e.event.name, year: e.year, comp: (A.COMPS[e.comp] || {}).label || 'Valorant', logo: e.event.logo, count: e.matches.length, live: e.live }));
+      }
       const raw = head === 'poster' ? strip(seg[1]) : strip(seg[1]), data = await A.load(S), m = A.byRaw(data, raw);
       if (!m) return send(res, 404, 'text/plain', 'match inconnu');
       const spoil = !!new URL(req.url, 'http://x').searchParams.get('s');

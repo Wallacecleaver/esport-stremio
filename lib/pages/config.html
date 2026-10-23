@@ -122,7 +122,7 @@ function go(n) { st.step = n; st.err = ''; render(); scrollTo(0, 0); }
 // 2 · compétitions
 function vComps() {
   const rows = SITE.comps.map(c => `<div class="opt ${st.cfg.comps.includes(c.id) ? 'on' : ''}" onclick="togComp('${c.id}')"><div class="ck"></div><div><b>${esc(c.name)}</b><span>${esc(c.desc)}</span></div></div>`).join('');
-  return `<div class="card"><h2>Compétitions</h2><p class="hint">Choisis ce que tu veux voir dans tes catalogues. Les séries (« Valorant 2026 ») sont rangées par saison.</p>${rows}
+  return `<div class="card"><h2>Compétitions</h2><p class="hint">Choisis ce que tu veux voir dans tes catalogues. Chaque compétition a son propre catalogue dans Stremio.</p>${rows}
     <div class="err">${esc(st.err)}</div>
     <div class="row"><button class="btn g" onclick="go(0)">Retour</button><button class="btn" onclick="nextComps()">Continuer</button></div></div>`;
 }

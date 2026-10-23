@@ -228,10 +228,20 @@ async function tmSave() {
 async function tmReset() { await saveSite({ teams: [] }); S.site.teams = null; toast('Liste automatique rétablie'); teams(); }
 
 // ---- chaînes
-let CH = null, CS = {};
+let CH = null, CS = {}, TC = {}, TL = [];
 const LOGIN = /^[a-z0-9_]{3,25}$/;
-async function chStatus() { try { CS = await api('chanstatus?logins=' + encodeURIComponent(CH.map(c => c.login).join(','))); } catch { CS = {}; } if (tab === 'chans') drawChans(); }
-function chans() { CH = S.channels.map(c => ({ ...c })); CS = {}; drawChans(); chStatus(); }
+async function chStatus() { try { CS = await api('chanstatus?logins=' + encodeURIComponent([...CH.map(c => c.login), ...Object.values(TC).flat().map(c => c.login)].join(','))); } catch { CS = {}; } if (tab === 'chans') drawChans(); }
+async function chans() { CH = S.channels.map(c => ({ ...c })); CS = {}; TC = JSON.parse(JSON.stringify(S.site.teamChannels || {})); drawChans(); chStatus(); try { TL = (await api('teams')).teams; } catch { TL = []; } if (tab === 'chans') drawChans(); }
+async function tcSave(msg) { const r = await saveSite({ teamChannels: TC }); toast(r.ok === false ? 'Erreur' : msg || 'Enregistré', r.ok === false); }
+async function tcAdd() {
+  const code = $('#tt_team').value, v = $('#tt_login').value.trim().toLowerCase().replace(/^https?:\/\/(www\.)?twitch\.tv\//, '').replace(/[/?#].*$/, '').replace(/^@/, '');
+  if (!code) return toast('Choisis une équipe', true); if (!LOGIN.test(v)) return toast('Pseudo Twitch invalide', true);
+  if ((TC[code] || []).some(c => c.login === v)) return toast('Déjà ajouté pour cette équipe', true);
+  const r = await api('chanstatus?logins=' + v); if (!r[v]) return toast('Chaîne introuvable sur Twitch', true);
+  (TC[code] ||= []).push({ login: v, label: r[v].name || v, lang: $('#tt_lang').value }); CS = { ...CS, ...r };
+  await tcSave((r[v].name || v) + ' ajouté pour ' + code); drawChans();
+}
+function tcDel(code, i) { TC[code].splice(i, 1); if (!TC[code].length) delete TC[code]; tcSave('Retiré'); drawChans(); }
 async function chSave(msg) { const r = await saveSite({ channels: CH }); toast(r.ok === false ? 'Erreur' : msg || 'Enregistré', r.ok === false); }
 function drawChans() {
   put(`<div class="box"><h3>Ajouter une chaîne Twitch</h3>
@@ -240,6 +250,11 @@ function drawChans() {
       <select id="nr" style="width:auto"><option>Co-stream</option><option>Officiel</option></select>
       <button class="b pr" onclick="addChan()">Ajouter</button></div>
     <p class="mut" style="font-size:.84rem">Le nom, la photo et l'état (en direct ou non) sont lus automatiquement sur Twitch. Les chaînes en direct apparaissent dans les sources d'un match.</p></div>
+  <div class="box"><h3>Co-streams par équipe</h3>
+    <p class="mut" style="margin-bottom:12px;font-size:.88rem">Quand une équipe joue, ses co-streamers apparaissent dans les sources du match (et en premier si c'est l'équipe du spectateur). Ex : Karmine Corp → Kameto.</p>
+    <div class="bar"><select id="tt_team" style="width:auto;min-width:200px"><option value="">Équipe…</option>${TL.map(t => `<option value="${esc(t.code || t.name)}">${esc(t.name)}${t.code ? ' (' + esc(t.code) + ')' : ''}</option>`).join('')}</select>
+      <input id="tt_login" placeholder="Pseudo Twitch du co-streamer" onkeydown="if(event.key==='Enter')tcAdd()"><select id="tt_lang" style="width:auto"><option value="FR">🇫🇷 FR</option><option value="EN">🇬🇧 EN</option></select><button class="b pr" onclick="tcAdd()">Ajouter</button></div>
+    ${Object.entries(TC).map(([code, list]) => `<div class="dg-row"><b style="min-width:70px">${esc(code)}</b><div class="d rp" style="margin:0">${list.map((c, i) => { const st = CS[c.login]; return `<span class="pill ${st && st.live ? 'live' : ''}">${st && st.live ? '<i class="dot live"></i>' : ''}${esc(c.label)} · ${esc(c.lang)} <a href="#" onclick="tcDel('${esc(code)}',${i});return false" style="margin-left:6px;color:var(--ko)">✕</a></span>`; }).join('')}</div></div>`).join('') || '<div class="empty">Aucun co-stream configuré</div>'}</div>
   <div class="box"><h3>Chaînes surveillées <span class="mut">(${CH.length})</span><span class="sp"><button class="b sm" onclick="chStatus();toast('Actualisé')">Actualiser</button><button class="b sm dg" onclick="chReset()">Remettre la liste par défaut</button></span></h3>
     ${CH.map((c, i) => { const st = CS[c.login]; return `<div class="dg-row"><span class="lgo" style="width:40px;height:40px;border-radius:50%">${st && st.avatar ? `<img src="${esc(st.avatar)}" alt="" style="padding:0">` : esc(c.login.slice(0, 2).toUpperCase())}</span>
       <div class="d"><b>${esc(c.label)}</b> ${st ? (st.live ? '<span class="pill live"><i class="dot live"></i>en direct · ' + st.viewers + ' 👁</span>' : '<span class="pill">hors ligne</span>') : ''}<br><small class="mono">twitch.tv/${esc(c.login)}</small></div>
