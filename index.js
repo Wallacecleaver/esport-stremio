@@ -25,7 +25,13 @@ const strip = s => String(s || '').replace(/\.json$/, '').replace(/\.png$/, '').
 const send = (res, status, type, body, headers = {}) => { res.writeHead(status, { 'Content-Type': type, ...headers }); res.end(body); };
 const json = (res, obj, headers = {}) => send(res, 200, 'application/json; charset=utf-8', JSON.stringify(obj), { 'Cache-Control': 'no-store', ...headers });
 const readBody = (req, max = 2e4) => new Promise((ok, no) => { let b = ''; req.on('data', c => { b += c; if (b.length > max) { no(new Error('trop gros')); req.destroy(); } }); req.on('end', () => ok(b)); req.on('error', no); });
-const originOf = req => 'https://' + String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
+// Adresse publique de l'addon : PUBLIC_URL si définie (VPS), sinon déduite de la requête (http en local, https derrière Vercel / un proxy).
+const originOf = req => {
+  if (process.env.PUBLIC_URL) return process.env.PUBLIC_URL.replace(/\/+$/, '');
+  const host = String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
+  const proto = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim() || (/^(localhost|127\.|0\.0\.0\.0|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|\[::1\])/.test(host) ? 'http' : 'https');
+  return proto + '://' + host;
+};
 const hits = new Map();
 const tooMany = req => { const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'x', now = Date.now(), h = (hits.get(ip) || []).filter(t => now - t < 60000); h.push(now); hits.set(ip, h); if (hits.size > 2000) hits.clear(); return h.length > 40; };
 

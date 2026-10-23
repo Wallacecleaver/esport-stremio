@@ -61,7 +61,7 @@ button.b.sm,a.b.sm{padding:4px 10px;font-size:.78rem;border-radius:8px}
 input,select,textarea{font:inherit;color:var(--t);background:var(--p2);border:1px solid var(--b2);border-radius:10px;padding:9px 12px;outline:none;width:100%;transition:.15s}
 textarea{min-height:140px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem}
 input:focus,select:focus,textarea:focus{border-color:var(--a);box-shadow:0 0 0 3px rgba(255,70,85,.15)}
-input[type=checkbox]{width:17px;height:17px;accent-color:var(--a)}input[type=color]{padding:2px;height:38px;width:64px}
+input[type=checkbox]{width:17px;height:17px;accent-color:var(--a)}input[type=file]::file-selector-button{font:inherit;font-weight:600;color:var(--t);background:var(--p3);border:1px solid var(--b2);border-radius:8px;padding:5px 12px;margin-right:12px;cursor:pointer}input[type=color]{padding:2px;height:38px;width:64px}
 .f{display:grid;gap:5px;margin-bottom:13px}.f label{font-size:.72rem;font-weight:700;color:var(--m);text-transform:uppercase;letter-spacing:.07em}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}.two>.box{margin-bottom:18px}
 .tg{display:flex;align-items:flex-start;gap:11px;padding:9px 0}.tg span{font-size:.9rem}.tg input{margin-top:3px}
@@ -199,17 +199,33 @@ async function runRelay() {
 }
 
 // ---- équipes
+let TM = null;
 async function teams() {
   put('<div class="empty">Chargement…</div>'); const r = await api('teams'), cur = S.site.teams;
-  put(`<div class="box"><h3>Équipes proposées aux utilisateurs <span class="pill ${r.source === 'officiel' ? 'ok' : 'w'}">${r.source === 'officiel' ? 'lues sur le calendrier officiel' : r.source === 'dashboard' ? 'liste personnalisée' : 'liste de secours'}</span></h3>
-    <p class="mut" style="margin-bottom:12px">Europe uniquement : équipes du VCT EMEA et du Game Changers EMEA. Tu peux imposer ta propre liste (une équipe par ligne, <span class="mono">CODE;Nom</span>). Vide = automatique.</p>
-    <div class="tw"><table><tr><th>Code</th><th>Équipe</th></tr>${r.teams.map(t => `<tr><td class="mono">${esc(t.code)}</td><td>${esc(t.name)}</td></tr>`).join('')}</table></div></div>
-    <div class="box"><h3>Liste personnalisée</h3><textarea id="tt" placeholder="FNC;Fnatic&#10;TH;Team Heretics">${esc((cur || []).map(t => t.code + ';' + t.name).join('\n'))}</textarea><div class="bar" style="margin-top:10px"><button class="b pr" onclick="saveTeams()">Enregistrer</button></div></div>`);
+  TM = { all: r.teams.map(t => ({ ...t })), off: new Set(), source: r.source };
+  if (cur && cur.length) { const keep = new Set(cur.map(t => t.code || t.name)); TM.off = new Set(TM.all.filter(t => !keep.has(t.code || t.name)).map(t => t.code || t.name)); cur.forEach(t => { if (!TM.all.some(x => (x.code || x.name) === (t.code || t.name))) TM.all.push({ ...t }); }); }
+  drawTeams();
 }
-async function saveTeams() {
-  const t = $('#tt').value.split('\n').map(l => l.trim()).filter(Boolean).map(l => { const [c, ...n] = l.split(';'); return n.length ? { code: c.trim(), name: n.join(';').trim() } : { code: '', name: c.trim() }; });
-  await saveSite({ teams: t.length ? t : [] , _clearTeams: !t.length }); S.site.teams = t.length ? t : null; teams();
+const tk = t => t.code || t.name;
+function drawTeams() {
+  const on = TM.all.filter(t => !TM.off.has(tk(t))).length;
+  put(`<div class="box"><h3>Équipes proposées aux utilisateurs <span class="mut">(${on} sur ${TM.all.length})</span><span class="pill ${TM.source === 'officiel' ? 'ok' : 'w'}">${TM.source === 'officiel' ? 'lues sur le calendrier officiel' : TM.source === 'dashboard' ? 'liste personnalisée' : 'liste de secours'}</span>
+    <span class="sp"><button class="b sm" onclick="tmAll(true)">Tout cocher</button><button class="b sm" onclick="tmAll(false)">Tout décocher</button></span></h3>
+    <p class="mut" style="margin-bottom:14px">Europe uniquement : équipes du VCT EMEA et du Game Changers EMEA. Décoche une équipe pour la retirer du choix dans la page de config.</p>
+    <div class="nx" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr))">${TM.all.map(t => `<label class="mc" style="cursor:pointer;${TM.off.has(tk(t)) ? 'opacity:.45' : ''}"><input type="checkbox" ${TM.off.has(tk(t)) ? '' : 'checked'} onchange="tmTog('${esc(tk(t)).replace(/'/g, '')}',this.checked)">${logo(t.logo, t.code)}<div class="tt"><b>${esc(t.name)}</b><small class="mono">${esc(t.code || '')}</small></div></label>`).join('')}</div>
+    <div class="bar" style="margin-top:16px"><button class="b pr" onclick="tmSave()">Enregistrer</button><button class="b" onclick="tmReset()">Revenir à la liste automatique</button></div></div>
+  <div class="box"><h3>Ajouter une équipe absente</h3><div class="bar"><input id="tc" placeholder="Code (ex : BBL)" style="max-width:150px;flex:none"><input id="tn" placeholder="Nom (ex : BBL Esports)"><button class="b" onclick="tmAdd()">Ajouter</button></div></div>`);
 }
+const tmAll = v => { TM.off = v ? new Set() : new Set(TM.all.map(tk)); drawTeams(); };
+const tmTog = (k, v) => { v ? TM.off.delete(k) : TM.off.add(k); drawTeams(); };
+function tmAdd() { const c = $('#tc').value.trim().toUpperCase(), n = $('#tn').value.trim(); if (!n) return toast('Indique un nom', true); if (TM.all.some(t => tk(t) === (c || n))) return toast('Équipe déjà présente', true); TM.all.push({ code: c, name: n, logo: null }); drawTeams(); }
+async function tmSave() {
+  const list = TM.all.filter(t => !TM.off.has(tk(t))).map(t => ({ code: t.code || '', name: t.name }));
+  if (!list.length) return toast('Garde au moins une équipe', true);
+  const same = TM.source === 'officiel' && !TM.off.size && TM.all.length === list.length;
+  await saveSite({ teams: same ? [] : list }); S.site.teams = same ? null : list; toast('Équipes enregistrées'); teams();
+}
+async function tmReset() { await saveSite({ teams: [] }); S.site.teams = null; toast('Liste automatique rétablie'); teams(); }
 
 // ---- chaînes
 let CH = null, CS = {};
