@@ -244,8 +244,14 @@ async function handler(req, res) {
     if (head === 'live') {
       const login = strip(seg[1]).toLowerCase();
       if (!tw.LOGIN_RE.test(login)) return send(res, 400, 'text/plain', 'chaîne invalide');
-      const txt = await tw.liveMaster(login, A.capOf(cfg, S), { relay: S.feat.relay });
-      return send(res, 200, 'application/vnd.apple.mpegurl', txt, { 'Cache-Control': 'no-store' });
+      const r = await tw.liveMaster(login, A.capOf(cfg, S), { relay: S.feat.relay, wrap: id => origin + base + '/m/' + id + '.m3u8' });
+      store.log({ k: 'play', u: pseudo || undefined, ch: login, relais: r.via, ms: Date.now() - t0, dev });
+      return send(res, 200, 'application/vnd.apple.mpegurl', r.text, { 'Cache-Control': 'no-store', 'X-Relais': r.via });
+    }
+    if (head === 'm') {
+      const u = tw.decU(strip(seg[1] || ''));
+      if (!u) return send(res, 400, 'text/plain', 'lien invalide');
+      return send(res, 200, 'application/vnd.apple.mpegurl', await tw.mediaPlaylist(u), { 'Cache-Control': 'no-store' });
     }
     if (head === 'vod') {
       const parts = A.decParts(new URL(req.url, 'http://x').searchParams.get('p'));
