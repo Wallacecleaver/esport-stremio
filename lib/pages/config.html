@@ -4,76 +4,141 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{NAME}} · Configuration</title>
-<meta name="theme-color" content="{{COLOR}}">
+<meta name="theme-color" content="#0a0b10">
 <link rel="icon" type="image/png" href="/logo.png?v={{V}}">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0b0d12;--p:#141821;--p2:#1b2030;--b:#2a3042;--t:#eef1f7;--m:#98a2b8;--a:{{COLOR}};--ok:#2dd4a0;--ko:#ff5d73;--w:#f5b942;--r:14px}
-html{color-scheme:dark;font-size:15px}
-body{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(800px 360px at 50% -100px,color-mix(in srgb,var(--a) 26%,transparent),transparent 70%) no-repeat,var(--bg);color:var(--t);min-height:100vh;line-height:1.55;-webkit-font-smoothing:antialiased}
-.wrap{max-width:720px;margin:0 auto;padding:28px 16px 70px}
-.brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:1.1rem;letter-spacing:-.01em;margin-bottom:22px}
-.brand img{width:36px;height:36px;border-radius:10px}
-.brand small{margin-left:auto;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--a);border:1px solid color-mix(in srgb,var(--a) 45%,transparent);padding:3px 11px;border-radius:99px}
-h1{font-size:1.75rem;line-height:1.15;letter-spacing:-.02em;font-weight:800;margin-bottom:6px}
-.sub{color:var(--m);margin-bottom:22px}
-.steps{display:flex;gap:6px;margin-bottom:18px}
-.steps i{flex:1;height:4px;border-radius:9px;background:var(--p2);transition:.3s}
-.steps i.on{background:var(--a)}
-.card{background:var(--p);border:1px solid var(--b);border-radius:var(--r);padding:22px}
-.card h2{font-size:1.15rem;font-weight:700;margin-bottom:4px}
-.card .hint{color:var(--m);font-size:.9rem;margin-bottom:16px}
-label.f{display:block;font-size:.8rem;font-weight:600;color:var(--m);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.06em}
-input[type=text],input[type=password],select{width:100%;font:inherit;color:var(--t);background:var(--p2);border:1px solid var(--b);border-radius:10px;padding:11px 13px;outline:none}
+:root{--bg:#0a0b10;--p:#12141c;--p2:#181b26;--p3:#1f2330;--b:#262a38;--b2:#363b4e;--t:#eef0f6;--m:#8b93a7;--a:{{COLOR}};--val:#ff4655;--lol:#c8aa6e;--ok:#2dd4a0;--ko:#ff5d73;--w:#f5b942;--r:16px;--disp:'Big Shoulders Display','Arial Narrow',Impact,sans-serif;--sans:Figtree,system-ui,-apple-system,'Segoe UI',sans-serif}
+html{color-scheme:dark;font-size:16px}
+body{font-family:var(--sans);background:var(--bg);color:var(--t);min-height:100vh;line-height:1.55;-webkit-font-smoothing:antialiased;position:relative}
+body::before{content:"";position:fixed;inset:0 0 auto 0;height:420px;background:radial-gradient(520px 300px at 18% 0,rgba(255,70,85,.16),transparent 70%),radial-gradient(520px 300px at 82% 0,rgba(200,170,110,.14),transparent 70%);pointer-events:none;z-index:0}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--t);outline-offset:2px}
+.wrap{position:relative;z-index:1;max-width:1040px;margin:0 auto;padding:26px 18px 80px}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:30px}
+.top img{width:40px;height:40px;border-radius:11px}
+.top b{font-family:var(--disp);font-size:1.7rem;font-weight:800;letter-spacing:.01em;line-height:1}
+.top .flags{margin-left:auto;display:flex;gap:6px}
+.top .flags i{width:10px;height:10px;border-radius:50%;display:block}
+.hero h1{font-family:var(--disp);font-weight:900;font-size:clamp(2.3rem,6vw,3.7rem);line-height:.98;letter-spacing:.005em;text-transform:uppercase;max-width:18ch}
+.hero p{color:var(--m);max-width:56ch;margin:14px 0 26px}
+.rail{display:flex;gap:4px;margin-bottom:22px;overflow-x:auto;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.rail button{flex:1 0 auto;min-width:92px;text-align:left;background:none;border:0;border-top:3px solid var(--b);padding:9px 4px 0;color:var(--m);font-size:.84rem;font-weight:600;cursor:default}
+.rail button small{display:block;font-family:var(--disp);font-size:1.15rem;font-weight:800;line-height:1.1;color:inherit}
+.rail button.done{border-top-color:var(--b2);color:var(--t);cursor:pointer}
+.rail button.on{border-top-color:var(--a);color:var(--t)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:22px;align-items:start}
+.grid.solo{grid-template-columns:minmax(0,1fr)}
+@media(max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--p);border:1px solid var(--b);border-radius:var(--r);padding:26px}
+.card h2{font-family:var(--disp);font-size:2rem;font-weight:800;line-height:1;margin-bottom:6px;text-transform:uppercase;letter-spacing:.01em}
+.card .hint{color:var(--m);font-size:.95rem;margin-bottom:20px;max-width:60ch}
+label.f{display:block;font-size:.84rem;font-weight:600;color:var(--m);margin:16px 0 6px}
+input[type=text],input[type=password],select{width:100%;background:var(--p2);border:1px solid var(--b);border-radius:11px;padding:12px 14px;outline:none}
 input:focus,select:focus{border-color:var(--a)}
-.tabs{display:flex;background:var(--p2);border-radius:10px;padding:4px;gap:4px;margin-bottom:6px}
-.tabs button{flex:1;font:inherit;font-weight:600;color:var(--m);background:none;border:0;border-radius:8px;padding:8px;cursor:pointer}
-.tabs button.on{background:var(--p);color:var(--t);box-shadow:0 0 0 1px var(--b)}
-.opt{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border:1px solid var(--b);border-radius:12px;background:var(--p2);cursor:pointer;margin-bottom:9px;transition:.15s;user-select:none}
-.opt:hover{border-color:#3a4260}
-.opt.on{border-color:var(--a);background:color-mix(in srgb,var(--a) 11%,var(--p2))}
-.opt .ck{flex:none;width:20px;height:20px;border-radius:6px;border:2px solid #4a5270;margin-top:2px;display:grid;place-items:center;font-size:.8rem;color:#fff}
-.opt.on .ck{background:var(--a);border-color:var(--a)}
-.opt.on .ck::after{content:"✓"}
-.opt b{display:block;font-weight:600}.opt span{color:var(--m);font-size:.88rem}
-.teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;margin-top:12px}
-.team{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--b);border-radius:12px;background:var(--p2);cursor:pointer;font-weight:600;font-size:.9rem;user-select:none;position:relative}
-.team img{width:30px;height:30px;object-fit:contain;flex:none}
-.team .lg{width:30px;height:30px;border-radius:8px;background:var(--p);display:grid;place-items:center;font-size:.7rem;color:var(--m);flex:none}
-.team.on{border-color:var(--a);background:color-mix(in srgb,var(--a) 12%,var(--p2))}
-.team.on::after{content:"⭐";position:absolute;top:4px;right:7px;font-size:.75rem}
-.note{font-size:.82rem;color:var(--m);margin-top:10px}
-.row{display:flex;gap:10px;margin-top:22px}
-.btn{font:inherit;font-weight:700;border:0;border-radius:11px;padding:12px 20px;cursor:pointer;background:var(--a);color:#fff;flex:1;transition:.15s}
-.btn:hover{filter:brightness(1.1)}.btn:disabled{opacity:.5;cursor:default}
+.btn{font-weight:700;border:0;border-radius:12px;padding:13px 22px;cursor:pointer;background:var(--a);color:#fff;flex:1;transition:filter .15s,transform .15s}
+.btn:hover{filter:brightness(1.12)}.btn:active{transform:translateY(1px)}.btn:disabled{opacity:.5;cursor:default}
 .btn.g{background:var(--p2);color:var(--t);border:1px solid var(--b);flex:none}
-.err{color:var(--ko);font-size:.88rem;margin-top:12px;min-height:1.2em}
-.vf{display:grid;gap:8px;margin-top:8px}
-.vr{display:flex;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--b);border-radius:12px;background:var(--p2)}
-.vr .ic{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.8rem;background:var(--p);color:var(--m)}
+a.btn{display:block;text-align:center;text-decoration:none}
+.row{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap}
+.err{color:var(--ko);font-size:.9rem;margin-top:12px;min-height:1.2em}
+.note{font-size:.85rem;color:var(--m);margin-top:12px}
+
+/* jeux */
+.games{display:grid;gap:14px}
+.game{position:relative;overflow:hidden;border:1.5px solid var(--b);border-radius:18px;background:var(--p2);transition:border-color .2s,background .2s}
+.game::before{content:"";position:absolute;top:-30%;right:-8%;width:46%;height:170%;transform:skewX(-14deg);background:var(--gc);opacity:.07;transition:opacity .25s}
+.game.on{border-color:var(--gc)}
+.game.on::before{opacity:.2}
+.game .head{position:relative;display:flex;align-items:center;gap:16px;padding:20px 22px;cursor:pointer;width:100%;background:none;border:0;text-align:left}
+.game .mark{flex:none;width:56px;height:56px;border-radius:14px;display:grid;place-items:center;font-family:var(--disp);font-weight:900;font-size:2rem;color:#0a0b10;background:var(--gc)}
+.game h3{font-family:var(--disp);font-size:2.1rem;font-weight:900;line-height:.95;text-transform:uppercase}
+.game p{color:var(--m);font-size:.9rem;margin-top:4px}
+.game .sw{margin-left:auto;flex:none;width:46px;height:26px;border-radius:99px;background:var(--p3);border:1px solid var(--b2);position:relative;transition:.2s}
+.game .sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--m);transition:.2s}
+.game.on .sw{background:var(--gc);border-color:var(--gc)}
+.game.on .sw::after{left:23px;background:#0a0b10}
+.comps{position:relative;display:grid;gap:8px;padding:0 22px 22px}
+.comp{display:flex;align-items:center;gap:13px;padding:13px 15px;border:1px solid var(--b);border-radius:13px;background:rgba(10,11,16,.5);cursor:pointer;text-align:left;width:100%;transition:border-color .15s}
+.comp:hover{border-color:var(--b2)}
+.comp .ck{flex:none;width:22px;height:22px;border-radius:7px;border:2px solid var(--b2);display:grid;place-items:center;font-size:.8rem;color:#0a0b10;font-weight:800}
+.comp.on{border-color:var(--gc)}
+.comp.on .ck{background:var(--gc);border-color:var(--gc)}
+.comp.on .ck::after{content:"✓"}
+.comp b{display:block;font-weight:700}
+.comp span{color:var(--m);font-size:.86rem}
+
+/* équipes */
+.sect{margin-top:24px}
+.sect:first-of-type{margin-top:6px}
+.sect h3{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font-family:var(--disp);font-size:1.45rem;font-weight:800;text-transform:uppercase;margin-bottom:12px}
+.sect h3 i{width:12px;height:12px;border-radius:3px;background:var(--gc);transform:skewX(-14deg)}
+.sect h3 small{font-family:var(--sans);font-size:.82rem;font-weight:500;color:var(--m);text-transform:none;margin-left:auto}
+.teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+.team{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 8px 12px;border:1.5px solid var(--b);border-radius:14px;background:var(--p2);cursor:pointer;text-align:center;transition:border-color .15s,background .15s}
+.team:hover{border-color:var(--b2)}
+.team img,.team .lg{width:52px;height:52px;object-fit:contain}
+.team .lg{border-radius:13px;background:var(--p3);display:grid;place-items:center;font-family:var(--disp);font-weight:800;font-size:1.2rem;color:var(--m)}
+.team b{font-size:.82rem;font-weight:600;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.team.on{border-color:var(--gc);background:color-mix(in srgb,var(--gc) 12%,var(--p2))}
+.team.on::after{content:"★";position:absolute;top:6px;right:8px;font-size:.85rem;color:var(--gc)}
+.tray{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 16px;min-height:34px;align-items:center}
+.tray .chip{display:inline-flex;align-items:center;gap:7px;padding:6px 8px 6px 12px;border-radius:99px;background:var(--p3);border:1px solid var(--b2);font-size:.85rem;font-weight:600;cursor:pointer}
+.tray .chip u{text-decoration:none;color:var(--m);font-size:.95rem;line-height:1}
+.tray em{color:var(--m);font-style:normal;font-size:.9rem}
+
+/* aperçu Stremio */
+.side{position:sticky;top:18px;background:var(--p);border:1px solid var(--b);border-radius:var(--r);padding:20px}
+.side h4{font-family:var(--disp);font-size:1.3rem;font-weight:800;text-transform:uppercase;margin-bottom:4px}
+.side .who{color:var(--m);font-size:.85rem;margin-bottom:14px}
+.cat{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:10px;background:var(--p2);margin-bottom:6px;font-size:.88rem;font-weight:600}
+.cat i{flex:none;width:8px;height:8px;border-radius:50%;background:var(--m)}
+.cat.val i{background:var(--val)}.cat.lol i{background:var(--lol)}
+.cat.sys i{background:var(--ok)}
+.side .lbl{font-size:.8rem;color:var(--m);margin:14px 0 6px;font-weight:600}
+.side .tm{display:flex;flex-wrap:wrap;gap:6px}
+.side .tm span{font-size:.8rem;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--p3)}
+@media(max-width:900px){.side{position:static}}
+
+/* options */
+.tog{display:flex;gap:14px;align-items:flex-start;padding:15px 16px;border:1.5px solid var(--b);border-radius:14px;background:var(--p2);cursor:pointer;margin-top:18px;width:100%;text-align:left}
+.tog .sw{flex:none;margin-top:2px;width:42px;height:24px;border-radius:99px;background:var(--p3);border:1px solid var(--b2);position:relative}
+.tog .sw::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--m);transition:.2s}
+.tog.on{border-color:var(--a)}
+.tog.on .sw{background:var(--a);border-color:var(--a)}
+.tog.on .sw::after{left:21px;background:#fff}
+.tog b{display:block}.tog span{color:var(--m);font-size:.88rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.two{grid-template-columns:1fr}}
+
+/* vérification */
+.vf{display:grid;gap:8px}
+.vr{display:flex;gap:13px;align-items:center;padding:13px 15px;border:1px solid var(--b);border-radius:13px;background:var(--p2)}
+.vr .ic{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:.85rem;background:var(--p3);color:var(--m)}
 .vr.ok .ic{background:rgba(45,212,160,.16);color:var(--ok)}.vr.ko .ic{background:rgba(255,93,115,.16);color:var(--ko)}.vr.w .ic{background:rgba(245,185,66,.16);color:var(--w)}
 .vr.run .ic{animation:sp 1s linear infinite;border:2px solid var(--b);border-top-color:var(--a);background:none;font-size:0}
-.vr b{display:block;font-weight:600;font-size:.93rem}.vr span{color:var(--m);font-size:.84rem;word-break:break-word}
+.vr b{display:block;font-size:.95rem}.vr span{color:var(--m);font-size:.85rem;word-break:break-word}
 .vr em{margin-left:auto;font-style:normal;color:var(--m);font-size:.78rem;flex:none}
 @keyframes sp{to{transform:rotate(360deg)}}
-.big{text-align:center;padding:8px 0}
-.big .em{font-size:2.6rem}
-.link{display:flex;gap:8px;margin-top:14px}
-.link input{font-size:.8rem;color:var(--m)}
-.link button{flex:none;font:inherit;font-weight:600;background:var(--p2);color:var(--t);border:1px solid var(--b);border-radius:10px;padding:0 16px;cursor:pointer}
-a.btn{display:block;text-align:center;text-decoration:none}
-.foot{text-align:center;color:var(--m);font-size:.8rem;margin-top:26px}
-.hidden{display:none!important}
-@media(max-width:480px){h1{font-size:1.45rem}.card{padding:18px}.teams{grid-template-columns:repeat(2,1fr)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* fin */
+.big{padding:8px 0 4px}
+.big h2{font-size:2.8rem}
+.link{display:flex;gap:8px;margin-top:16px}
+.link input{font-size:.82rem;color:var(--m)}
+.link button{flex:none;background:var(--p2);border:1px solid var(--b);border-radius:11px;padding:0 18px;cursor:pointer;font-weight:600}
+.foot{text-align:center;color:var(--m);font-size:.82rem;margin-top:30px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="brand"><img src="/logo.png?v={{V}}" alt=""><span>{{NAME}}</span><small>Esport</small></div>
-  <h1>{{TITLE}}</h1>
-  <p class="sub">VCT, VCT EMEA, Game Changers, Champions et Esports World Cup : lives Twitch et rediffusions, directement dans Stremio.{{TEXT}}</p>
-  <div class="steps" id="steps"><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="top"><img src="/logo.png?v={{V}}" alt=""><b>{{NAME}}</b><div class="flags" aria-hidden="true"><i style="background:var(--val)"></i><i style="background:var(--lol)"></i></div></div>
+  <div class="hero"><h1>{{TITLE}}</h1><p>Choisis tes jeux, tes championnats et tes équipes. Les lives Twitch (avec les co-streams) et les rediffusions arrivent directement dans Stremio.{{TEXT}}</p></div>
+  <nav class="rail" id="rail" aria-label="Étapes"></nav>
   <div id="view"></div>
   <p class="foot">{{CREDIT}}</p>
 </div>
@@ -86,11 +151,32 @@ const st = { step: 0, mode: PID ? 'edit' : 'new', id: PID, password: '', pseudo:
 const b64 = o => btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const api = (path, opt) => fetch(path, opt).then(r => r.json());
 const post = (path, body) => api(path, { method: 'POST', body: JSON.stringify(body) });
+const GAMES = [
+  { id: 'val', name: 'Valorant', tag: 'VCT EMEA, Masters, Champions, Game Changers, Esports World Cup', color: '#ff4655', mark: 'V', teams: 'VCT EMEA et Game Changers EMEA' },
+  { id: 'lol', name: 'League of Legends', tag: 'LEC, Worlds, MSI', color: '#c8aa6e', mark: 'L', teams: 'LEC' },
+];
+const gOf = c => c.game || 'val';
+const compsOf = g => SITE.comps.filter(c => gOf(c) === g);
+const gameOn = g => compsOf(g).some(c => st.cfg.comps.includes(c.id));
+const STEPS = ['Profil', 'Jeux', 'Équipes', 'Options', 'Vérification'];
 
-function bar() { document.querySelectorAll('#steps i').forEach((e, i) => e.classList.toggle('on', i <= st.step)); }
+function bar() {
+  $('#rail').innerHTML = STEPS.map((n, i) => `<button class="${i === st.step ? 'on' : i < st.step ? 'done' : ''}" ${i < st.step && st.step < 5 && !st.locked ? `onclick="go(${i})"` : 'tabindex="-1"'}><small>${n}</small></button>`).join('');
+}
 function set(k, v) { st[k] = v; }
-function render() { bar(); const v = $('#view'); v.innerHTML = [vProfile, vComps, vTeams, vOptions, vVerify, vDone][st.step](); after(); }
+function render() { bar(); const v = $('#view'), f = [vProfile, vComps, vTeams, vOptions, vVerify, vDone][st.step]; const main = f(); v.innerHTML = st.step >= 1 && st.step <= 3 ? `<div class="grid"><div>${main}</div>${side()}</div>` : `<div class="grid solo"><div>${main}</div></div>`; after(); }
 function after() { const f = document.querySelector('[autofocus]'); if (f && !f.value) f.focus(); }
+
+// aperçu en direct de ce que contiendra Stremio
+function side() {
+  const c = st.cfg, cats = [['sys', 'En direct & à venir']];
+  if (c.teams.length) cats.push(['sys', '⭐ Mon équipe']);
+  for (const x of SITE.comps) if (c.comps.includes(x.id)) cats.push([gOf(x), x.name]);
+  cats.push(['sys', 'Rediffusions']);
+  return `<aside class="side"><h4>Ton Esportio</h4><div class="who">${st.pseudo ? 'Profil ' + esc(st.pseudo) : 'Dans Stremio, tu verras :'}</div>
+    ${cats.map(([k, n]) => `<div class="cat ${k}"><i></i>${esc(n)}</div>`).join('')}
+    ${c.teams.length ? `<div class="lbl">Tes équipes</div><div class="tm">${c.teams.map(n => `<span>★ ${esc(n)}</span>`).join('')}</div>` : ''}</aside>`;
+}
 
 // 1 · profil
 function vProfile() {
@@ -119,48 +205,61 @@ function toComps() {
 }
 function go(n) { st.step = n; st.err = ''; render(); scrollTo(0, 0); }
 
-// 2 · compétitions
+// 2 · jeux et championnats
 function vComps() {
-  const rows = SITE.comps.map(c => `<div class="opt ${st.cfg.comps.includes(c.id) ? 'on' : ''}" onclick="togComp('${c.id}')"><div class="ck"></div><div><b>${esc(c.name)}</b><span>${esc(c.desc)}</span></div></div>`).join('');
-  return `<div class="card"><h2>Compétitions</h2><p class="hint">Choisis ce que tu veux voir dans tes catalogues. Chaque compétition a son propre catalogue dans Stremio.</p>${rows}
-    <div class="err">${esc(st.err)}</div>
+  const panels = GAMES.filter(g => compsOf(g.id).length).map(g => {
+    const on = gameOn(g.id), list = compsOf(g.id);
+    return `<div class="game ${on ? 'on' : ''}" style="--gc:${g.color}">
+      <button class="head" onclick="togGame('${g.id}')" aria-pressed="${on}"><div class="mark">${g.mark}</div><div><h3>${g.name}</h3><p>${esc(g.tag)}</p></div><div class="sw"></div></button>
+      <div class="comps">${list.map(c => `<button class="comp ${st.cfg.comps.includes(c.id) ? 'on' : ''}" onclick="togComp('${c.id}')"><div class="ck"></div><div><b>${esc(c.name)}</b><span>${esc(c.desc)}</span></div></button>`).join('')}</div></div>`;
+  }).join('');
+  return `<div class="card"><h2>Tes jeux et championnats</h2><p class="hint">Active un jeu pour tout suivre, ou coche seulement les championnats qui t'intéressent. Chacun a son catalogue dans Stremio.</p>
+    <div class="games">${panels}</div><div class="err">${esc(st.err)}</div>
     <div class="row"><button class="btn g" onclick="go(0)">Retour</button><button class="btn" onclick="nextComps()">Continuer</button></div></div>`;
 }
+function togGame(g) { const ids = compsOf(g).map(c => c.id), a = st.cfg.comps; if (gameOn(g)) st.cfg.comps = a.filter(x => !ids.includes(x)); else ids.forEach(x => !a.includes(x) && a.push(x)); render(); }
 function togComp(id) { const a = st.cfg.comps, i = a.indexOf(id); i < 0 ? a.push(id) : a.splice(i, 1); render(); }
-function nextComps() { if (!st.cfg.comps.length) { st.err = 'Garde au moins une compétition.'; return render(); } go(2); loadTeams(); }
+function nextComps() { if (!st.cfg.comps.length) { st.err = 'Garde au moins un championnat.'; return render(); } go(2); loadTeams(); }
 
-// 3 · équipes d'Europe
+// 3 · équipes, rangées par championnat
 async function loadTeams() {
   if (st.teams) return;
   try { const r = await api('/api/teams'); st.teams = r.teams || []; st.tsrc = r.source; } catch { st.teams = []; }
   if (st.step === 2) render();
 }
+const initials = t => esc((t.code || t.name).slice(0, 3));
+function tile(t, g) {
+  const on = st.cfg.teams.includes(t.name);
+  return `<button class="team ${on ? 'on' : ''}" style="--gc:${g.color}" aria-pressed="${on}" onclick="togTeam(${JSON.stringify(t.name).replace(/"/g, '&quot;')})">${t.logo ? `<img src="${esc(t.logo)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=lg>${initials(t)}</div>'">` : `<div class="lg">${initials(t)}</div>`}<b>${esc(t.name)}</b></button>`;
+}
 function vTeams() {
-  const q = st.tq.toLowerCase(), list = (st.teams || []).filter(t => (!st.tg || (t.games || ['val']).includes(st.tg)) && (!q || t.name.toLowerCase().includes(q) || (t.code || '').toLowerCase().includes(q)));
-  const grid = !st.teams ? '<p class="note">Chargement des équipes…</p>' : list.map(t => `<div class="team ${st.cfg.teams.includes(t.name) ? 'on' : ''}" onclick="togTeam(${JSON.stringify(t.name).replace(/"/g, '&quot;')})">${t.logo ? `<img src="${esc(t.logo)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=lg>${esc((t.code || t.name).slice(0, 3))}</div>'">` : `<div class="lg">${esc((t.code || t.name).slice(0, 3))}</div>`}<span>${esc(t.name)}<small style="display:block;color:var(--m);font-weight:500;font-size:.68rem">${(t.games || ['val']).map(g => g === 'lol' ? 'LoL' : 'Valorant').join(' · ')}</small></span></div>`).join('') || '<p class="note">Aucune équipe trouvée.</p>';
-  return `<div class="card"><h2>Ton équipe <small style="color:var(--m);font-weight:500">· Europe (Valorant EMEA) et LEC (LoL)</small></h2><p class="hint">Tes équipes passent en tête avec un ⭐, et tu as un catalogue « Mon équipe » avec tous leurs matchs. Tu peux en choisir plusieurs ou aucune.</p>
-    <div class="row" style="margin:0 0 10px;gap:8px;justify-content:flex-start">${[['', 'Toutes'], ['val', 'Valorant'], ['lol', 'LoL · LEC']].map(([v, n]) => `<button class="btn ${(st.tg || '') === v ? '' : 'g'}" style="padding:7px 14px" onclick="set('tg','${v}');render()">${n}</button>`).join('')}</div>
-    <input type="text" placeholder="Rechercher une équipe" value="${esc(st.tq)}" oninput="set('tq',this.value);renderTeams()" id="tq">
-    <div class="teams" id="tg">${grid}</div>
-    <p class="note">${st.cfg.teams.length ? '⭐ ' + st.cfg.teams.map(esc).join(' · ') : 'Aucune équipe choisie pour l\'instant.'}</p>
+  const q = st.tq.toLowerCase(), all = st.teams || [], c = st.cfg;
+  const sections = GAMES.filter(g => gameOn(g.id)).map(g => {
+    const l = all.filter(t => (t.games || ['val']).includes(g.id) && (!q || t.name.toLowerCase().includes(q) || (t.code || '').toLowerCase().includes(q)));
+    return `<section class="sect" style="--gc:${g.color}"><h3><i></i>${g.id === 'lol' ? 'LEC' : 'VCT EMEA'}<small>${g.name} · ${esc(g.teams)}</small></h3>${l.length ? `<div class="teams">${l.map(t => tile(t, g)).join('')}</div>` : '<p class="note">Aucune équipe trouvée.</p>'}</section>`;
+  }).join('');
+  const tray = c.teams.length ? c.teams.map(n => `<span class="chip" onclick="togTeam(${JSON.stringify(n).replace(/"/g, '&quot;')})">★ ${esc(n)} <u>×</u></span>`).join('') : '<em>Aucune équipe choisie. C\'est facultatif.</em>';
+  return `<div class="card"><h2>Tes équipes</h2><p class="hint">Seules les équipes européennes sont proposées : le VCT EMEA pour Valorant, la LEC pour League of Legends. Tes équipes passent en tête avec une étoile, et tu as un catalogue « Mon équipe » avec leurs matchs et leurs co-streams. Une équipe présente dans les deux jeux se choisit une fois.</p>
+    <div class="tray">${tray}</div>
+    <input type="text" placeholder="Rechercher une équipe" value="${esc(st.tq)}" oninput="set('tq',this.value);renderTeams()" id="tq" aria-label="Rechercher une équipe">
+    ${!st.teams ? '<p class="note">Chargement des équipes…</p>' : sections || '<p class="note">Active un jeu à l\'étape précédente pour choisir des équipes.</p>'}
     <div class="row"><button class="btn g" onclick="go(1)">Retour</button><button class="btn" onclick="go(3)">Continuer</button></div></div>`;
 }
 function renderTeams() { const p = $('#tq'), pos = p.selectionStart; render(); const n = $('#tq'); n.focus(); n.setSelectionRange(pos, pos); }
-function togTeam(n) { const a = st.cfg.teams, i = a.indexOf(n); i < 0 ? (a.length < 12 && a.push(n)) : a.splice(i, 1); const y = scrollY; render(); scrollTo(0, y); }
+function togTeam(n) { const a = st.cfg.teams, i = a.indexOf(n); i < 0 ? (a.length < 12 && a.push(n)) : a.splice(i, 1); const y = scrollY, p = $('#tq'), f = p && document.activeElement === p, pos = f ? p.selectionStart : 0; render(); scrollTo(0, y); if (f) { const q = $('#tq'); q.focus(); q.setSelectionRange(pos, pos); } }
 
 // 4 · options
 function vOptions() {
   const c = st.cfg, caps = SITE.caps.filter(x => !SITE.capMax || (x && x <= SITE.capMax));
   return `<div class="card"><h2>Options</h2><p class="hint">Tout se change plus tard.</p>
-    <label class="f">Langue préférée des lives et rediffusions</label>
-    <select onchange="st.cfg.lang=this.value"><option value="FR" ${c.lang === 'FR' ? 'selected' : ''}>🇫🇷 Français d'abord</option><option value="EN" ${c.lang === 'EN' ? 'selected' : ''}>🇬🇧 Anglais d'abord</option><option value="all" ${c.lang === 'all' ? 'selected' : ''}>Toutes les langues</option></select>
-    <label class="f">Qualité maximale</label>
-    <select onchange="st.cfg.cap=Number(this.value)">${caps.map(x => `<option value="${x}" ${c.cap === x ? 'selected' : ''}>${x ? 'Jusqu\'à ' + x + 'p' : 'Meilleure qualité'}</option>`).join('')}</select>
-    <div style="height:14px"></div>
-    <div class="opt ${c.score ? 'on' : ''}" onclick="st.cfg.score=!st.cfg.score;render()"><div class="ck"></div><div><b>Afficher les scores</b><span>Désactivé par défaut pour éviter les spoilers sur les affiches et les épisodes.</span></div></div>
+    <div class="two"><div><label class="f">Langue préférée des lives et rediffusions</label>
+    <select onchange="st.cfg.lang=this.value"><option value="FR" ${c.lang === 'FR' ? 'selected' : ''}>🇫🇷 Français d'abord</option><option value="EN" ${c.lang === 'EN' ? 'selected' : ''}>🇬🇧 Anglais d'abord</option><option value="all" ${c.lang === 'all' ? 'selected' : ''}>Toutes les langues</option></select></div>
+    <div><label class="f">Qualité maximale</label>
+    <select onchange="st.cfg.cap=Number(this.value)">${caps.map(x => `<option value="${x}" ${c.cap === x ? 'selected' : ''}>${x ? 'Jusqu\'à ' + x + 'p' : 'Meilleure qualité'}</option>`).join('')}</select></div></div>
+    <button class="tog ${c.score ? 'on' : ''}" onclick="st.cfg.score=!st.cfg.score;render()" aria-pressed="${!!c.score}"><div class="sw"></div><div><b>Afficher les scores</b><span>Désactivé par défaut pour éviter les spoilers sur les affiches et les épisodes.</span></div></button>
     <label class="f">Nom de l'appareil (facultatif)</label><input type="text" maxlength="24" placeholder="ex : TV salon" value="${esc(c.device)}" oninput="st.cfg.device=this.value">
-    <div class="row"><button class="btn g" onclick="go(2)">Retour</button><button class="btn" onclick="save()">${st.busy ? '…' : 'Enregistrer et vérifier'}</button></div>
-    <div class="err">${esc(st.err)}</div></div>`;
+    <div class="err">${esc(st.err)}</div>
+    <div class="row"><button class="btn g" onclick="go(2)">Retour</button><button class="btn" onclick="save()">${st.busy ? 'Enregistrement…' : 'Enregistrer et vérifier'}</button></div></div>`;
 }
 async function save() {
   if (st.busy) return; st.busy = true; st.err = ''; render();
@@ -204,11 +303,11 @@ function vVerify() {
 // 6 · installation
 function vDone() {
   const stremio = st.link.replace(/^https?:\/\//, 'stremio://');
-  return `<div class="card"><div class="big"><div class="em">🎯</div><h2>C'est prêt, ${esc(st.pseudo)} !</h2></div>
-    <p class="hint" style="text-align:center">Installe l'addon dans Stremio, c'est tout.</p>
+  return `<div class="card"><div class="big"><h2>C'est prêt, ${esc(st.pseudo)}</h2></div>
+    <p class="hint">Installe l'addon dans Stremio, c'est tout.</p>
     <a class="btn" href="${esc(stremio)}">Installer dans Stremio</a>
-    <p class="note" style="text-align:center">Sur PC, ça ouvre l'application. Sur téléphone ou TV, copie l'adresse ci-dessous : Stremio → Addons → coller l'adresse.</p>
-    <div class="link"><input type="text" readonly value="${esc(st.link)}" onclick="this.select()" id="lk"><button onclick="copy()" id="cb">Copier</button></div>
+    <p class="note">Sur PC, ça ouvre l'application. Sur téléphone ou TV, copie l'adresse ci-dessous : Stremio → Addons → coller l'adresse.</p>
+    <div class="link"><input type="text" readonly value="${esc(st.link)}" onclick="this.select()" id="lk" aria-label="Adresse d'installation"><button onclick="copy()" id="cb">Copier</button></div>
     ${st.persistent ? `<p class="note">Pour changer tes réglages plus tard : ouvre <b>${esc(location.origin)}/u/${esc(st.id)}/configure</b> (ou « Configurer » dans Stremio), sans réinstaller.</p>` : '<p class="note">Pour changer tes réglages, refais cette page puis réinstalle l\'addon.</p>'}
     <div class="row"><button class="btn g" onclick="go(4);runVerify()">Retour</button><button class="btn g" onclick="go(1)">Modifier mes réglages</button></div></div>`;
 }
