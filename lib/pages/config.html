@@ -87,6 +87,8 @@ a.btn{display:block;text-align:center;text-decoration:none}
 .team.on::after{content:"★";position:absolute;top:6px;right:8px;font-size:.85rem;color:var(--gc)}
 .tray{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 16px;min-height:34px;align-items:center}
 .tray .chip{display:inline-flex;align-items:center;gap:7px;padding:6px 8px 6px 12px;border-radius:99px;background:var(--p3);border:1px solid var(--b2);font-size:.85rem;font-weight:600;cursor:pointer}
+.chip img,.side .tm img{width:20px;height:20px;object-fit:contain;flex:none}
+.side .tm span{display:inline-flex;align-items:center;gap:6px}
 .tray .chip u{text-decoration:none;color:var(--m);font-size:.95rem;line-height:1}
 .tray em{color:var(--m);font-style:normal;font-size:.9rem}
 
@@ -175,7 +177,7 @@ function side() {
   cats.push(['sys', 'Rediffusions']);
   return `<aside class="side"><h4>Ton Esportio</h4><div class="who">${st.pseudo ? 'Profil ' + esc(st.pseudo) : 'Dans Stremio, tu verras :'}</div>
     ${cats.map(([k, n]) => `<div class="cat ${k}"><i></i>${esc(n)}</div>`).join('')}
-    ${c.teams.length ? `<div class="lbl">Tes équipes</div><div class="tm">${c.teams.map(n => `<span>★ ${esc(n)}</span>`).join('')}</div>` : ''}</aside>`;
+    ${c.teams.length ? `<div class="lbl">Tes équipes</div><div class="tm">${c.teams.map(n => `<span>${logoOf(n)}${esc(n)}</span>`).join('')}</div>` : ''}</aside>`;
 }
 
 // 1 · profil
@@ -227,10 +229,11 @@ async function loadTeams() {
   try { const r = await api('/api/teams'); st.teams = r.teams || []; st.tsrc = r.source; } catch { st.teams = []; }
   if (st.step === 2) render();
 }
+const logoOf = n => { const t = (st.teams || []).find(x => x.name === n); return t && t.logo ? `<img src="${esc(t.logo)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : '★ '; };
 const initials = t => esc((t.code || t.name).slice(0, 3));
 function tile(t, g) {
   const on = st.cfg.teams.includes(t.name);
-  return `<button class="team ${on ? 'on' : ''}" style="--gc:${g.color}" aria-pressed="${on}" onclick="togTeam(${JSON.stringify(t.name).replace(/"/g, '&quot;')})">${t.logo ? `<img src="${esc(t.logo)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=lg>${initials(t)}</div>'">` : `<div class="lg">${initials(t)}</div>`}<b>${esc(t.name)}</b></button>`;
+  return `<button class="team ${on ? 'on' : ''}" style="--gc:${g.color}" aria-pressed="${on}" onclick="togTeam(${JSON.stringify(t.name).replace(/"/g, '&quot;')})">${t.logo ? `<img src="${esc(t.logo)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=lg>${initials(t)}</div>'">` : `<div class="lg">${initials(t)}</div>`}<b>${esc(t.name)}</b></button>`;
 }
 function vTeams() {
   const q = st.tq.toLowerCase(), all = st.teams || [], c = st.cfg;
@@ -238,7 +241,7 @@ function vTeams() {
     const l = all.filter(t => (t.games || ['val']).includes(g.id) && (!q || t.name.toLowerCase().includes(q) || (t.code || '').toLowerCase().includes(q)));
     return `<section class="sect" style="--gc:${g.color}"><h3><i></i>${g.id === 'lol' ? 'LEC' : 'VCT EMEA'}<small>${g.name} · ${esc(g.teams)}</small></h3>${l.length ? `<div class="teams">${l.map(t => tile(t, g)).join('')}</div>` : '<p class="note">Aucune équipe trouvée.</p>'}</section>`;
   }).join('');
-  const tray = c.teams.length ? c.teams.map(n => `<span class="chip" onclick="togTeam(${JSON.stringify(n).replace(/"/g, '&quot;')})">★ ${esc(n)} <u>×</u></span>`).join('') : '<em>Aucune équipe choisie. C\'est facultatif.</em>';
+  const tray = c.teams.length ? c.teams.map(n => `<span class="chip" onclick="togTeam(${JSON.stringify(n).replace(/"/g, '&quot;')})">${logoOf(n)}${esc(n)} <u>×</u></span>`).join('') : '<em>Aucune équipe choisie. C\'est facultatif.</em>';
   return `<div class="card"><h2>Tes équipes</h2><p class="hint">Seules les équipes européennes sont proposées : le VCT EMEA pour Valorant, la LEC pour League of Legends. Tes équipes passent en tête avec une étoile, et tu as un catalogue « Mon équipe » avec leurs matchs et leurs co-streams. Une équipe présente dans les deux jeux se choisit une fois.</p>
     <div class="tray">${tray}</div>
     <input type="text" placeholder="Rechercher une équipe" value="${esc(st.tq)}" oninput="set('tq',this.value);renderTeams()" id="tq" aria-label="Rechercher une équipe">

@@ -90,6 +90,21 @@ async function configPage() {
 }
 
 // ---------- équipes d'Europe proposées à la config ----------
+// Les logos d'équipes passent par notre serveur (évite les blocages de CDN et le contenu mixte dans le navigateur).
+const logoUrl = u => (u ? '/team-logo/' + Buffer.from(u, 'utf8').toString('base64url') + '.png' : null);
+const logoCache = new Map();
+async function teamLogo(id) {
+  let u; try { u = new URL(Buffer.from(String(id), 'base64url').toString('utf8')); } catch { return null; }
+  const local = process.env.LOGO_ALLOW_LOCAL === '1' && u.hostname === 'localhost';
+  if (!local && (u.protocol !== 'https:' || u.port || !/\.[a-z]{2,}$/i.test(u.hostname))) return null;
+  const c = logoCache.get(u.href); if (c) return c;
+  const r = await fetch(u, { headers: { 'User-Agent': 'Mozilla/5.0 Esportio' }, signal: AbortSignal.timeout(6000) });
+  const type = String(r.headers.get('content-type') || '');
+  if (!r.ok || !/^image\//.test(type)) return null;
+  const buf = Buffer.from(await r.arrayBuffer()); if (buf.length > 2e6) return null;
+  const v = { type, buf }; logoCache.set(u.href, v); if (logoCache.size > 300) logoCache.delete(logoCache.keys().next().value);
+  return v;
+}
 let teamsMemo = { v: null, exp: 0 };
 // Équipes proposées : Valorant EMEA / Game Changers EMEA et LEC (LoL) seulement. Une équipe présente dans les deux jeux n'apparaît qu'une fois.
 async function teamList(S) {
@@ -108,6 +123,7 @@ async function teamList(S) {
   if (S.teams && S.teams.length) { source = 'dashboard'; out = S.teams.map(t => ({ code: t.code, name: t.name, logo: (by.get(nk(t.name)) || {}).logo || null, games: t.games && t.games.length ? t.games : (by.get(nk(t.name)) || { games: ['val'] }).games })); }
   if (!out.some(t => t.games.includes('lol'))) for (const t of by.values()) if (t.games.includes('lol')) { const o = out.find(x => nk(x.name) === nk(t.name)); if (o) o.games = [...new Set([...o.games, 'lol'])]; else out.push(t); } // ancienne liste du dashboard : on ajoute la LEC
   out = out.sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }));
+  out = out.map(t => ({ ...t, logo: logoUrl(t.logo) }));
   teamsMemo = { v: { teams: out, source }, exp: Date.now() + 15 * 60e3 };
   return teamsMemo.v;
 }
@@ -210,6 +226,10 @@ async function handler(req, res) {
       const raw = S.logoV ? await store.getKey('logo') : null, m = raw && /^data:image\/[a-z]+;base64,(.+)$/.exec(raw);
       const buf = m ? Buffer.from(m[1], 'base64') : poster.available() ? await poster.logoPng(S.color) : null;
       return buf ? send(res, 200, m ? 'image/png' : 'image/png', buf, { 'Cache-Control': 'public, max-age=86400' }) : send(res, 404, 'text/plain', 'pas de logo');
+    }
+    if (head === 'team-logo') {
+      const l = await teamLogo(strip(seg[1] || '')).catch(() => null);
+      return l ? send(res, 200, l.type, l.buf, { 'Cache-Control': 'public, max-age=86400' }) : send(res, 404, 'text/plain', 'logo introuvable');
     }
     if (head === 'api' && seg[1] === 'profile') return json(res, await profileApi(req));
     if (head === 'api' && seg[1] === 'teams') return json(res, await teamList(S));

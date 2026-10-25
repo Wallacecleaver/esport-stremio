@@ -2,7 +2,8 @@
 // Faux serveurs pour tester sans réseau : passerelle valorantesports.com + GQL Twitch.   node test/mock.js <port>
 const http = require('http');
 const now = Date.now(), H = 3600e3;
-const img = n => 'http://127.0.0.1:1/' + n + '.png';
+const PORT = Number(process.argv[2]) || 7101, COL = ['#ff4655', '#4a8be0', '#4fd35a', '#c8aa6e', '#a78bfa', '#f5b942'];
+const img = n => 'http://localhost:' + PORT + '/img/' + n + '.png';
 const T = (code, name, w) => ({ code, name, image: img(code), result: w == null ? null : { gameWins: w, outcome: w >= 2 ? 'win' : 'loss' } });
 const L = [{ id: '1', slug: 'vct-emea', name: 'VCT EMEA' }, { id: '2', slug: 'champions', name: 'VALORANT Champions' }, { id: '3', slug: 'game-changers-emea', name: 'VCT Game Changers EMEA' }, { id: '4', slug: 'vct-americas', name: 'VCT Americas' }, { id: '5', slug: 'challengers-emea', name: 'Challengers EMEA' }, { id: '6', slug: 'ewc', name: 'Esports World Cup' }];
 const ev = (id, dt, st, a, b, wa, wb, block) => ({ type: 'match', startTime: new Date(now + dt).toISOString(), state: st, blockName: block, match: { id, teams: [T(a[0], a[1], wa), T(b[0], b[1], wb)], strategy: { type: 'bestOf', count: 3 } } });
@@ -18,6 +19,7 @@ const SCH2 = { 11: [ev('1101', -60 * 24 * H, 'completed', ['KC', 'Karmine Corp']
 const vod = (loc, p, s, e) => ({ provider: 'twitch', parameter: p, locale: loc, startMillis: s * 1000, endMillis: e * 1000 });
 const server = http.createServer((req, res) => {
   const u = new URL(req.url, 'http://x'), send = o => { res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(o)); };
+  if (u.pathname.startsWith('/img/')) { const n = decodeURIComponent(u.pathname.slice(5, -4)), c = COL[[...n].reduce((a, x) => a + x.charCodeAt(0), 0) % COL.length]; res.writeHead(200, { 'Content-Type': 'image/svg+xml' }); return res.end('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><path d="M100 8 L184 40 V110 Q184 168 100 194 Q16 168 16 110 V40 Z" fill="' + c + '"/><text x="100" y="122" font-family="Arial" font-weight="800" font-size="58" text-anchor="middle" fill="#0a0b10">' + n.slice(0, 3) + '</text></svg>'); }
   if (u.pathname.includes('/gw/')) {
     if (u.pathname.endsWith('getLeagues')) return send({ data: { leagues: L2.map(l => ({ ...l, image: img(l.slug) })) } });
     if (u.pathname.endsWith('getTournamentsForLeague')) return send({ data: { leagues: [{ tournaments: TR[u.searchParams.get('leagueId')] || [] }] } });
