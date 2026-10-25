@@ -79,7 +79,7 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--a)}input[type=fil
 .lgo{width:28px;height:28px;border-radius:8px;background:var(--p3);display:grid;place-items:center;flex:none;overflow:hidden;font-size:.62rem;font-weight:800;color:var(--m)}.lgo img{width:100%;height:100%;object-fit:contain;padding:3px}
 .tm b{font-weight:700}
 .cc{display:inline-block;font-size:.7rem;font-weight:800;letter-spacing:.06em;padding:2px 8px;border-radius:6px}
-.cc.emea{background:rgba(255,70,85,.14);color:#ff8b95}.cc.intl{background:rgba(167,139,250,.15);color:#b9a6ff}.cc.gc{background:rgba(244,114,182,.14);color:#f59bc7}.cc.ewc{background:rgba(245,185,66,.14);color:var(--w)}
+.cc.emea{background:rgba(255,70,85,.14);color:#ff8b95}.cc.intl{background:rgba(167,139,250,.15);color:#b9a6ff}.cc.gc{background:rgba(244,114,182,.14);color:#f59bc7}.cc.ewc{background:rgba(245,185,66,.14);color:var(--w)}.cc.lolw,.cc.lec{background:rgba(200,170,110,.16);color:#d8be86}
 .nx{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(380px,1fr))}
 .mc{display:flex;align-items:center;gap:12px;background:var(--p2);border:1px solid var(--b);border-radius:13px;padding:12px 14px}
 .mc.live{border-color:rgba(255,70,85,.5);box-shadow:0 0 0 1px rgba(255,70,85,.15),0 8px 24px rgba(255,70,85,.08)}
@@ -113,7 +113,7 @@ const ago = t => { if (!t) return '—'; const s = Math.max(0, (Date.now() - t) 
 const when = t => new Date(t).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 const IC = { over: '<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>', matches: '<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/>', diag: '<path d="M22 12h-4l-3 8-6-16-3 8H2"/>', teams: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 4.5a3.2 3.2 0 010 6M18 14.5c1.7.8 3 2.7 3 5.5"/>', chans: '<rect x="3" y="5" width="18" height="12" rx="2.5"/><path d="M8 21h8M12 17v4"/>', set: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/>', prof: '<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="11" r="2.2"/><path d="M6 17c.5-2 2-3 3-3s2.5 1 3 3M14 10h4M14 14h4"/>', logs: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>' };
 const ico = k => `<svg viewBox="0 0 24 24">${IC[k] || ''}</svg>`;
-const TABS = [['over', 'Vue d\'ensemble', 'Matchs en direct, prochains matchs et état du système'], ['matches', 'Matchs', 'Tous les matchs lus sur valorantesports.com'], ['diag', 'Diagnostic', 'Teste la source des matchs et Twitch depuis le serveur'], ['teams', 'Équipes', 'Équipes européennes proposées dans la config'], ['chans', 'Chaînes', 'Chaînes Twitch utilisées pour les lives et les rediffs'], ['set', 'Réglages', 'Identité, compétitions et fonctionnalités'], ['prof', 'Profils', 'Utilisateurs et leur activité'], ['logs', 'Journal', 'Activité et erreurs récentes']];
+const TABS = [['over', 'Vue d\'ensemble', 'Matchs en direct, prochains matchs et état du système'], ['matches', 'Matchs', 'Tous les matchs lus sur valorantesports.com et lolesports.com'], ['diag', 'Diagnostic', 'Teste la source des matchs et Twitch depuis le serveur'], ['teams', 'Équipes', 'Équipes européennes proposées dans la config'], ['chans', 'Chaînes', 'Chaînes Twitch utilisées pour les lives et les rediffs'], ['set', 'Réglages', 'Identité, compétitions et fonctionnalités'], ['prof', 'Profils', 'Utilisateurs et leur activité'], ['logs', 'Journal', 'Activité et erreurs récentes']];
 const toast = (t, ko) => { const d = document.createElement('div'); d.textContent = t; if (ko) d.className = 'ko'; $('#toast').appendChild(d); setTimeout(() => d.remove(), 3200); };
 const logo = (u, c) => `<span class="lgo">${u ? `<img src="${esc(u)}" alt="" loading="lazy" onerror="this.replaceWith(document.createTextNode('${esc(c || '').slice(0, 3)}'))">` : esc((c || '').slice(0, 3))}</span>`;
 let tab = (location.hash || '#over').slice(1), S = null, MT = null, mf = { comp: '', state: '', q: '' };
@@ -130,7 +130,7 @@ function draw() { if (!S) return; const f = { over, matches, diag, teams, chans,
 const put = h => { $('#m').innerHTML = h; };
 
 // ---- vue d'ensemble
-const CN = { emea: 'EMEA', intl: 'INTL', gc: 'GC', ewc: 'EWC' };
+const CN = { emea: 'EMEA', intl: 'INTL', gc: 'GC', ewc: 'EWC', lolw: 'LoL·W', lec: 'LEC' };
 const kpi = (cls, label, icon, v) => `<div class="k ${cls}"><small><svg viewBox="0 0 24 24">${icon}</svg>${label}</small><b>${v}</b></div>`;
 const matchCard = m => `<div class="mc ${m.state === 'live' ? 'live' : ''}"><div class="tm">${logo(m.al, m.ac)}${logo(m.bl, m.bc)}</div><div class="tt"><b>${esc(m.a)} <span class="mut">vs</span> ${esc(m.b)}</b><small>${esc(m.event)}${m.stage ? ' · ' + esc(m.stage) : ''}</small></div><div style="text-align:right">${m.state === 'live' ? '<span class="pill live"><i class="dot live"></i>direct</span>' : `<b>${new Date(m.start).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</b><br><small class="mut">${new Date(m.start).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}</small>`}</div></div>`;
 function over() {
@@ -162,7 +162,7 @@ function drawMatches() {
   const sel = (k, opts) => `<select style="width:auto" onchange="mf.${k}=this.value;drawMatches()">${opts.map(([v, n]) => `<option value="${v}" ${mf[k] === v ? 'selected' : ''}>${n}</option>`).join('')}</select>`;
   put(`<div class="box"><h3>Matchs <span class="mut">(${list.length} sur ${MT.matches.length})</span><span class="sp"><button class="b" onclick="MT=null;api('matches?force=1').then(r=>{MT=r;drawMatches();toast('Source relue')})">Relire</button></span></h3>
     <div class="bar"><input placeholder="Rechercher une équipe, un événement…" value="${esc(mf.q)}" oninput="mf.q=this.value;clearTimeout(window._t);window._t=setTimeout(drawMatches,250)">
-    ${sel('comp', [['', 'Toutes compétitions'], ['emea', 'VCT EMEA'], ['intl', 'Champions / Masters'], ['gc', 'Game Changers'], ['ewc', 'EWC']])}${sel('state', [['', 'Tous états'], ['live', 'En direct'], ['upcoming', 'À venir'], ['done', 'Terminés']])}</div>
+    ${sel('comp', [['', 'Toutes compétitions'], ['emea', 'VCT EMEA'], ['intl', 'Champions / Masters'], ['gc', 'Game Changers'], ['ewc', 'EWC'], ['lolw', 'LoL · Worlds & MSI'], ['lec', 'LoL · LEC']])}${sel('state', [['', 'Tous états'], ['live', 'En direct'], ['upcoming', 'À venir'], ['done', 'Terminés']])}</div>
     <div class="tw"><table><tr><th>Date</th><th>Match</th><th>Événement</th><th>État</th><th></th></tr>
     ${list.slice(0, 150).map(m => `<tr><td class="mut" style="white-space:nowrap">${when(m.start)}</td><td><div class="tm">${logo(m.al, m.ac)}<b>${esc(m.a)}</b><span class="vs">VS</span>${logo(m.bl, m.bc)}<b>${esc(m.b)}</b>${m.bo ? ' <span class="mut">BO' + m.bo + '</span>' : ''}</div></td><td><span class="cc ${esc(m.comp)}">${esc(CN[m.comp] || m.comp)}</span> ${esc(m.event)}<br><span class="mut">${esc(m.stage || '')}</span></td>
       <td>${m.state === 'live' ? '<span class="pill live"><i class="dot live"></i>direct</span>' : m.state === 'done' ? '<span class="pill">terminé</span>' : '<span class="pill w">à venir</span>'}</td>
@@ -211,16 +211,16 @@ function drawTeams() {
   const on = TM.all.filter(t => !TM.off.has(tk(t))).length;
   put(`<div class="box"><h3>Équipes proposées aux utilisateurs <span class="mut">(${on} sur ${TM.all.length})</span><span class="pill ${TM.source === 'officiel' ? 'ok' : 'w'}">${TM.source === 'officiel' ? 'lues sur le calendrier officiel' : TM.source === 'dashboard' ? 'liste personnalisée' : 'liste de secours'}</span>
     <span class="sp"><button class="b sm" onclick="tmAll(true)">Tout cocher</button><button class="b sm" onclick="tmAll(false)">Tout décocher</button></span></h3>
-    <p class="mut" style="margin-bottom:14px">Europe uniquement : équipes du VCT EMEA et du Game Changers EMEA. Décoche une équipe pour la retirer du choix dans la page de config.</p>
-    <div class="nx" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr))">${TM.all.map(t => `<label class="mc" style="cursor:pointer;${TM.off.has(tk(t)) ? 'opacity:.45' : ''}"><input type="checkbox" ${TM.off.has(tk(t)) ? '' : 'checked'} onchange="tmTog('${esc(tk(t)).replace(/'/g, '')}',this.checked)">${logo(t.logo, t.code)}<div class="tt"><b>${esc(t.name)}</b><small class="mono">${esc(t.code || '')}</small></div></label>`).join('')}</div>
+    <p class="mut" style="margin-bottom:14px">Europe uniquement : équipes du VCT EMEA et du Game Changers EMEA (Valorant), et de la LEC (League of Legends). Décoche une équipe pour la retirer du choix dans la page de config.</p>
+    <div class="nx" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr))">${TM.all.map(t => `<label class="mc" style="cursor:pointer;${TM.off.has(tk(t)) ? 'opacity:.45' : ''}"><input type="checkbox" ${TM.off.has(tk(t)) ? '' : 'checked'} onchange="tmTog('${esc(tk(t)).replace(/'/g, '')}',this.checked)">${logo(t.logo, t.code)}<div class="tt"><b>${esc(t.name)}</b><small class="mono">${esc(t.code || '')} ${(t.games || []).map(g => g === 'lol' ? '· LoL' : '· VAL').join(' ')}</small></div></label>`).join('')}</div>
     <div class="bar" style="margin-top:16px"><button class="b pr" onclick="tmSave()">Enregistrer</button><button class="b" onclick="tmReset()">Revenir à la liste automatique</button></div></div>
   <div class="box"><h3>Ajouter une équipe absente</h3><div class="bar"><input id="tc" placeholder="Code (ex : BBL)" style="max-width:150px;flex:none"><input id="tn" placeholder="Nom (ex : BBL Esports)"><button class="b" onclick="tmAdd()">Ajouter</button></div></div>`);
 }
 const tmAll = v => { TM.off = v ? new Set() : new Set(TM.all.map(tk)); drawTeams(); };
 const tmTog = (k, v) => { v ? TM.off.delete(k) : TM.off.add(k); drawTeams(); };
-function tmAdd() { const c = $('#tc').value.trim().toUpperCase(), n = $('#tn').value.trim(); if (!n) return toast('Indique un nom', true); if (TM.all.some(t => tk(t) === (c || n))) return toast('Équipe déjà présente', true); TM.all.push({ code: c, name: n, logo: null }); drawTeams(); }
+function tmAdd() { const c = $('#tc').value.trim().toUpperCase(), n = $('#tn').value.trim(); if (!n) return toast('Indique un nom', true); if (TM.all.some(t => tk(t) === (c || n))) return toast('Équipe déjà présente', true); TM.all.push({ code: c, name: n, logo: null, games: ['val'] }); drawTeams(); }
 async function tmSave() {
-  const list = TM.all.filter(t => !TM.off.has(tk(t))).map(t => ({ code: t.code || '', name: t.name }));
+  const list = TM.all.filter(t => !TM.off.has(tk(t))).map(t => ({ code: t.code || '', name: t.name, games: t.games || ['val'] }));
   if (!list.length) return toast('Garde au moins une équipe', true);
   const same = TM.source === 'officiel' && !TM.off.size && TM.all.length === list.length;
   await saveSite({ teams: same ? [] : list }); S.site.teams = same ? null : list; toast('Équipes enregistrées'); teams();
@@ -248,8 +248,9 @@ function drawChans() {
     <div class="bar"><input id="nc" placeholder="Pseudo Twitch, ou lien twitch.tv/… (ex : kameto)" onkeydown="if(event.key==='Enter')addChan()">
       <select id="nl" style="width:auto"><option value="FR">🇫🇷 Français</option><option value="EN">🇬🇧 Anglais</option></select>
       <select id="nr" style="width:auto"><option>Co-stream</option><option>Officiel</option></select>
+      <select id="ng" style="width:auto"><option value="val">🎯 Valorant</option><option value="lol">⚔️ League of Legends</option></select>
       <button class="b pr" onclick="addChan()">Ajouter</button></div>
-    <p class="mut" style="font-size:.84rem">Le nom, la photo et l'état (en direct ou non) sont lus automatiquement sur Twitch. Les chaînes en direct apparaissent dans les sources d'un match.</p></div>
+    <p class="mut" style="font-size:.84rem">Le nom, la photo et l'état (en direct ou non) sont lus automatiquement sur Twitch. Les chaînes en direct apparaissent dans les sources d'un match du même jeu, seulement si elles diffusent bien ce jeu.</p></div>
   <div class="box"><h3>Co-streams par équipe</h3>
     <p class="mut" style="margin-bottom:12px;font-size:.88rem">Quand une équipe joue, ses co-streamers apparaissent dans les sources du match (et en premier si c'est l'équipe du spectateur). Ex : Karmine Corp → Kameto.</p>
     <div class="bar"><select id="tt_team" style="width:auto;min-width:200px"><option value="">Équipe…</option>${TL.map(t => `<option value="${esc(t.code || t.name)}">${esc(t.name)}${t.code ? ' (' + esc(t.code) + ')' : ''}</option>`).join('')}</select>
@@ -260,6 +261,7 @@ function drawChans() {
       <div class="d"><b>${esc(c.label)}</b> ${st ? (st.live ? '<span class="pill live"><i class="dot live"></i>en direct · ' + st.viewers + ' 👁</span>' : '<span class="pill">hors ligne</span>') : ''}<br><small class="mono">twitch.tv/${esc(c.login)}</small></div>
       <input style="width:150px" value="${esc(c.label)}" onchange="CH[${i}].label=this.value.trim()||CH[${i}].login;chSave()" title="Nom affiché dans Stremio">
       <select style="width:auto" onchange="CH[${i}].lang=this.value;chSave()"><option value="FR" ${c.lang === 'FR' ? 'selected' : ''}>🇫🇷 FR</option><option value="EN" ${c.lang === 'EN' ? 'selected' : ''}>🇬🇧 EN</option></select>
+      <select style="width:auto" onchange="CH[${i}].game=this.value;chSave()" title="Jeu"><option value="val" ${(c.game || 'val') === 'val' ? 'selected' : ''}>🎯 Valorant</option><option value="lol" ${c.game === 'lol' ? 'selected' : ''}>⚔️ LoL</option></select>
       <select style="width:auto" onchange="CH[${i}].role=this.value;chSave()"><option ${c.role === 'Co-stream' ? 'selected' : ''}>Co-stream</option><option ${c.role === 'Officiel' ? 'selected' : ''}>Officiel</option></select>
       <button class="b sm" onclick="chMove(${i},-1)" ${i ? '' : 'disabled'} title="Monter">↑</button><button class="b sm" onclick="chMove(${i},1)" ${i < CH.length - 1 ? '' : 'disabled'} title="Descendre">↓</button>
       <button class="b sm dg" onclick="chDel(${i})" title="Supprimer">✕</button></div>`; }).join('') || '<div class="empty">Aucune chaîne</div>'}</div>`);
@@ -267,10 +269,10 @@ function drawChans() {
 async function addChan() {
   let v = $('#nc').value.trim().toLowerCase().replace(/^https?:\/\/(www\.)?twitch\.tv\//, '').replace(/[/?#].*$/, '').replace(/^@/, '');
   if (!LOGIN.test(v)) return toast('Pseudo Twitch invalide', true);
-  if (CH.some(c => c.login === v)) return toast('Cette chaîne est déjà dans la liste', true);
+  if (CH.some(c => c.login === v && (c.game || 'val') === $('#ng').value)) return toast('Cette chaîne est déjà dans la liste pour ce jeu', true);
   const r = await api('chanstatus?logins=' + v);
   if (!r[v]) return toast('Chaîne introuvable sur Twitch', true);
-  CH.push({ login: v, label: r[v].name || v, lang: $('#nl').value, role: $('#nr').value }); CS = { ...CS, ...r };
+  CH.push({ login: v, label: r[v].name || v, lang: $('#nl').value, role: $('#nr').value, game: $('#ng').value }); CS = { ...CS, ...r };
   await chSave((r[v].name || v) + ' ajoutée'); drawChans();
 }
 function chMove(i, d) { const j = i + d; if (j < 0 || j >= CH.length) return; [CH[i], CH[j]] = [CH[j], CH[i]]; chSave('Ordre enregistré'); drawChans(); }

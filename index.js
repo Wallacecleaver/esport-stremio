@@ -91,13 +91,24 @@ async function configPage() {
 
 // ---------- équipes d'Europe proposées à la config ----------
 let teamsMemo = { v: null, exp: 0 };
+// Équipes proposées : Valorant EMEA / Game Changers EMEA et LEC (LoL) seulement. Une équipe présente dans les deux jeux n'apparaît qu'une fois.
 async function teamList(S) {
   if (teamsMemo.v && teamsMemo.exp > Date.now()) return teamsMemo.v;
+  const nk = x => String(x || '').toLowerCase().replace(/[^a-z0-9]/g, '');
   let list = [], source = 'liste';
   try { const d = await A.load({ ...S, comps: ['emea', 'gc'] }); list = val.europeTeams(d.matches); if (list.length) source = 'officiel'; } catch { /* repli */ }
-  if (S.teams && S.teams.length) { source = 'dashboard'; list = S.teams.map(t => ({ ...t, logo: (list.find(x => x.name === t.name) || {}).logo || null })); }
-  else if (!list.length) list = A.TEAMS.map(t => ({ ...t, logo: null }));
-  teamsMemo = { v: { teams: list, source }, exp: Date.now() + 15 * 60e3 };
+  if (!list.length) list = A.TEAMS.map(t => ({ ...t, logo: null }));
+  let lec = [];
+  try { const d = await A.load({ ...S, comps: ['lec'] }); lec = val.lecTeams(d.matches); } catch { /* repli */ }
+  if (!lec.length) lec = A.LEC_TEAMS.map(t => ({ ...t, logo: null }));
+  const by = new Map();
+  for (const t of list) by.set(nk(t.name), { ...t, games: ['val'] });
+  for (const t of lec) { const k = nk(t.name), c = by.get(k); if (c) { c.games.push('lol'); c.logo = c.logo || t.logo; } else by.set(k, { code: t.code, name: t.name, logo: t.logo || null, games: ['lol'] }); }
+  let out = [...by.values()];
+  if (S.teams && S.teams.length) { source = 'dashboard'; out = S.teams.map(t => ({ code: t.code, name: t.name, logo: (by.get(nk(t.name)) || {}).logo || null, games: t.games && t.games.length ? t.games : (by.get(nk(t.name)) || { games: ['val'] }).games })); }
+  if (!out.some(t => t.games.includes('lol'))) for (const t of by.values()) if (t.games.includes('lol')) { const o = out.find(x => nk(x.name) === nk(t.name)); if (o) o.games = [...new Set([...o.games, 'lol'])]; else out.push(t); } // ancienne liste du dashboard : on ajoute la LEC
+  out = out.sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }));
+  teamsMemo = { v: { teams: out, source }, exp: Date.now() + 15 * 60e3 };
   return teamsMemo.v;
 }
 
@@ -134,12 +145,12 @@ const adminRoute = makeAdmin({
   },
   async matches(force) {
     const S = await siteLib.load(), d = await A.load(S, { force });
-    return { at: d.at, stale: !!d.stale, matches: d.matches.map(m => ({ raw: m.raw, comp: m.comp, event: m.event.name, stage: m.stage, start: m.startTime, state: m.state, bo: m.bestOf, a: M.teamsOf(m)[0].name, b: M.teamsOf(m)[1].name, ac: M.teamsOf(m)[0].code, bc: M.teamsOf(m)[1].code, al: M.teamsOf(m)[0].logo || null, bl: M.teamsOf(m)[1].logo || null })).sort((x, y) => y.start - x.start) };
+    return { at: d.at, stale: !!d.stale, matches: d.matches.map(m => ({ raw: m.raw, comp: m.comp, game: m.game || 'val', event: m.event.name, stage: m.stage, start: m.startTime, state: m.state, bo: m.bestOf, a: M.teamsOf(m)[0].name, b: M.teamsOf(m)[1].name, ac: M.teamsOf(m)[0].code, bc: M.teamsOf(m)[1].code, al: M.teamsOf(m)[0].logo || null, bl: M.teamsOf(m)[1].logo || null })).sort((x, y) => y.start - x.start) };
   },
   async replay(raw) {
     const S = await siteLib.load(), d = await A.load(S), m = A.byRaw(d, raw);
     if (!m) return { error: 'match introuvable' };
-    const t0 = Date.now(), official = await val.replays(m.raw).then(r => ({ ok: true, langs: r.map(x => x.lang + ' (' + [x.parts.length ? x.parts.length + ' Twitch' : '', x.yt && x.yt.length ? x.yt.length + ' YouTube' : ''].filter(Boolean).join(' + ') + ')') }), e => ({ ok: false, err: e.message }));
+    const t0 = Date.now(), official = await val.replays(m.raw, m.game || 'val').then(r => ({ ok: true, langs: r.map(x => x.lang + ' (' + [x.parts.length ? x.parts.length + ' Twitch' : '', x.yt && x.yt.length ? x.yt.length + ' YouTube' : ''].filter(Boolean).join(' + ') + ')') }), e => ({ ok: false, err: e.message }));
     const reps = await A.replaysOf(m, S);
     const firstTw = reps.find(r => r.parts.length), test = firstTw ? await tw.vodMaster(firstTw.parts[0].v).then(r => ({ ok: true, via: r.via, qualites: r.variants.map(v => v.h + 'p').join(' · ') }), e => ({ ok: false, err: e.message })) : null;
     return { match: M.matchTitle(m), officiel: official, sources: reps.map(r => ({ lang: r.lang, label: r.label, src: r.src, parties: r.parts.length + (r.yt && r.yt.length ? r.yt.length : 0) })), lecture: test, ms: Date.now() - t0 };
@@ -153,6 +164,7 @@ const adminRoute = makeAdmin({
     const rows = [], timed = async (name, f) => { const t = Date.now(); try { const detail = await f(); rows.push({ name, ok: true, ms: Date.now() - t, detail }); } catch (e) { rows.push({ name, ok: false, ms: Date.now() - t, detail: e.message }); } };
     const S = await siteLib.load();
     await timed('valorantesports.com · ligues', async () => { const l = await val.leagues(S.extraKeywords); return l.length + ' ligues retenues : ' + l.map(x => x.name + ' [' + x.comp + ']').join(', '); });
+    await timed('lolesports.com · ligues', async () => { const l = await val.lolLeagues(); return l.length + ' ligues retenues : ' + l.map(x => x.name + ' [' + x.comp + ']').join(', '); });
     await timed('valorantesports.com · matchs', async () => { const d = await A.load(S, { force: true }); return d.matches.length + ' matchs' + (d.errors && d.errors.length ? ' · erreurs : ' + d.errors.join(' | ') : ''); });
     await timed('Twitch · statut des chaînes', async () => { const st = await tw.liveStatus(siteLib.channelsOf(S).map(c => c.login)); return Object.keys(st).length + ' chaînes lues, ' + Object.values(st).filter(x => x.live).length + ' en direct'; });
     await timed('Twitch · jeton de lecture', async () => { await tw.liveStatus(['valorant']); const k = await tw.gql('query { user(login: "valorant") { id } }'); return k.user ? 'API Twitch joignable' : 'réponse vide'; });
@@ -234,7 +246,7 @@ async function handler(req, res) {
       const png = b => send(res, 200, 'image/png', b, { 'Cache-Control': 'public, max-age=1800' });
       if (head === 'poster' && seg[1] === 'event') {
         const e = await A.eventByKey(S, strip(seg[2]).toLowerCase()); if (!e) return send(res, 404, 'text/plain', 'événement inconnu');
-        return png(await poster.eventPoster({ name: e.event.name, year: e.year, comp: (A.COMPS[e.comp] || {}).label || 'Valorant', logo: e.event.logo, count: e.matches.length, live: e.live }));
+        return png(await poster.eventPoster({ name: e.event.name, year: e.year, comp: (A.COMPS[e.comp] || {}).label || 'Valorant', game: (A.COMPS[e.comp] || {}).game || 'val', logo: e.event.logo, count: e.matches.length, live: e.live }));
       }
       const raw = head === 'poster' ? strip(seg[1]) : strip(seg[1]), data = await A.load(S), m = A.byRaw(data, raw);
       if (!m) return send(res, 404, 'text/plain', 'match inconnu');

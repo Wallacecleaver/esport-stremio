@@ -136,9 +136,10 @@ async function loadTeams() {
   if (st.step === 2) render();
 }
 function vTeams() {
-  const q = st.tq.toLowerCase(), list = (st.teams || []).filter(t => !q || t.name.toLowerCase().includes(q) || (t.code || '').toLowerCase().includes(q));
-  const grid = !st.teams ? '<p class="note">Chargement des équipes…</p>' : list.map(t => `<div class="team ${st.cfg.teams.includes(t.name) ? 'on' : ''}" onclick="togTeam(${JSON.stringify(t.name).replace(/"/g, '&quot;')})">${t.logo ? `<img src="${esc(t.logo)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=lg>${esc((t.code || t.name).slice(0, 3))}</div>'">` : `<div class="lg">${esc((t.code || t.name).slice(0, 3))}</div>`}<span>${esc(t.name)}</span></div>`).join('') || '<p class="note">Aucune équipe trouvée.</p>';
-  return `<div class="card"><h2>Ton équipe <small style="color:var(--m);font-weight:500">· Europe uniquement</small></h2><p class="hint">Tes équipes passent en tête avec un ⭐, et tu as un catalogue « Mon équipe » avec tous leurs matchs. Tu peux en choisir plusieurs ou aucune.</p>
+  const q = st.tq.toLowerCase(), list = (st.teams || []).filter(t => (!st.tg || (t.games || ['val']).includes(st.tg)) && (!q || t.name.toLowerCase().includes(q) || (t.code || '').toLowerCase().includes(q)));
+  const grid = !st.teams ? '<p class="note">Chargement des équipes…</p>' : list.map(t => `<div class="team ${st.cfg.teams.includes(t.name) ? 'on' : ''}" onclick="togTeam(${JSON.stringify(t.name).replace(/"/g, '&quot;')})">${t.logo ? `<img src="${esc(t.logo)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=lg>${esc((t.code || t.name).slice(0, 3))}</div>'">` : `<div class="lg">${esc((t.code || t.name).slice(0, 3))}</div>`}<span>${esc(t.name)}<small style="display:block;color:var(--m);font-weight:500;font-size:.68rem">${(t.games || ['val']).map(g => g === 'lol' ? 'LoL' : 'Valorant').join(' · ')}</small></span></div>`).join('') || '<p class="note">Aucune équipe trouvée.</p>';
+  return `<div class="card"><h2>Ton équipe <small style="color:var(--m);font-weight:500">· Europe (Valorant EMEA) et LEC (LoL)</small></h2><p class="hint">Tes équipes passent en tête avec un ⭐, et tu as un catalogue « Mon équipe » avec tous leurs matchs. Tu peux en choisir plusieurs ou aucune.</p>
+    <div class="row" style="margin:0 0 10px;gap:8px;justify-content:flex-start">${[['', 'Toutes'], ['val', 'Valorant'], ['lol', 'LoL · LEC']].map(([v, n]) => `<button class="btn ${(st.tg || '') === v ? '' : 'g'}" style="padding:7px 14px" onclick="set('tg','${v}');render()">${n}</button>`).join('')}</div>
     <input type="text" placeholder="Rechercher une équipe" value="${esc(st.tq)}" oninput="set('tq',this.value);renderTeams()" id="tq">
     <div class="teams" id="tg">${grid}</div>
     <p class="note">${st.cfg.teams.length ? '⭐ ' + st.cfg.teams.map(esc).join(' · ') : 'Aucune équipe choisie pour l\'instant.'}</p>
@@ -174,7 +175,7 @@ async function save() {
 }
 
 // 5 · vérification
-const ROWS = [['source', 'Matchs Valorant', 'valorantesports.com'], ['twitch', 'Twitch', 'lives des streamers'], ['equipe', 'Tes équipes', 'matchs trouvés'], ['replay', 'Rediffusions', 'lecture d\'un match terminé'], ['catalogues', 'Catalogues', 'ce qui apparaîtra dans Stremio']];
+const ROWS = [['source', 'Matchs', 'valorantesports.com · lolesports.com'], ['twitch', 'Twitch', 'lives des streamers'], ['equipe', 'Tes équipes', 'matchs trouvés'], ['replay', 'Rediffusions', 'lecture d\'un match terminé'], ['catalogues', 'Catalogues', 'ce qui apparaîtra dans Stremio']];
 async function runVerify() {
   try { st.report = await api('/check?cfg=' + b64(st.cfg)); } catch { st.report = { error: true }; }
   if (st.step === 4) render();

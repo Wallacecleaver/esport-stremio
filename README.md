@@ -1,4 +1,4 @@
-# Esportio — addon Stremio (Valorant)
+# Esportio — addon Stremio (Valorant + League of Legends)
 
 Matchs Valorant (VCT, VCT EMEA, Game Changers, Champions, Esports World Cup) : lives Twitch et rediffusions FR/EN.
 Source des matchs : valorantesports.com. Choix d'équipe : Europe uniquement.
@@ -14,3 +14,8 @@ Source des matchs : valorantesports.com. Choix d'équipe : Europe uniquement.
 
 ## Configuration locale (.env)
 Copie `.env.example` en `.env` et remplis `ADMIN_PASSWORD` : il est lu à chaque démarrage (le fichier n'est pas envoyé sur GitHub).
+
+
+## League of Legends
+
+Catalogues « Worlds & MSI (LoL) » et « LEC (LoL) » (un événement par split : LEC Winter, Spring…), lus sur lolesports.com. Équipes favorites : Valorant EMEA et LEC seulement. Co-streamers par équipe, recherche automatique des co-casts (titre Twitch + Liquipedia) et rediffusions Twitch/YouTube officielles, comme pour Valorant.
