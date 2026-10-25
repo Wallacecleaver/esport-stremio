@@ -155,7 +155,7 @@ const api = (path, opt) => fetch(path, opt).then(r => r.json());
 const post = (path, body) => api(path, { method: 'POST', body: JSON.stringify(body) });
 const GAMES = [
   { id: 'val', name: 'Valorant', tag: 'VCT EMEA, Masters, Champions, Game Changers, Esports World Cup', color: '#ff4655', mark: 'V', teams: 'VCT EMEA et Game Changers EMEA' },
-  { id: 'lol', name: 'League of Legends', tag: 'LEC, Worlds, MSI', color: '#c8aa6e', mark: 'L', teams: 'LEC' },
+  { id: 'lol', name: 'League of Legends', tag: 'LEC, Worlds, MSI, Esports World Cup', color: '#c8aa6e', mark: 'L', teams: 'LEC' },
 ];
 const gOf = c => c.game || 'val';
 const compsOf = g => SITE.comps.filter(c => gOf(c) === g);

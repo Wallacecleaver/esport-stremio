@@ -130,7 +130,7 @@ function draw() { if (!S) return; const f = { over, matches, diag, teams, chans,
 const put = h => { $('#m').innerHTML = h; };
 
 // ---- vue d'ensemble
-const CN = { emea: 'EMEA', intl: 'INTL', gc: 'GC', ewc: 'EWC', lolw: 'LoL·W', lec: 'LEC' };
+const CN = { emea: 'EMEA', intl: 'INTL', gc: 'GC', ewc: 'EWC', lolw: 'LoL·W', lec: 'LEC', lolewc: 'EWC·L' };
 const kpi = (cls, label, icon, v) => `<div class="k ${cls}"><small><svg viewBox="0 0 24 24">${icon}</svg>${label}</small><b>${v}</b></div>`;
 const matchCard = m => `<div class="mc ${m.state === 'live' ? 'live' : ''}"><div class="tm">${logo(m.al, m.ac)}${logo(m.bl, m.bc)}</div><div class="tt"><b>${esc(m.a)} <span class="mut">vs</span> ${esc(m.b)}</b><small>${esc(m.event)}${m.stage ? ' · ' + esc(m.stage) : ''}</small></div><div style="text-align:right">${m.state === 'live' ? '<span class="pill live"><i class="dot live"></i>direct</span>' : `<b>${new Date(m.start).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</b><br><small class="mut">${new Date(m.start).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}</small>`}</div></div>`;
 function over() {
@@ -162,7 +162,7 @@ function drawMatches() {
   const sel = (k, opts) => `<select style="width:auto" onchange="mf.${k}=this.value;drawMatches()">${opts.map(([v, n]) => `<option value="${v}" ${mf[k] === v ? 'selected' : ''}>${n}</option>`).join('')}</select>`;
   put(`<div class="box"><h3>Matchs <span class="mut">(${list.length} sur ${MT.matches.length})</span><span class="sp"><button class="b" onclick="MT=null;api('matches?force=1').then(r=>{MT=r;drawMatches();toast('Source relue')})">Relire</button></span></h3>
     <div class="bar"><input placeholder="Rechercher une équipe, un événement…" value="${esc(mf.q)}" oninput="mf.q=this.value;clearTimeout(window._t);window._t=setTimeout(drawMatches,250)">
-    ${sel('comp', [['', 'Toutes compétitions'], ['emea', 'VCT EMEA'], ['intl', 'Champions / Masters'], ['gc', 'Game Changers'], ['ewc', 'EWC'], ['lolw', 'LoL · Worlds & MSI'], ['lec', 'LoL · LEC']])}${sel('state', [['', 'Tous états'], ['live', 'En direct'], ['upcoming', 'À venir'], ['done', 'Terminés']])}</div>
+    ${sel('comp', [['', 'Toutes compétitions'], ['emea', 'VCT EMEA'], ['intl', 'Champions / Masters'], ['gc', 'Game Changers'], ['ewc', 'EWC'], ['lolw', 'LoL · Worlds & MSI'], ['lec', 'LoL · LEC'], ['lolewc', 'LoL · EWC']])}${sel('state', [['', 'Tous états'], ['live', 'En direct'], ['upcoming', 'À venir'], ['done', 'Terminés']])}</div>
     <div class="tw"><table><tr><th>Date</th><th>Match</th><th>Événement</th><th>État</th><th></th></tr>
     ${list.slice(0, 150).map(m => `<tr><td class="mut" style="white-space:nowrap">${when(m.start)}</td><td><div class="tm">${logo(m.al, m.ac)}<b>${esc(m.a)}</b><span class="vs">VS</span>${logo(m.bl, m.bc)}<b>${esc(m.b)}</b>${m.bo ? ' <span class="mut">BO' + m.bo + '</span>' : ''}</div></td><td><span class="cc ${esc(m.comp)}">${esc(CN[m.comp] || m.comp)}</span> ${esc(m.event)}<br><span class="mut">${esc(m.stage || '')}</span></td>
       <td>${m.state === 'live' ? '<span class="pill live"><i class="dot live"></i>direct</span>' : m.state === 'done' ? '<span class="pill">terminé</span>' : '<span class="pill w">à venir</span>'}</td>

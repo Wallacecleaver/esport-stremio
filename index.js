@@ -239,7 +239,8 @@ async function handler(req, res) {
       return json(res, await checkReport({ ...c, comps: c.comps.filter(x => S.comps.includes(x)) }, S, origin));
     }
     if (head === 'manifest.json') {
-      const mf = A.manifest(S, cfg, { pseudo }); mf.logo = origin + '/logo.png?v=' + S.logoV;
+      let have = null; try { have = new Set((await A.load(S)).matches.map(m => m.comp)); } catch { /* source indisponible : on garde tout */ }
+      const mf = A.manifest(S, cfg, { pseudo, have }); mf.logo = origin + '/logo.png?v=' + S.logoV;
       store.log({ k: 'manifest', u: pseudo, dev, cfg: prefs.summary(cfg) });
       if (pseudo) store.user(pseudo, { dev, cfg: prefs.summary(cfg) });
       return json(res, mf);
