@@ -126,6 +126,7 @@ async function teamList(S) {
   let out = [...by.values()];
   if (S.teams && S.teams.length) { source = 'dashboard'; out = S.teams.map(t => ({ code: t.code, name: t.name, logo: (by.get(nk(t.name)) || {}).logo || null, games: t.games && t.games.length ? t.games : (by.get(nk(t.name)) || { games: ['val'] }).games })); }
   if (!out.some(t => t.games.includes('lol'))) for (const t of by.values()) if (t.games.includes('lol')) { const o = out.find(x => nk(x.name) === nk(t.name)); if (o) o.games = [...new Set([...o.games, 'lol'])]; else out.push(t); } // ancienne liste du dashboard : on ajoute la LEC
+  for (const x of (S.fortnite || {}).structures || []) { const o = out.find(t => nk(t.name) === nk(x.name)); if (o) o.games = [...new Set([...o.games, 'fn'])]; else out.push({ code: x.name.replace(/[^A-Za-z0-9]/g, '').slice(0, 3).toUpperCase(), name: x.name, logo: x.logo || null, games: ['fn'] }); }
   out = out.sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }));
   out = out.map(t => ({ ...t, logo: logoUrl(t.logo) }));
   teamsMemo = { v: { teams: out, source }, exp: Date.now() + 15 * 60e3 };

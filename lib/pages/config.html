@@ -163,7 +163,7 @@ const post = (path, body) => api(path, { method: 'POST', body: JSON.stringify(bo
 const GAMES = [
   { id: 'val', name: 'Valorant', tag: 'VCT EMEA, Masters, Champions, Game Changers, Esports World Cup', color: '#ff4655', mark: 'V', teams: 'VCT EMEA et Game Changers EMEA' },
   { id: 'lol', name: 'League of Legends', tag: 'LEC, Worlds, MSI, Esports World Cup', color: '#c8aa6e', mark: 'L', teams: 'LEC' },
-  { id: 'fn', name: 'Fortnite', tag: 'FNCS Majors, championnat du monde, Esports World Cup', color: '#7c8cff', mark: 'F', players: true },
+  { id: 'fn', name: 'Fortnite', tag: 'FNCS Majors, championnat du monde, Esports World Cup', color: '#7c8cff', mark: 'F', teams: 'structures esport' },
 ];
 const gOf = c => c.game || 'val';
 const compsOf = g => SITE.comps.filter(c => gOf(c) === g);
@@ -185,8 +185,7 @@ function side() {
   cats.push(['sys', 'Rediffusions']);
   return `<aside class="side"><h4>Ton Esportio</h4><div class="who">${st.pseudo ? 'Profil ' + esc(st.pseudo) : 'Dans Stremio, tu verras :'}</div>
     ${cats.map(([k, n]) => `<div class="cat ${k}"><i></i>${esc(n)}</div>`).join('')}
-    ${c.teams.length ? `<div class="lbl">Tes équipes</div><div class="tm">${c.teams.map(n => `<span>${logoOf(n)}${esc(n)}</span>`).join('')}</div>` : ''}
-    ${c.players.length ? `<div class="lbl">Tes joueurs Fortnite</div><div class="tm">${c.players.map(l => `<span>🎮 ${esc(plName(l))}</span>`).join('')}</div>` : ''}</aside>`;
+    ${c.teams.length ? `<div class="lbl">Tes équipes</div><div class="tm">${c.teams.map(n => `<span>${logoOf(n)}${esc(n)}</span>`).join('')}</div>` : ''}</aside>`;
 }
 
 // 1 · profil
@@ -234,39 +233,11 @@ function nextComps() { if (!st.cfg.comps.length) { st.err = 'Garde au moins un c
 
 // 3 · équipes, rangées par championnat
 async function loadTeams() {
-  if (st.teams) return loadPlayers().then(() => st.step === 2 && render());
+  if (st.teams) return;
   try { const r = await api('/api/teams'); st.teams = r.teams || []; st.tsrc = r.source; } catch { st.teams = []; }
-  await loadPlayers();
   if (st.step === 2) render();
 }
 const logoOf = n => { const t = (st.teams || []).find(x => x.name === n); return t && t.logo ? `<img src="${esc(t.logo)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : '★ '; };
-st.tw = {}; st.perr = '';
-async function loadPlayers() {
-  const l = [...new Set([...(SITE.fnSuggest || []).map(x => x.login), ...st.cfg.players])].filter(x => !st.tw[x]).slice(0, 12);
-  if (l.length) try { Object.assign(st.tw, await api('/api/twitch?logins=' + l.join(','))); } catch { /* sans photos */ }
-}
-const plName = l => ((SITE.fnSuggest || []).find(x => x.login === l) || {}).label || (st.tw[l] || {}).name || l;
-const plAv = l => (st.tw[l] || {}).avatar || '';
-function plTile(l) {
-  const on = st.cfg.players.includes(l), i = st.tw[l] || {}, g = GAMES.find(x => x.id === 'fn');
-  return `<button class="team ${on ? 'on' : ''}" style="--gc:${g.color}" aria-pressed="${on}" onclick="togPlayer('${l}')">${i.live ? '<i class="lv" title="En direct"></i>' : ''}${plAv(l) ? `<img class="av" src="${esc(plAv(l))}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<div class="lg">${esc(l.slice(0, 2).toUpperCase())}</div>`}<b>${esc(plName(l))}</b></button>`;
-}
-function vPlayers() {
-  const g = GAMES.find(x => x.id === 'fn'), all = [...new Set([...(SITE.fnSuggest || []).map(x => x.login), ...st.cfg.players])];
-  return `<section class="sect" style="--gc:${g.color}"><h3><i></i>Fortnite<small>Joueurs et co-streamers</small></h3>
-    <div class="ex">Exemple : choisis <b>Leothecrack</b>, et son live passe en premier sur chaque tournoi Fortnite, avant la chaîne officielle et les autres co-streams.</div>
-    ${all.length ? `<div class="teams">${all.map(plTile).join('')}</div>` : ''}
-    <div class="add"><input type="text" id="pl" maxlength="25" placeholder="Ajouter une chaîne Twitch (ex : leothecrack)" onkeydown="if(event.key==='Enter')addPlayer()" aria-label="Pseudo Twitch"><button onclick="addPlayer()">Ajouter</button></div>
-    <div class="err" style="min-height:0">${esc(st.perr)}</div></section>`;
-}
-function togPlayer(l) { const a = st.cfg.players, i = a.indexOf(l); i < 0 ? (a.length < 12 && a.push(l)) : a.splice(i, 1); const y = scrollY; render(); scrollTo(0, y); }
-async function addPlayer() {
-  const l = ($('#pl').value || '').trim().toLowerCase().replace(/^@/, '').replace(/^https?:\/\/(www\.)?twitch\.tv\//, '');
-  if (!/^[a-z0-9_]{3,25}$/.test(l)) { st.perr = 'Pseudo Twitch invalide.'; return render(); }
-  let r = {}; try { r = await api('/api/twitch?logins=' + l); } catch { /* hors ligne */ }
-  if (!r[l]) { st.perr = 'Chaîne introuvable sur Twitch.'; return render(); }
-  st.tw[l] = r[l]; st.perr = ''; if (!st.cfg.players.includes(l) && st.cfg.players.length < 12) st.cfg.players.push(l); render();
-}
 const initials = t => esc((t.code || t.name).slice(0, 3));
 function tile(t, g) {
   const on = st.cfg.teams.includes(t.name);
@@ -276,15 +247,15 @@ function vTeams() {
   const q = st.tq.toLowerCase(), all = st.teams || [], c = st.cfg;
   const sections = GAMES.filter(g => g.teams && gameOn(g.id)).map(g => {
     const l = all.filter(t => (t.games || ['val']).includes(g.id) && (!q || t.name.toLowerCase().includes(q) || (t.code || '').toLowerCase().includes(q)));
-    return `<section class="sect" style="--gc:${g.color}"><h3><i></i>${g.id === 'lol' ? 'LEC' : 'VCT EMEA'}<small>${g.name} · ${esc(g.teams)}</small></h3>${l.length ? `<div class="teams">${l.map(t => tile(t, g)).join('')}</div>` : '<p class="note">Aucune équipe trouvée.</p>'}</section>`;
+    return `<section class="sect" style="--gc:${g.color}"><h3><i></i>${g.id === 'lol' ? 'LEC' : g.id === 'fn' ? 'Fortnite' : 'VCT EMEA'}<small>${g.name} · ${esc(g.teams)}</small></h3>${l.length ? `<div class="teams">${l.map(t => tile(t, g)).join('')}</div>` : '<p class="note">Aucune équipe trouvée.</p>'}</section>`;
   }).join('');
-  const chips = c.teams.map(n => `<span class="chip" onclick="togTeam(${JSON.stringify(n).replace(/"/g, '&quot;')})">${logoOf(n)}${esc(n)} <u>×</u></span>`).concat(c.players.map(l => `<span class="chip" onclick="togPlayer('${l}')">${plAv(l) ? `<img src="${esc(plAv(l))}" alt="" referrerpolicy="no-referrer" style="border-radius:50%">` : '🎮 '}${esc(plName(l))} <u>×</u></span>`));
+  const chips = c.teams.map(n => `<span class="chip" onclick="togTeam(${JSON.stringify(n).replace(/"/g, '&quot;')})">${logoOf(n)}${esc(n)} <u>×</u></span>`)
   const tray = chips.length ? chips.join('') : '<em>Rien de choisi. C\'est facultatif.</em>';
-  return `<div class="card"><h2>Tes équipes et tes joueurs</h2><p class="hint">Seules les équipes européennes sont proposées : le VCT EMEA pour Valorant, la LEC pour League of Legends. Tes équipes passent en tête avec une étoile, et tu as un catalogue « Mon équipe » avec leurs matchs et leurs co-streams. Pour Fortnite, tu choisis des joueurs ou des streamers.</p>
+  return `<div class="card"><h2>Tes équipes et tes joueurs</h2><p class="hint">Seules les équipes européennes sont proposées : le VCT EMEA pour Valorant, la LEC pour League of Legends. Tes équipes passent en tête avec une étoile, et tu as un catalogue « Mon équipe » avec leurs matchs et leurs co-streams. Pour Fortnite, tu choisis des structures esport : leurs chaînes passent en premier, puis les co-casters.</p>
     <div class="tray">${tray}</div>
     <input type="text" placeholder="Rechercher une équipe" value="${esc(st.tq)}" oninput="set('tq',this.value);renderTeams()" id="tq" aria-label="Rechercher une équipe">
-    <div class="ex">Exemple : choisis <b>Karmine Corp</b>, et le live de <b>Kameto</b> passe en premier sur ses matchs, puis la chaîne officielle et les autres co-streams.</div>
-    ${(!st.teams ? '<p class="note">Chargement des équipes…</p>' : sections) + (gameOn('fn') ? vPlayers() : '') || '<p class="note">Active un jeu à l\'étape précédente pour choisir des équipes.</p>'}
+    <div class="ex">Exemple : choisis <b>Karmine Corp</b>. Sur un match LEC ou un tournoi Fortnite, leur live passe en premier, puis la chaîne officielle et les co-casters.</div>
+    ${(!st.teams ? '<p class="note">Chargement des équipes…</p>' : sections) || '<p class="note">Active un jeu à l\'étape précédente pour choisir des équipes.</p>'}
     <div class="row"><button class="btn g" onclick="go(1)">Retour</button><button class="btn" onclick="go(3)">Continuer</button></div></div>`;
 }
 function renderTeams() { const p = $('#tq'), pos = p.selectionStart; render(); const n = $('#tq'); n.focus(); n.setSelectionRange(pos, pos); }
