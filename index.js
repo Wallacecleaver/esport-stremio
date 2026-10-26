@@ -15,6 +15,7 @@ const store = require('./lib/store');
 const siteLib = require('./lib/site');
 const prefs = require('./lib/prefs');
 const A = require('./lib/addon');
+const fortnite = require('./lib/fortnite');
 const poster = require('./lib/poster');
 const makeAdmin = require('./lib/admin');
 const { tw, val, M } = A;
@@ -147,7 +148,12 @@ async function checkReport(cfg, S, origin) {
 // ---------- adaptateur du dashboard ----------
 const adminRoute = makeAdmin({
   send, json,
-  async refresh() { teamsMemo = { v: null, exp: 0 }; },
+  async refresh() { teamsMemo = { v: null, exp: 0 }; A.reset(); },
+  async osirion(action, key) {
+    if (action === 'set') { await fortnite.setKey(key); A.reset(); return { ok: true, ...(await fortnite.keyInfo()) }; }
+    if (action === 'test') return fortnite.test();
+    return { ...(await fortnite.keyInfo()), env: !!process.env.OSIRION_API_KEY };
+  },
   async state() {
     const S = await siteLib.load(); let data = null, error = null;
     try { data = await A.load(S); } catch (e) { error = e.message; }

@@ -19,3 +19,7 @@ Copie `.env.example` en `.env` et remplis `ADMIN_PASSWORD` : il est lu à chaque
 ## League of Legends
 
 Catalogues « Worlds & MSI (LoL) » et « LEC (LoL) » (un événement par split : LEC Winter, Spring…), lus sur lolesports.com. Équipes favorites : Valorant EMEA et LEC seulement. Co-streamers par équipe, recherche automatique des co-casts (titre Twitch + Liquipedia) et rediffusions Twitch/YouTube officielles, comme pour Valorant.
+
+## Fortnite
+
+Catalogues « FNCS Majors », « Championnat du monde » et « Esports World Cup » (Fortnite). Les tournois viennent de l'API Osirion (clé à coller dans le dashboard, onglet Fortnite ; elle n'est jamais renvoyée au navigateur) et des événements ajoutés à la main dans le dashboard pour les dates à venir. Chaque session (jour, finale) est un « match » avec sa propre affiche, ses lives Twitch trouvés par le titre et ses rediffusions Twitch ; les meilleurs éliminateurs d'une session terminée s'affichent dans sa fiche.

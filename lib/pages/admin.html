@@ -111,9 +111,9 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '
 const api = (p, body) => fetch('/admin/api/' + p, body ? { method: 'POST', body: JSON.stringify(body) } : {}).then(r => r.json());
 const ago = t => { if (!t) return '—'; const s = Math.max(0, (Date.now() - t) / 1000); return s < 60 ? 'il y a ' + Math.floor(s) + ' s' : s < 3600 ? 'il y a ' + Math.floor(s / 60) + ' min' : s < 86400 ? 'il y a ' + Math.floor(s / 3600) + ' h' : 'il y a ' + Math.floor(s / 86400) + ' j'; };
 const when = t => new Date(t).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-const IC = { over: '<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>', matches: '<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/>', diag: '<path d="M22 12h-4l-3 8-6-16-3 8H2"/>', teams: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 4.5a3.2 3.2 0 010 6M18 14.5c1.7.8 3 2.7 3 5.5"/>', chans: '<rect x="3" y="5" width="18" height="12" rx="2.5"/><path d="M8 21h8M12 17v4"/>', set: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/>', prof: '<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="11" r="2.2"/><path d="M6 17c.5-2 2-3 3-3s2.5 1 3 3M14 10h4M14 14h4"/>', logs: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>' };
+const IC = { over: '<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>', matches: '<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/>', diag: '<path d="M22 12h-4l-3 8-6-16-3 8H2"/>', teams: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 4.5a3.2 3.2 0 010 6M18 14.5c1.7.8 3 2.7 3 5.5"/>', fn: '<circle cx="12" cy="12" r="9"/><path d="M8.5 15.5l3.5-7 3.5 7M9.8 13h4.4"/>', chans: '<rect x="3" y="5" width="18" height="12" rx="2.5"/><path d="M8 21h8M12 17v4"/>', set: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/>', prof: '<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="11" r="2.2"/><path d="M6 17c.5-2 2-3 3-3s2.5 1 3 3M14 10h4M14 14h4"/>', logs: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>' };
 const ico = k => `<svg viewBox="0 0 24 24">${IC[k] || ''}</svg>`;
-const TABS = [['over', 'Vue d\'ensemble', 'Matchs en direct, prochains matchs et état du système'], ['matches', 'Matchs', 'Tous les matchs lus sur valorantesports.com et lolesports.com'], ['diag', 'Diagnostic', 'Teste la source des matchs et Twitch depuis le serveur'], ['teams', 'Équipes', 'Équipes européennes proposées dans la config'], ['chans', 'Chaînes', 'Chaînes Twitch utilisées pour les lives et les rediffs'], ['set', 'Réglages', 'Identité, compétitions et fonctionnalités'], ['prof', 'Profils', 'Utilisateurs et leur activité'], ['logs', 'Journal', 'Activité et erreurs récentes']];
+const TABS = [['over', 'Vue d\'ensemble', 'Matchs en direct, prochains matchs et état du système'], ['matches', 'Matchs', 'Tous les matchs lus sur valorantesports.com et lolesports.com'], ['diag', 'Diagnostic', 'Teste la source des matchs et Twitch depuis le serveur'], ['teams', 'Équipes', 'Équipes européennes proposées dans la config'], ['fn', 'Fortnite', 'Clé Osirion, événements et réglages des tournois Fortnite'], ['chans', 'Chaînes', 'Chaînes Twitch utilisées pour les lives et les rediffs'], ['set', 'Réglages', 'Identité, compétitions et fonctionnalités'], ['prof', 'Profils', 'Utilisateurs et leur activité'], ['logs', 'Journal', 'Activité et erreurs récentes']];
 const toast = (t, ko) => { const d = document.createElement('div'); d.textContent = t; if (ko) d.className = 'ko'; $('#toast').appendChild(d); setTimeout(() => d.remove(), 3200); };
 const logo = (u, c) => `<span class="lgo">${u ? `<img src="${esc(u)}" alt="" loading="lazy" onerror="this.replaceWith(document.createTextNode('${esc(c || '').slice(0, 3)}'))">` : esc((c || '').slice(0, 3))}</span>`;
 let tab = (location.hash || '#over').slice(1), S = null, MT = null, mf = { comp: '', state: '', q: '' };
@@ -126,7 +126,7 @@ function head() {
   const c = (id, n, live) => { const e = document.getElementById('c_' + id); if (e) { e.hidden = !n; e.textContent = n; e.className = 'cnt' + (live ? ' live' : ''); } };
   c('matches', d.total || 0); c('prof', S.users.length);
 }
-function draw() { if (!S) return; const f = { over, matches, diag, teams, chans, set, prof, logs }[tab] || over; $('#m').innerHTML = ''; document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.k === tab)); head(); f(); }
+function draw() { if (!S) return; const f = { over, matches, diag, teams, chans, fnTab, set, prof, logs }[tab] || over; $('#m').innerHTML = ''; document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.k === tab)); head(); f(); }
 const put = h => { $('#m').innerHTML = h; };
 
 // ---- vue d'ensemble
@@ -280,6 +280,58 @@ function chDel(i) { const c = CH[i]; if (!confirm('Retirer ' + c.label + ' ?')) 
 async function chReset() { if (!confirm('Remettre la liste par défaut ?')) return; await saveSite({ channels: [] }); await load(); go('chans'); toast('Liste par défaut rétablie'); }
 
 // ---- réglages
+// ---- Fortnite
+let OSI = null;
+async function fnTab() {
+  put('<div class="empty">Chargement…</div>');
+  try { OSI = await api('osirion'); } catch { OSI = { set: false }; }
+  drawFn();
+}
+const FNC = { fnmajor: 'FNCS Majors', fnworld: 'Championnat du monde', fnewc: 'Esports World Cup' };
+function drawFn() {
+  const F = S.site.fortnite || { patterns: {}, regions: [], events: [], stats: true }, P = F.patterns || {};
+  put(`<div class="box"><h3>Clé Osirion</h3>
+    <p class="mut" style="margin-bottom:12px;font-size:.88rem">Osirion liste les tournois Fortnite parsés (Majors, Global Championship, EWC) avec leurs horaires, et donne les stats des joueurs. La clé reste sur ton serveur : elle n'est jamais renvoyée au navigateur. Chaque appel consomme des crédits Osirion, donc les résultats sont gardés en cache (30 min pour la liste, 24 h pour les stats).</p>
+    <div class="bar"><input id="ok" type="password" autocomplete="off" placeholder="${OSI.set ? 'Clé enregistrée (••••' + esc(OSI.last4 || '') + ') · colle une nouvelle clé pour la remplacer' : 'Colle ta clé API Osirion'}">
+      <button class="b pr" onclick="osiSave()">Enregistrer</button><button class="b" onclick="osiTest()">Tester</button>${OSI.set ? '<button class="b dg" onclick="osiDel()">Supprimer</button>' : ''}</div>
+    <div id="ot" class="mut" style="margin-top:10px;font-size:.88rem">${OSI.set ? 'Clé enregistrée.' : 'Aucune clé : seuls les événements ajoutés à la main apparaîtront.'}${OSI.env ? ' (clé aussi définie dans OSIRION_API_KEY)' : ''}</div></div>
+  <div class="box"><h3>Quels tournois afficher ?</h3>
+    <p class="mut" style="margin-bottom:12px;font-size:.88rem">Un tournoi Osirion est rangé dans une compétition si son identifiant contient l'un de ces mots (expression régulière, sans tenir compte des majuscules). Le bouton Tester t'en montre des exemples.</p>
+    <div class="two">${Object.entries(FNC).map(([k, n]) => `<div class="f"><label>${n}</label><input id="fp_${k}" value="${esc(P[k] || '')}" placeholder="${esc({ fnmajor: 'major', fnworld: 'global.?champ|worlds', fnewc: 'ewc|esports.?world.?cup' }[k])}"></div>`).join('')}
+    <div class="f"><label>Régions gardées (séparées par des virgules)</label><input id="fp_reg" value="${esc((F.regions || []).join(', '))}" placeholder="EU, GLOBAL, ALL"></div></div>
+    <label class="tg" style="margin-top:12px"><input type="checkbox" id="fp_stats" ${F.stats !== false ? 'checked' : ''}><span><b>Stats des joueurs</b><br><span class="mut">Affiche les meilleurs éliminateurs dans la fiche d'une session terminée (consomme des crédits Osirion)</span></span></label>
+    <div class="bar" style="margin-top:14px"><button class="b pr" onclick="fnSaveSet()">Enregistrer</button></div></div>
+  <div class="box"><h3>Événements ajoutés à la main <span class="mut">(${(F.events || []).length})</span></h3>
+    <p class="mut" style="margin-bottom:12px;font-size:.88rem">Pour les dates à venir qu'Osirion ne connaît pas encore. Une session par ligne : <code>Nom | début | fin | phase</code> (heure de Paris, ex : <code>Finale | 2026-11-22 19:00 | 2026-11-22 22:30 | Europe</code>). La fin et la phase sont facultatives.</p>
+    ${(F.events || []).map(e => `<div class="dg-row"><div style="flex:1"><b>${esc(e.name)}</b> <span class="mut">${esc(FNC[e.comp] || e.comp)}</span><br><span class="mut" style="font-size:.84rem">${e.sessions.map(s => esc(s.name) + ' · ' + esc(s.start)).join(' · ')}${e.channels && e.channels.length ? '<br>Chaînes : ' + e.channels.map(esc).join(', ') : ''}</span></div><button class="b sm dg" onclick="fnDel('${esc(e.id)}')">Retirer</button></div>`).join('') || '<div class="empty">Aucun événement ajouté.</div>'}
+    <div class="two" style="margin-top:14px"><div class="f"><label>Nom de l'événement</label><input id="fe_name" placeholder="FNCS Major 2"></div>
+      <div class="f"><label>Compétition</label><select id="fe_comp">${Object.entries(FNC).map(([k, n]) => `<option value="${k}">${n}</option>`).join('')}</select></div>
+      <div class="f"><label>Logo (adresse https, facultatif)</label><input id="fe_logo" placeholder="https://…"></div>
+      <div class="f"><label>Chaînes Twitch en plus (séparées par des virgules)</label><input id="fe_ch" placeholder="fortnite, kamet0"></div></div>
+    <div class="f"><label>Sessions</label><textarea id="fe_s" rows="5" style="width:100%;font:inherit;color:inherit;background:var(--p2);border:1px solid var(--b);border-radius:9px;padding:10px" placeholder="Jour 1 | 2026-11-21 18:00 | 2026-11-21 21:30\nFinale | 2026-11-22 19:00 | 2026-11-22 22:30 | Europe"></textarea></div>
+    <div class="bar" style="margin-top:12px"><button class="b pr" onclick="fnAdd()">Ajouter l'événement</button></div></div>`);
+}
+async function osiSave() { const k = $('#ok').value.trim(); if (!k) return toast('Colle ta clé', true); const r = await api('osirion', { action: 'set', key: k }); toast(r.ok ? 'Clé enregistrée' : 'Erreur', !r.ok); fnTab(); }
+async function osiDel() { if (!confirm('Supprimer la clé Osirion ?')) return; await api('osirion', { action: 'set', key: '' }); toast('Clé supprimée'); fnTab(); }
+async function osiTest() {
+  $('#ot').textContent = 'Test en cours…';
+  const r = await api('osirion', { action: 'test' });
+  $('#ot').innerHTML = r.ok ? '✅ Clé valide : ' + r.n + ' fenêtres de tournoi sur les 60 derniers jours' + (r.exemple && r.exemple.length ? '<br>Exemples : <code>' + r.exemple.map(esc).join('</code> <code>') + '</code>' : '') : '❌ ' + esc(r.error || 'Erreur');
+}
+async function fnSaveSet() {
+  const F = S.site.fortnite || {}, patterns = {};
+  for (const k of Object.keys(FNC)) { const v = $('#fp_' + k).value.trim(); if (v) { try { new RegExp(v); patterns[k] = v; } catch { return toast('Expression invalide : ' + FNC[k], true); } } }
+  const r = await saveSite({ fortnite: { ...F, patterns, regions: $('#fp_reg').value.split(',').map(x => x.trim()).filter(Boolean), stats: $('#fp_stats').checked } });
+  toast(r.ok === false ? 'Erreur' : 'Enregistré', r.ok === false);
+}
+async function fnAdd() {
+  const F = S.site.fortnite || { events: [] }, name = $('#fe_name').value.trim();
+  const sessions = $('#fe_s').value.split('\n').map(l => l.split('|').map(x => x.trim())).filter(a => a[0] && a[1]).map(a => ({ name: a[0], start: a[1], end: a[2] || '', stage: a[3] || '' }));
+  if (!name || !sessions.length) return toast('Nom et au moins une session (nom | début) obligatoires', true);
+  const ev = { id: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30) + '-' + Date.now().toString(36).slice(-3), comp: $('#fe_comp').value, name, logo: $('#fe_logo').value.trim(), channels: $('#fe_ch').value.split(',').map(x => x.trim()).filter(Boolean), sessions };
+  const r = await saveSite({ fortnite: { ...F, events: [...(F.events || []), ev] } }); toast(r.ok === false ? 'Erreur' : 'Événement ajouté', r.ok === false); drawFn();
+}
+async function fnDel(id) { const F = S.site.fortnite; if (!confirm('Retirer cet événement ?')) return; await saveSite({ fortnite: { ...F, events: F.events.filter(e => e.id !== id) } }); toast('Événement retiré'); drawFn(); }
 async function saveSite(o) { const r = await api('site', o); if (r.site) S.site = r.site; return r; }
 function set() {
   const s = S.site, f = s.feat, tg = (k, n, d) => `<label class="tg"><input type="checkbox" id="f_${k}" ${f[k] ? 'checked' : ''}><span><b>${n}</b>${d ? '<br><span class="mut">' + d + '</span>' : ''}</span></label>`;
