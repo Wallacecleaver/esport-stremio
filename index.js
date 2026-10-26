@@ -86,7 +86,10 @@ async function profileApi(req) {
 const pageCache = {};
 async function configPage() {
   const S = await siteLib.load(), raw = pageCache.config ||= fs.readFileSync(path.join(__dirname, 'lib', 'pages', 'config.html'), 'utf8');
-  const site = { needCode: !!S.code, open: S.open, comps: prefs.COMPS.filter(c => S.comps.includes(c.id)), def: prefs.DEFAULTS, caps: prefs.CAPS, capMax: S.feat.capMax };
+  // logo de chaque compétition : image de la ligue (Riot) ou logo choisi dans le dashboard (Fortnite)
+  const logos = {}; try { for (const l of (await A.load(S)).leagues || []) if (l.image && !logos[l.comp]) logos[l.comp] = logoUrl(l.image); } catch { /* sans logos */ }
+  for (const [k, v] of Object.entries((S.fortnite || {}).logos || {})) logos[k] = logoUrl(v);
+  const site = { needCode: !!S.code, open: S.open, comps: prefs.COMPS.filter(c => S.comps.includes(c.id)).map(c => ({ ...c, logo: logos[c.id] || null })), def: prefs.DEFAULTS, caps: prefs.CAPS, capMax: S.feat.capMax, fnSuggest: (S.fortnite || {}).suggest || [] };
   return raw.replace(/\{\{NAME\}\}/g, S.name).replace(/\{\{COLOR\}\}/g, S.color).replace(/\{\{TITLE\}\}/g, S.title).replace(/\{\{TEXT\}\}/g, S.text).replace(/\{\{CREDIT\}\}/g, S.credit).replace(/\{\{V\}\}/g, String(S.logoV)).replace('{{SITE}}', JSON.stringify(site).replace(/</g, '\\u003c'));
 }
 
@@ -238,6 +241,11 @@ async function handler(req, res) {
       return l ? send(res, 200, l.type, l.buf, { 'Cache-Control': 'public, max-age=86400' }) : send(res, 404, 'text/plain', 'logo introuvable');
     }
     if (head === 'api' && seg[1] === 'profile') return json(res, await profileApi(req));
+    if (head === 'api' && seg[1] === 'twitch') { // nom, photo et état d'une chaîne (pour choisir ses joueurs Fortnite)
+      if (tooMany(req)) return json(res, {});
+      const l = String(new URL(req.url, 'http://x').searchParams.get('logins') || '').split(',').map(x => x.trim().toLowerCase().replace(/^@/, '')).filter(x => tw.LOGIN_RE.test(x)).slice(0, 12);
+      return json(res, l.length ? await tw.liveStatus(l).catch(() => ({})) : {});
+    }
     if (head === 'api' && seg[1] === 'teams') return json(res, await teamList(S));
     if (head === 'check') {
       if (tooMany(req)) return json(res, { error: 'trop de demandes' });

@@ -64,6 +64,8 @@ a.btn{display:block;text-align:center;text-decoration:none}
 .comps{position:relative;display:grid;gap:8px;padding:0 22px 22px}
 .comp{display:flex;align-items:center;gap:13px;padding:13px 15px;border:1px solid var(--b);border-radius:13px;background:rgba(10,11,16,.5);cursor:pointer;text-align:left;width:100%;transition:border-color .15s}
 .comp:hover{border-color:var(--b2)}
+.comp .cl{flex:none;width:40px;height:40px;border-radius:11px;background:var(--p3);display:grid;place-items:center;font-family:var(--disp);font-weight:800;color:var(--m);overflow:hidden}
+.comp .cl img{width:30px;height:30px;object-fit:contain}
 .comp .ck{flex:none;width:22px;height:22px;border-radius:7px;border:2px solid var(--b2);display:grid;place-items:center;font-size:.8rem;color:#0a0b10;font-weight:800}
 .comp.on{border-color:var(--gc)}
 .comp.on .ck{background:var(--gc);border-color:var(--gc)}
@@ -89,6 +91,11 @@ a.btn{display:block;text-align:center;text-decoration:none}
 .tray .chip{display:inline-flex;align-items:center;gap:7px;padding:6px 8px 6px 12px;border-radius:99px;background:var(--p3);border:1px solid var(--b2);font-size:.85rem;font-weight:600;cursor:pointer}
 .chip img,.side .tm img{width:20px;height:20px;object-fit:contain;flex:none}
 .side .tm span{display:inline-flex;align-items:center;gap:6px}
+.team img.av{border-radius:50%;width:52px;height:52px;object-fit:cover}
+.team .lv{position:absolute;top:8px;left:8px;width:9px;height:9px;border-radius:50%;background:var(--val);box-shadow:0 0 0 3px rgba(255,70,85,.22)}
+.ex{margin:0 0 18px;padding:12px 14px;border:1px dashed var(--b2);border-radius:12px;color:var(--m);font-size:.88rem}
+.ex b{color:var(--t)}
+.add{display:flex;gap:8px;margin-top:12px}.add input{flex:1}.add button{flex:none;background:var(--p2);border:1px solid var(--b);border-radius:11px;padding:0 18px;font-weight:700;cursor:pointer}
 .tray .chip u{text-decoration:none;color:var(--m);font-size:.95rem;line-height:1}
 .tray em{color:var(--m);font-style:normal;font-size:.9rem}
 
@@ -156,7 +163,7 @@ const post = (path, body) => api(path, { method: 'POST', body: JSON.stringify(bo
 const GAMES = [
   { id: 'val', name: 'Valorant', tag: 'VCT EMEA, Masters, Champions, Game Changers, Esports World Cup', color: '#ff4655', mark: 'V', teams: 'VCT EMEA et Game Changers EMEA' },
   { id: 'lol', name: 'League of Legends', tag: 'LEC, Worlds, MSI, Esports World Cup', color: '#c8aa6e', mark: 'L', teams: 'LEC' },
-  { id: 'fn', name: 'Fortnite', tag: 'FNCS Majors, championnat du monde, Esports World Cup', color: '#7c8cff', mark: 'F' },
+  { id: 'fn', name: 'Fortnite', tag: 'FNCS Majors, championnat du monde, Esports World Cup', color: '#7c8cff', mark: 'F', players: true },
 ];
 const gOf = c => c.game || 'val';
 const compsOf = g => SITE.comps.filter(c => gOf(c) === g);
@@ -178,7 +185,8 @@ function side() {
   cats.push(['sys', 'Rediffusions']);
   return `<aside class="side"><h4>Ton Esportio</h4><div class="who">${st.pseudo ? 'Profil ' + esc(st.pseudo) : 'Dans Stremio, tu verras :'}</div>
     ${cats.map(([k, n]) => `<div class="cat ${k}"><i></i>${esc(n)}</div>`).join('')}
-    ${c.teams.length ? `<div class="lbl">Tes équipes</div><div class="tm">${c.teams.map(n => `<span>${logoOf(n)}${esc(n)}</span>`).join('')}</div>` : ''}</aside>`;
+    ${c.teams.length ? `<div class="lbl">Tes équipes</div><div class="tm">${c.teams.map(n => `<span>${logoOf(n)}${esc(n)}</span>`).join('')}</div>` : ''}
+    ${c.players.length ? `<div class="lbl">Tes joueurs Fortnite</div><div class="tm">${c.players.map(l => `<span>🎮 ${esc(plName(l))}</span>`).join('')}</div>` : ''}</aside>`;
 }
 
 // 1 · profil
@@ -214,7 +222,7 @@ function vComps() {
     const on = gameOn(g.id), list = compsOf(g.id);
     return `<div class="game ${on ? 'on' : ''}" style="--gc:${g.color}">
       <button class="head" onclick="togGame('${g.id}')" aria-pressed="${on}"><div class="mark">${g.mark}</div><div><h3>${g.name}</h3><p>${esc(g.tag)}</p></div><div class="sw"></div></button>
-      <div class="comps">${list.map(c => `<button class="comp ${st.cfg.comps.includes(c.id) ? 'on' : ''}" onclick="togComp('${c.id}')"><div class="ck"></div><div><b>${esc(c.name)}</b><span>${esc(c.desc)}</span></div></button>`).join('')}</div></div>`;
+      <div class="comps">${list.map(c => `<button class="comp ${st.cfg.comps.includes(c.id) ? 'on' : ''}" onclick="togComp('${c.id}')"><div class="ck"></div><div class="cl">${c.logo ? `<img src="${esc(c.logo)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('${esc(c.name).slice(0, 2)}'))">` : esc(c.name).slice(0, 2)}</div><div><b>${esc(c.name)}</b><span>${esc(c.desc)}</span></div></button>`).join('')}</div></div>`;
   }).join('');
   return `<div class="card"><h2>Tes jeux et championnats</h2><p class="hint">Active un jeu pour tout suivre, ou coche seulement les championnats qui t'intéressent. Chacun a son catalogue dans Stremio.</p>
     <div class="games">${panels}</div><div class="err">${esc(st.err)}</div>
@@ -226,11 +234,39 @@ function nextComps() { if (!st.cfg.comps.length) { st.err = 'Garde au moins un c
 
 // 3 · équipes, rangées par championnat
 async function loadTeams() {
-  if (st.teams) return;
+  if (st.teams) return loadPlayers().then(() => st.step === 2 && render());
   try { const r = await api('/api/teams'); st.teams = r.teams || []; st.tsrc = r.source; } catch { st.teams = []; }
+  await loadPlayers();
   if (st.step === 2) render();
 }
 const logoOf = n => { const t = (st.teams || []).find(x => x.name === n); return t && t.logo ? `<img src="${esc(t.logo)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : '★ '; };
+st.tw = {}; st.perr = '';
+async function loadPlayers() {
+  const l = [...new Set([...(SITE.fnSuggest || []).map(x => x.login), ...st.cfg.players])].filter(x => !st.tw[x]).slice(0, 12);
+  if (l.length) try { Object.assign(st.tw, await api('/api/twitch?logins=' + l.join(','))); } catch { /* sans photos */ }
+}
+const plName = l => ((SITE.fnSuggest || []).find(x => x.login === l) || {}).label || (st.tw[l] || {}).name || l;
+const plAv = l => (st.tw[l] || {}).avatar || '';
+function plTile(l) {
+  const on = st.cfg.players.includes(l), i = st.tw[l] || {}, g = GAMES.find(x => x.id === 'fn');
+  return `<button class="team ${on ? 'on' : ''}" style="--gc:${g.color}" aria-pressed="${on}" onclick="togPlayer('${l}')">${i.live ? '<i class="lv" title="En direct"></i>' : ''}${plAv(l) ? `<img class="av" src="${esc(plAv(l))}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<div class="lg">${esc(l.slice(0, 2).toUpperCase())}</div>`}<b>${esc(plName(l))}</b></button>`;
+}
+function vPlayers() {
+  const g = GAMES.find(x => x.id === 'fn'), all = [...new Set([...(SITE.fnSuggest || []).map(x => x.login), ...st.cfg.players])];
+  return `<section class="sect" style="--gc:${g.color}"><h3><i></i>Fortnite<small>Joueurs et co-streamers</small></h3>
+    <div class="ex">Exemple : choisis <b>Leothecrack</b>, et son live passe en premier sur chaque tournoi Fortnite, avant la chaîne officielle et les autres co-streams.</div>
+    ${all.length ? `<div class="teams">${all.map(plTile).join('')}</div>` : ''}
+    <div class="add"><input type="text" id="pl" maxlength="25" placeholder="Ajouter une chaîne Twitch (ex : leothecrack)" onkeydown="if(event.key==='Enter')addPlayer()" aria-label="Pseudo Twitch"><button onclick="addPlayer()">Ajouter</button></div>
+    <div class="err" style="min-height:0">${esc(st.perr)}</div></section>`;
+}
+function togPlayer(l) { const a = st.cfg.players, i = a.indexOf(l); i < 0 ? (a.length < 12 && a.push(l)) : a.splice(i, 1); const y = scrollY; render(); scrollTo(0, y); }
+async function addPlayer() {
+  const l = ($('#pl').value || '').trim().toLowerCase().replace(/^@/, '').replace(/^https?:\/\/(www\.)?twitch\.tv\//, '');
+  if (!/^[a-z0-9_]{3,25}$/.test(l)) { st.perr = 'Pseudo Twitch invalide.'; return render(); }
+  let r = {}; try { r = await api('/api/twitch?logins=' + l); } catch { /* hors ligne */ }
+  if (!r[l]) { st.perr = 'Chaîne introuvable sur Twitch.'; return render(); }
+  st.tw[l] = r[l]; st.perr = ''; if (!st.cfg.players.includes(l) && st.cfg.players.length < 12) st.cfg.players.push(l); render();
+}
 const initials = t => esc((t.code || t.name).slice(0, 3));
 function tile(t, g) {
   const on = st.cfg.teams.includes(t.name);
@@ -242,11 +278,13 @@ function vTeams() {
     const l = all.filter(t => (t.games || ['val']).includes(g.id) && (!q || t.name.toLowerCase().includes(q) || (t.code || '').toLowerCase().includes(q)));
     return `<section class="sect" style="--gc:${g.color}"><h3><i></i>${g.id === 'lol' ? 'LEC' : 'VCT EMEA'}<small>${g.name} · ${esc(g.teams)}</small></h3>${l.length ? `<div class="teams">${l.map(t => tile(t, g)).join('')}</div>` : '<p class="note">Aucune équipe trouvée.</p>'}</section>`;
   }).join('');
-  const tray = c.teams.length ? c.teams.map(n => `<span class="chip" onclick="togTeam(${JSON.stringify(n).replace(/"/g, '&quot;')})">${logoOf(n)}${esc(n)} <u>×</u></span>`).join('') : '<em>Aucune équipe choisie. C\'est facultatif.</em>';
-  return `<div class="card"><h2>Tes équipes</h2><p class="hint">Seules les équipes européennes sont proposées : le VCT EMEA pour Valorant, la LEC pour League of Legends. Tes équipes passent en tête avec une étoile, et tu as un catalogue « Mon équipe » avec leurs matchs et leurs co-streams. Une équipe présente dans les deux jeux se choisit une fois.</p>
+  const chips = c.teams.map(n => `<span class="chip" onclick="togTeam(${JSON.stringify(n).replace(/"/g, '&quot;')})">${logoOf(n)}${esc(n)} <u>×</u></span>`).concat(c.players.map(l => `<span class="chip" onclick="togPlayer('${l}')">${plAv(l) ? `<img src="${esc(plAv(l))}" alt="" referrerpolicy="no-referrer" style="border-radius:50%">` : '🎮 '}${esc(plName(l))} <u>×</u></span>`));
+  const tray = chips.length ? chips.join('') : '<em>Rien de choisi. C\'est facultatif.</em>';
+  return `<div class="card"><h2>Tes équipes et tes joueurs</h2><p class="hint">Seules les équipes européennes sont proposées : le VCT EMEA pour Valorant, la LEC pour League of Legends. Tes équipes passent en tête avec une étoile, et tu as un catalogue « Mon équipe » avec leurs matchs et leurs co-streams. Pour Fortnite, tu choisis des joueurs ou des streamers.</p>
     <div class="tray">${tray}</div>
     <input type="text" placeholder="Rechercher une équipe" value="${esc(st.tq)}" oninput="set('tq',this.value);renderTeams()" id="tq" aria-label="Rechercher une équipe">
-    ${!st.teams ? '<p class="note">Chargement des équipes…</p>' : sections || '<p class="note">Active un jeu à l\'étape précédente pour choisir des équipes.</p>'}
+    <div class="ex">Exemple : choisis <b>Karmine Corp</b>, et le live de <b>Kameto</b> passe en premier sur ses matchs, puis la chaîne officielle et les autres co-streams.</div>
+    ${(!st.teams ? '<p class="note">Chargement des équipes…</p>' : sections) + (gameOn('fn') ? vPlayers() : '') || '<p class="note">Active un jeu à l\'étape précédente pour choisir des équipes.</p>'}
     <div class="row"><button class="btn g" onclick="go(1)">Retour</button><button class="btn" onclick="go(3)">Continuer</button></div></div>`;
 }
 function renderTeams() { const p = $('#tq'), pos = p.selectionStart; render(); const n = $('#tq'); n.focus(); n.setSelectionRange(pos, pos); }

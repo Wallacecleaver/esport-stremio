@@ -300,6 +300,8 @@ function drawFn() {
     <div class="two">${Object.entries(FNC).map(([k, n]) => `<div class="f"><label>${n}</label><input id="fp_${k}" value="${esc(P[k] || '')}" placeholder="${esc({ fnmajor: 'major', fnworld: 'global.?champ|worlds', fnewc: 'ewc|esports.?world.?cup' }[k])}"></div>`).join('')}
     <div class="f"><label>Régions gardées (séparées par des virgules)</label><input id="fp_reg" value="${esc((F.regions || []).join(', '))}" placeholder="EU, GLOBAL, ALL"></div></div>
     <label class="tg" style="margin-top:12px"><input type="checkbox" id="fp_stats" ${F.stats !== false ? 'checked' : ''}><span><b>Stats des joueurs</b><br><span class="mut">Affiche les meilleurs éliminateurs dans la fiche d'une session terminée (consomme des crédits Osirion)</span></span></label>
+    <div class="two" style="margin-top:14px">${Object.entries(FNC).map(([k, n]) => `<div class="f"><label>Logo · ${n} (adresse https)</label><input id="fl_${k}" value="${esc((F.logos || {})[k] || '')}" placeholder="https://…"></div>`).join('')}</div>
+    <div class="f" style="margin-top:12px"><label>Joueurs et co-streamers proposés à la config (une ligne : <code>pseudo Twitch | nom | FR</code>)</label><textarea id="fp_sg" rows="4" style="width:100%;font:inherit;color:inherit;background:var(--p2);border:1px solid var(--b);border-radius:9px;padding:10px" placeholder="leothecrack | Leothecrack | FR">${esc((F.suggest || []).map(x => x.login + ' | ' + x.label + ' | ' + x.lang).join('\n'))}</textarea></div>
     <div class="bar" style="margin-top:14px"><button class="b pr" onclick="fnSaveSet()">Enregistrer</button></div></div>
   <div class="box"><h3>Événements ajoutés à la main <span class="mut">(${(F.events || []).length})</span></h3>
     <p class="mut" style="margin-bottom:12px;font-size:.88rem">Pour les dates à venir qu'Osirion ne connaît pas encore. Une session par ligne : <code>Nom | début | fin | phase</code> (heure de Paris, ex : <code>Finale | 2026-11-22 19:00 | 2026-11-22 22:30 | Europe</code>). La fin et la phase sont facultatives.</p>
@@ -321,7 +323,9 @@ async function osiTest() {
 async function fnSaveSet() {
   const F = S.site.fortnite || {}, patterns = {};
   for (const k of Object.keys(FNC)) { const v = $('#fp_' + k).value.trim(); if (v) { try { new RegExp(v); patterns[k] = v; } catch { return toast('Expression invalide : ' + FNC[k], true); } } }
-  const r = await saveSite({ fortnite: { ...F, patterns, regions: $('#fp_reg').value.split(',').map(x => x.trim()).filter(Boolean), stats: $('#fp_stats').checked } });
+  const logos = {}; for (const k of Object.keys(FNC)) { const v = $('#fl_' + k).value.trim(); if (v) logos[k] = v; }
+  const suggest = $('#fp_sg').value.split('\n').map(l => l.split('|').map(x => x.trim())).filter(a => a[0]).map(a => ({ login: a[0], label: a[1] || a[0], lang: /^en$/i.test(a[2]) ? 'EN' : 'FR' }));
+  const r = await saveSite({ fortnite: { ...F, logos, suggest, patterns, regions: $('#fp_reg').value.split(',').map(x => x.trim()).filter(Boolean), stats: $('#fp_stats').checked } });
   toast(r.ok === false ? 'Erreur' : 'Enregistré', r.ok === false);
 }
 async function fnAdd() {
