@@ -163,7 +163,7 @@ const post = (path, body) => api(path, { method: 'POST', body: JSON.stringify(bo
 const GAMES = [
   { id: 'val', name: 'Valorant', tag: 'VCT EMEA, Masters, Champions, Game Changers, Esports World Cup', color: '#ff4655', mark: 'V', teams: 'VCT EMEA et Game Changers EMEA' },
   { id: 'lol', name: 'League of Legends', tag: 'LEC, Worlds, MSI, Esports World Cup', color: '#c8aa6e', mark: 'L', teams: 'LEC' },
-  { id: 'fn', name: 'Fortnite', tag: 'FNCS Majors, championnat du monde, Esports World Cup', color: '#7c8cff', mark: 'F', teams: 'structures esport' },
+  { id: 'fn', name: 'Fortnite', tag: 'FNCS Majors et Solo, championnat du monde, Esports World Cup', color: '#7c8cff', mark: 'F', teams: 'structures esport' },
 ];
 const gOf = c => c.game || 'val';
 const compsOf = g => SITE.comps.filter(c => gOf(c) === g);
@@ -247,7 +247,7 @@ function vTeams() {
   const q = st.tq.toLowerCase(), all = st.teams || [], c = st.cfg;
   const sections = GAMES.filter(g => g.teams && gameOn(g.id)).map(g => {
     const l = all.filter(t => (t.games || ['val']).includes(g.id) && (!q || t.name.toLowerCase().includes(q) || (t.code || '').toLowerCase().includes(q)));
-    return `<section class="sect" style="--gc:${g.color}"><h3><i></i>${g.id === 'lol' ? 'LEC' : g.id === 'fn' ? 'Fortnite' : 'VCT EMEA'}<small>${g.name} · ${esc(g.teams)}</small></h3>${l.length ? `<div class="teams">${l.map(t => tile(t, g)).join('')}</div>` : '<p class="note">Aucune équipe trouvée.</p>'}</section>`;
+    return `<section class="sect" style="--gc:${g.color}"><h3><i></i>${g.id === 'lol' ? 'LEC' : g.id === 'fn' ? 'Fortnite' : 'VCT EMEA'}<small>${g.name} · ${esc(g.teams)}</small></h3>${l.length ? `<div class="teams">${l.map(t => tile(t, g)).join('')}</div>` : '<p class="note">${g.id === 'fn' ? 'Aucune structure pour l\'instant : elles s\'ajoutent depuis le dashboard.' : 'Aucune équipe trouvée.'}</p>'}</section>`;
   }).join('');
   const chips = c.teams.map(n => `<span class="chip" onclick="togTeam(${JSON.stringify(n).replace(/"/g, '&quot;')})">${logoOf(n)}${esc(n)} <u>×</u></span>`)
   const tray = chips.length ? chips.join('') : '<em>Rien de choisi. C\'est facultatif.</em>';

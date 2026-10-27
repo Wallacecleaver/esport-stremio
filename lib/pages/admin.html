@@ -287,7 +287,7 @@ async function fnTab() {
   try { OSI = await api('osirion'); } catch { OSI = { set: false }; }
   drawFn();
 }
-const FNC = { fnmajor: 'FNCS Majors', fnworld: 'Championnat du monde', fnewc: 'Esports World Cup' };
+const FNC = { fnmajor: 'FNCS Majors et Solo', fnworld: 'Championnat du monde', fnewc: 'Esports World Cup' };
 function drawFn() {
   const F = S.site.fortnite || { patterns: {}, regions: [], events: [], stats: true }, P = F.patterns || {};
   put(`<div class="box"><h3>Clé Osirion</h3>
@@ -297,7 +297,7 @@ function drawFn() {
     <div id="ot" class="mut" style="margin-top:10px;font-size:.88rem">${OSI.set ? 'Clé enregistrée.' : 'Aucune clé : seuls les événements ajoutés à la main apparaîtront.'}${OSI.env ? ' (clé aussi définie dans OSIRION_API_KEY)' : ''}</div></div>
   <div class="box"><h3>Quels tournois afficher ?</h3>
     <p class="mut" style="margin-bottom:12px;font-size:.88rem">Un tournoi Osirion est rangé dans une compétition si son identifiant contient l'un de ces mots (expression régulière, sans tenir compte des majuscules). Le bouton Tester t'en montre des exemples.</p>
-    <div class="two">${Object.entries(FNC).map(([k, n]) => `<div class="f"><label>${n}</label><input id="fp_${k}" value="${esc(P[k] || '')}" placeholder="${esc({ fnmajor: 'major', fnworld: 'global.?champ|worlds', fnewc: 'ewc|esports.?world.?cup' }[k])}"></div>`).join('')}
+    <div class="two">${Object.entries(FNC).map(([k, n]) => `<div class="f"><label>${n}</label><input id="fp_${k}" value="${esc(P[k] || '')}" placeholder="${esc({ fnmajor: 'major|fncs.?solo', fnworld: 'global.?champ|worlds', fnewc: 'ewc|esports.?world.?cup' }[k])}"></div>`).join('')}
     <div class="f"><label>Régions gardées (séparées par des virgules)</label><input id="fp_reg" value="${esc((F.regions || []).join(', '))}" placeholder="EU, GLOBAL, ALL"></div></div>
     <label class="tg" style="margin-top:12px"><input type="checkbox" id="fp_stats" ${F.stats !== false ? 'checked' : ''}><span><b>Stats des joueurs</b><br><span class="mut">Affiche les meilleurs éliminateurs dans la fiche d'une session terminée (consomme des crédits Osirion)</span></span></label>
     <div class="two" style="margin-top:14px">${Object.entries(FNC).map(([k, n]) => `<div class="f"><label>Logo · ${n} (adresse https)</label><input id="fl_${k}" value="${esc((F.logos || {})[k] || '')}" placeholder="https://…"></div>`).join('')}</div>
