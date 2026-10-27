@@ -19,11 +19,17 @@ const SCH2 = { 11: [ev('1101', -60 * 24 * H, 'completed', ['KC', 'Karmine Corp']
 const vod = (loc, p, s, e) => ({ provider: 'twitch', parameter: p, locale: loc, startMillis: s * 1000, endMillis: e * 1000 });
 const server = http.createServer((req, res) => {
   const u = new URL(req.url, 'http://x'), send = o => { res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(o)); };
-  if (u.pathname.startsWith('/fortnite/v1/')) {
-    if (req.headers.authorization !== 'Bearer testkey') { res.writeHead(401, { 'Content-Type': 'application/json' }); return res.end(JSON.stringify({ message: 'clé invalide' })); }
-    const t = (e, w, a, b) => ({ eventId: e, eventWindowId: w, startTime: Math.floor((now + a * H) / 1000), endTime: Math.floor((now + b * H) / 1000), totalMatches: 40, parsingProgress: 1 });
-    if (u.pathname.endsWith('/tournaments/stats')) return send({ players: [{ epicUsername: 'Peterbot', eliminations: 41, avgPlacement: 3.2, matchesPlayed: 8 }, { epicUsername: 'Mero', eliminations: 37, avgPlacement: 4.1, matchesPlayed: 8 }] });
-    return send({ tournaments: [t('epicgames_S42_FNCSSolo_Final', 'S42_FNCSSolo_Final_EU_Day1', 20, 24), t('epicgames_S42_FNCSSolo_Final', 'S42_FNCSSolo_Final_NAC_Day1', 20, 24), t('epicgames_S42_FNCSCashCup', 'S42_FNCSCashCup_EU', 10, 12), t('epicgames_S40_FNCSMajor1_EU', 'S40_FNCSMajor1_EU_Day1', -50, -46), t('epicgames_S40_FNCSMajor1_EU', 'S40_FNCSMajor1_EU_Finals', -1, 1), t('epicgames_S40_FNCSMajor1_NAE', 'S40_FNCSMajor1_NAE_Day1', -50, -46), t('epicgames_S40_GlobalChampionship_GLOBAL', 'S40_GlobalChampionship_GLOBAL_Day1', -200, -196), t('epicgames_S40_Cash_Cup_EU', 'S40_Cash_Cup_EU_R1', -10, -8)] });
+  if (u.pathname.startsWith('/v1/tournaments')) {   // API publique Osirion (fnapi.osirion.gg)
+    const iso = h => new Date(now + h * H).toISOString();
+    const w = (id, a, b, round) => ({ eventWindowId: id, beginTime: iso(a), endTime: iso(b), round, scoreLocations: [{ leaderboardEventId: 'LB_' + id, leaderboardEventWindowId: 'LBW_' + id, isMain: true }] });
+    const t = (id, group, title, regions, ws, rn) => ({ eventId: id, eventGroup: group, regions, platforms: ['PC'], displayData: { tournamentDisplayId: id, longFormatTitle: title, squarePosterImage: 'https://example.com/' + id + '.png', roundNames: rn || [] }, eventWindows: ws, metadata: {} });
+    if (u.pathname.endsWith('/leaderboard')) return send({ success: true, leaderboard: { leaderboardEventId: u.searchParams.get('leaderboardEventId'), leaderboardEventWindowId: u.searchParams.get('leaderboardEventWindowId'), page: 0, totalPages: 1, updatedAt: iso(0), entries: [{ teamId: 'a', rank: 1, score: 120, pointsEarned: 120, players: [{ accountId: 'x', username: 'Peterbot', flagToken: null }] }, { teamId: 'b', rank: 2, score: 111, pointsEarned: 111, players: [{ accountId: 'y', username: 'Mero', flagToken: null }] }] } });
+    const r = u.searchParams.get('region');
+    if (r === 'ONSITE') return send({ success: true, region: r, tournaments: [t('epicgames_S42_GlobalChampionship', 'S42_GC', 'FNCS Global Championship', ['ONSITE'], [w('S42_GlobalChampionship_Day1', 6000, 6004, 0)])] });
+    return send({ success: true, region: r, tournaments: [
+      t('epicgames_S40_FNCSMajor1_EU', 'S40_Major1', 'FNCS Major 1', ['EU'], [w('S40_FNCSMajor1_EU_Day1', -50, -46, 0), w('S40_FNCSMajor1_EU_Finals', -1, 1, 1)]),
+      t('epicgames_S42_FNCSSolo_Final', 'S42_Solo', 'FNCS Solo Finals', ['EU'], [w('S42_FNCSSolo_Final_EU_Day1', 20, 24, 0)]),
+      t('epicgames_S42_FNCSCashCup', 'S42_CashCup', 'Cash Cup', ['EU'], [w('S42_FNCSCashCup_EU', 10, 12, 0)])] });
   }
   if (u.pathname.startsWith('/img/')) { const n = decodeURIComponent(u.pathname.slice(5, -4)), c = COL[[...n].reduce((a, x) => a + x.charCodeAt(0), 0) % COL.length]; res.writeHead(200, { 'Content-Type': 'image/svg+xml' }); return res.end('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><path d="M100 8 L184 40 V110 Q184 168 100 194 Q16 168 16 110 V40 Z" fill="' + c + '"/><text x="100" y="122" font-family="Arial" font-weight="800" font-size="58" text-anchor="middle" fill="#0a0b10">' + n.slice(0, 3) + '</text></svg>'); }
   if (u.pathname.includes('/gw/')) {

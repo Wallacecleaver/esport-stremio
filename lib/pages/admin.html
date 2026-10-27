@@ -290,16 +290,16 @@ async function fnTab() {
 const FNC = { fnmajor: 'FNCS Majors et Solo', fnworld: 'Championnat du monde', fnewc: 'Esports World Cup' };
 function drawFn() {
   const F = S.site.fortnite || { patterns: {}, regions: [], events: [], stats: true }, P = F.patterns || {};
-  put(`<div class="box"><h3>Clé Osirion</h3>
-    <p class="mut" style="margin-bottom:12px;font-size:.88rem">Osirion liste les tournois Fortnite parsés (Majors, Global Championship, EWC) avec leurs horaires, et donne les stats des joueurs. La clé reste sur ton serveur : elle n'est jamais renvoyée au navigateur. Chaque appel consomme des crédits Osirion, donc les résultats sont gardés en cache (30 min pour la liste, 24 h pour les stats).</p>
-    <div class="bar"><input id="ok" type="password" autocomplete="off" placeholder="${OSI.set ? 'Clé enregistrée (••••' + esc(OSI.last4 || '') + ') · colle une nouvelle clé pour la remplacer' : 'Colle ta clé API Osirion'}">
+  put(`<div class="box"><h3>Osirion (calendrier Fortnite)</h3>
+    <p class="mut" style="margin-bottom:12px;font-size:.88rem">Le calendrier des tournois, les logos et les classements viennent de l'API publique d'Osirion (fnapi.osirion.gg), qui marche sans clé pendant la bêta. Une clé est facultative : colle-la ici seulement si Osirion t'en donne une plus tard. Elle reste sur ton serveur et n'est jamais renvoyée au navigateur. Les résultats sont gardés en cache (30 min pour le calendrier, 24 h pour les classements).</p>
+    <div class="bar"><input id="ok" type="password" autocomplete="off" placeholder="${OSI.set ? 'Clé enregistrée (••••' + esc(OSI.last4 || '') + ') · colle une nouvelle clé pour la remplacer' : 'Clé API Osirion (facultative)'}">
       <button class="b pr" onclick="osiSave()">Enregistrer</button><button class="b" onclick="osiTest()">Tester</button>${OSI.set ? '<button class="b dg" onclick="osiDel()">Supprimer</button>' : ''}</div>
-    <div id="ot" class="mut" style="margin-top:10px;font-size:.88rem">${OSI.set ? 'Clé enregistrée.' : 'Aucune clé : seuls les événements ajoutés à la main apparaîtront.'}${OSI.env ? ' (clé aussi définie dans OSIRION_API_KEY)' : ''}</div></div>
+    <div id="ot" class="mut" style="margin-top:10px;font-size:.88rem">${OSI.set ? 'Clé enregistrée.' : 'Pas de clé : l\'API publique en bêta suffit. Clique sur Tester.'}${OSI.env ? ' (clé aussi définie dans OSIRION_API_KEY)' : ''}</div></div>
   <div class="box"><h3>Quels tournois afficher ?</h3>
     <p class="mut" style="margin-bottom:12px;font-size:.88rem">Un tournoi Osirion est rangé dans une compétition si son identifiant contient l'un de ces mots (expression régulière, sans tenir compte des majuscules). Le bouton Tester t'en montre des exemples.</p>
     <div class="two">${Object.entries(FNC).map(([k, n]) => `<div class="f"><label>${n}</label><input id="fp_${k}" value="${esc(P[k] || '')}" placeholder="${esc({ fnmajor: 'major|fncs.?solo', fnworld: 'global.?champ|worlds', fnewc: 'ewc|esports.?world.?cup' }[k])}"></div>`).join('')}
-    <div class="f"><label>Régions gardées (séparées par des virgules)</label><input id="fp_reg" value="${esc((F.regions || []).join(', '))}" placeholder="EU, GLOBAL, ALL"></div></div>
-    <label class="tg" style="margin-top:12px"><input type="checkbox" id="fp_stats" ${F.stats !== false ? 'checked' : ''}><span><b>Stats des joueurs</b><br><span class="mut">Affiche les meilleurs éliminateurs dans la fiche d'une session terminée (consomme des crédits Osirion)</span></span></label>
+    <div class="f"><label>Régions gardées (séparées par des virgules)</label><input id="fp_reg" value="${esc((F.regions || []).join(', '))}" placeholder="EU, ONSITE"></div></div>
+    <label class="tg" style="margin-top:12px"><input type="checkbox" id="fp_stats" ${F.stats !== false ? 'checked' : ''}><span><b>Classement des sessions</b><br><span class="mut">Affiche le haut du classement dans la fiche d'une session terminée</span></span></label>
     <div class="two" style="margin-top:14px">${Object.entries(FNC).map(([k, n]) => `<div class="f"><label>Logo · ${n} (adresse https)</label><input id="fl_${k}" value="${esc((F.logos || {})[k] || '')}" placeholder="https://…"></div>`).join('')}</div>
     <div class="f" style="margin-top:12px"><label>Structures proposées (une ligne : <code>Nom | logo https (facultatif) | chaîne1, chaîne2</code>). Leurs chaînes passent en premier quand le spectateur les choisit.</label><textarea id="fp_st" rows="5" style="width:100%;font:inherit;color:inherit;background:var(--p2);border:1px solid var(--b);border-radius:9px;padding:10px" placeholder="Karmine Corp | | karminecorp, autrechaine">${esc((F.structures || []).map(x => x.name + ' | ' + (x.logo || '') + ' | ' + x.channels.map(c => c.login).join(', ')).join('\n'))}</textarea></div>
     <div class="f" style="margin-top:12px"><label>Co-casters habituels, toujours proposés après les structures à la config (une ligne : <code>pseudo Twitch | nom | FR</code>)</label><textarea id="fp_sg" rows="4" style="width:100%;font:inherit;color:inherit;background:var(--p2);border:1px solid var(--b);border-radius:9px;padding:10px" placeholder="leothecrack | Leothecrack | FR">${esc((F.suggest || []).map(x => x.login + ' | ' + x.label + ' | ' + x.lang).join('\n'))}</textarea></div>
@@ -319,7 +319,7 @@ async function osiDel() { if (!confirm('Supprimer la clé Osirion ?')) return; a
 async function osiTest() {
   $('#ot').textContent = 'Test en cours…';
   const r = await api('osirion', { action: 'test' });
-  $('#ot').innerHTML = r.ok ? '✅ Clé valide : ' + r.n + ' fenêtres de tournoi sur les 60 derniers jours' + (r.exemple && r.exemple.length ? '<br>Exemples : <code>' + r.exemple.map(esc).join('</code> <code>') + '</code>' : '') : '❌ ' + esc(r.error || 'Erreur');
+  $('#ot').innerHTML = r.ok ? '✅ API Osirion joignable : ' + r.n + ' tournois lus (Europe et finales sur place)' + (r.exemple && r.exemple.length ? '<br>Exemples : <code>' + r.exemple.map(esc).join('</code> <code>') + '</code>' : '') : '❌ ' + esc(r.error || 'Erreur');
 }
 async function fnSaveSet() {
   const F = S.site.fortnite || {}, patterns = {};
