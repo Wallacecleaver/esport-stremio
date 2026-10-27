@@ -95,6 +95,22 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--a)}input[type=fil
  aside{position:sticky;top:0;inset:auto;width:auto;flex-direction:row;align-items:center;padding:8px 12px;gap:10px;border-right:0;border-bottom:1px solid var(--b)}
  .brand{padding:0}.brand div{display:none}nav{flex-direction:row;overflow-x:auto;scrollbar-width:none}nav button{padding:8px 11px;white-space:nowrap}nav button span.t{display:none}nav button.on{box-shadow:none;background:rgba(255,70,85,.2)}
  .side-f{display:none}main{margin-left:0;padding:20px 14px 60px}.two{grid-template-columns:1fr}.top h1{font-size:1.35rem}.top .chips{margin-left:0}.cmp{grid-template-columns:1fr 50px 50px 60px}}
+
+.gts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}@media(max-width:900px){.gts{grid-template-columns:1fr}}
+.gt{font:inherit;color:inherit;text-align:left;display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:var(--r);border:1px solid var(--b);background:linear-gradient(160deg,var(--p2),var(--p));cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+.gt:hover{border-color:var(--b2)}.gt.on{border-color:var(--gc);box-shadow:0 0 0 1px var(--gc),0 10px 28px rgba(0,0,0,.3);background:linear-gradient(160deg,color-mix(in srgb,var(--gc) 16%,var(--p2)),var(--p))}
+.gt .mk{flex:none;width:46px;height:46px;border-radius:13px;background:var(--gc);color:#0b0e14;display:grid;place-items:center;font-weight:800;font-size:1.25rem}
+.gt .gtx b{display:block;font-size:1.02rem;letter-spacing:-.01em}.gt .gtx small{color:var(--m);font-size:.8rem}
+.sub{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;border-bottom:1px solid var(--b);padding-bottom:12px}
+.sub button{font:inherit;font-weight:600;font-size:.88rem;color:var(--m);background:none;border:1px solid transparent;border-radius:99px;padding:7px 16px;cursor:pointer}.sub button:hover{color:var(--t)}
+.sub button.on{color:#fff;background:color-mix(in srgb,var(--gc) 22%,transparent);border-color:var(--gc)}
+.sw{position:relative;width:40px;height:23px;flex:none;display:inline-block}.sw input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:1}
+.sw i{position:absolute;inset:0;border-radius:99px;background:var(--p3);border:1px solid var(--b2);transition:.15s}.sw i::after{content:"";position:absolute;left:2px;top:2px;width:17px;height:17px;border-radius:50%;background:var(--m);transition:.15s}
+.sw input:checked+i{background:rgba(45,212,160,.22);border-color:var(--ok)}.sw input:checked+i::after{left:19px;background:var(--ok)}
+.cr{border:1px solid var(--b);border-radius:13px;padding:14px 16px;margin-bottom:12px;background:rgba(255,255,255,.015)}.cr.off .cr-f{opacity:.55}
+.cr-h{display:flex;align-items:center;gap:14px;margin-bottom:12px}.cr-h .d{flex:1}
+.cr-f{display:grid;grid-template-columns:1fr 1.6fr 1.2fr;gap:12px}.cr-f .f{margin-bottom:0}@media(max-width:900px){.cr-f{grid-template-columns:1fr!important}}
+.dg-row.offr{opacity:.5}
 </style>
 </head>
 <body>
@@ -111,9 +127,9 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '
 const api = (p, body) => fetch('/admin/api/' + p, body ? { method: 'POST', body: JSON.stringify(body) } : {}).then(r => r.json());
 const ago = t => { if (!t) return '—'; const s = Math.max(0, (Date.now() - t) / 1000); return s < 60 ? 'il y a ' + Math.floor(s) + ' s' : s < 3600 ? 'il y a ' + Math.floor(s / 60) + ' min' : s < 86400 ? 'il y a ' + Math.floor(s / 3600) + ' h' : 'il y a ' + Math.floor(s / 86400) + ' j'; };
 const when = t => new Date(t).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-const IC = { over: '<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>', matches: '<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/>', diag: '<path d="M22 12h-4l-3 8-6-16-3 8H2"/>', teams: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 4.5a3.2 3.2 0 010 6M18 14.5c1.7.8 3 2.7 3 5.5"/>', fn: '<circle cx="12" cy="12" r="9"/><path d="M8.5 15.5l3.5-7 3.5 7M9.8 13h4.4"/>', chans: '<rect x="3" y="5" width="18" height="12" rx="2.5"/><path d="M8 21h8M12 17v4"/>', set: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/>', prof: '<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="11" r="2.2"/><path d="M6 17c.5-2 2-3 3-3s2.5 1 3 3M14 10h4M14 14h4"/>', logs: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>' };
+const IC = { games: '<rect x="2" y="7" width="20" height="11" rx="4"/><path d="M7 10.5v4M5 12.5h4M16 11.5h.01M18.5 13.5h.01"/>', over: '<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>', matches: '<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/>', diag: '<path d="M22 12h-4l-3 8-6-16-3 8H2"/>', teams: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 4.5a3.2 3.2 0 010 6M18 14.5c1.7.8 3 2.7 3 5.5"/>', fn: '<circle cx="12" cy="12" r="9"/><path d="M8.5 15.5l3.5-7 3.5 7M9.8 13h4.4"/>', chans: '<rect x="3" y="5" width="18" height="12" rx="2.5"/><path d="M8 21h8M12 17v4"/>', set: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/>', prof: '<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="11" r="2.2"/><path d="M6 17c.5-2 2-3 3-3s2.5 1 3 3M14 10h4M14 14h4"/>', logs: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>' };
 const ico = k => `<svg viewBox="0 0 24 24">${IC[k] || ''}</svg>`;
-const TABS = [['over', 'Vue d\'ensemble', 'Matchs en direct, prochains matchs et état du système'], ['matches', 'Matchs', 'Tous les matchs lus sur valorantesports.com et lolesports.com'], ['diag', 'Diagnostic', 'Teste la source des matchs et Twitch depuis le serveur'], ['teams', 'Équipes', 'Équipes européennes proposées dans la config'], ['fn', 'Fortnite', 'Clé Osirion, événements et réglages des tournois Fortnite'], ['chans', 'Chaînes', 'Chaînes Twitch utilisées pour les lives et les rediffs'], ['set', 'Réglages', 'Identité, compétitions et fonctionnalités'], ['prof', 'Profils', 'Utilisateurs et leur activité'], ['logs', 'Journal', 'Activité et erreurs récentes']];
+const TABS = [['over', 'Vue d\'ensemble', 'Matchs en direct, prochains matchs et état du système'], ['matches', 'Matchs', 'Tous les matchs lus sur valorantesports.com et lolesports.com'], ['games', 'Jeux', 'Compétitions, chaînes, streamers et noms du catalogue pour chaque jeu'], ['diag', 'Diagnostic', 'Teste la source des matchs et Twitch depuis le serveur'], ['teams', 'Équipes', 'Équipes européennes proposées dans la config'], ['set', 'Réglages', 'Identité, compétitions et fonctionnalités'], ['prof', 'Profils', 'Utilisateurs et leur activité'], ['logs', 'Journal', 'Activité et erreurs récentes']];
 const toast = (t, ko) => { const d = document.createElement('div'); d.textContent = t; if (ko) d.className = 'ko'; $('#toast').appendChild(d); setTimeout(() => d.remove(), 3200); };
 const logo = (u, c) => `<span class="lgo">${u ? `<img src="${esc(u)}" alt="" loading="lazy" onerror="this.replaceWith(document.createTextNode('${esc(c || '').slice(0, 3)}'))">` : esc((c || '').slice(0, 3))}</span>`;
 let tab = (location.hash || '#over').slice(1), S = null, MT = null, mf = { comp: '', state: '', q: '' };
@@ -126,7 +142,7 @@ function head() {
   const c = (id, n, live) => { const e = document.getElementById('c_' + id); if (e) { e.hidden = !n; e.textContent = n; e.className = 'cnt' + (live ? ' live' : ''); } };
   c('matches', d.total || 0); c('prof', S.users.length);
 }
-function draw() { if (!S) return; const f = { over, matches, diag, teams, chans, fn: fnTab, set, prof, logs }[tab] || over; $('#m').innerHTML = ''; document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.k === tab)); head(); f(); }
+function draw() { if (!S) return; if (tab === 'chans' || tab === 'fn') tab = 'games'; const f = { over, matches, games: gamesTab, diag, teams, set, prof, logs }[tab] || over; $('#m').innerHTML = ''; document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.k === tab)); head(); f(); }
 const put = h => { $('#m').innerHTML = h; };
 
 // ---- vue d'ensemble
@@ -227,70 +243,177 @@ async function tmSave() {
 }
 async function tmReset() { await saveSite({ teams: [] }); S.site.teams = null; toast('Liste automatique rétablie'); teams(); }
 
-// ---- chaînes
-let CH = null, CS = {}, TC = {}, TL = [];
-const LOGIN = /^[a-z0-9_]{3,25}$/;
-async function chStatus() { try { CS = await api('chanstatus?logins=' + encodeURIComponent([...CH.map(c => c.login), ...Object.values(TC).flat().map(c => c.login)].join(','))); } catch { CS = {}; } if (tab === 'chans') drawChans(); }
-async function chans() { CH = S.channels.map(c => ({ ...c })); CS = {}; TC = JSON.parse(JSON.stringify(S.site.teamChannels || {})); drawChans(); chStatus(); try { TL = (await api('teams')).teams; } catch { TL = []; } if (tab === 'chans') drawChans(); }
+// ---- jeux : tout ce qui touche à un jeu au même endroit
+const GJ = {
+  val: { name: 'Valorant', mk: 'V', col: '#ff4655', comps: ['emea', 'intl', 'gc', 'ewc'], subs: [['comps', 'Compétitions'], ['chans', 'Chaînes'], ['teams', 'Co-streams d\'équipe']] },
+  lol: { name: 'League of Legends', mk: 'L', col: '#c8aa6e', comps: ['lolw', 'lec', 'lolewc'], subs: [['comps', 'Compétitions'], ['chans', 'Chaînes'], ['teams', 'Co-streams d\'équipe']] },
+  fn: { name: 'Fortnite', mk: 'F', col: '#7c8cff', comps: ['fnmajor', 'fnworld', 'fnewc'], subs: [['comps', 'Compétitions'], ['chans', 'Chaînes'], ['struct', 'Structures et co-casters'], ['src', 'Tournois et Osirion']] },
+};
+let G = 'val', GSUB = 'comps', CH = [], CS = {}, TC = {}, TL = [], ST = [], SG = [], OSI = null;
+try { G = localStorage.getItem('esp_game') || 'val'; GSUB = localStorage.getItem('esp_sub') || 'comps'; } catch { /* sans mémoire */ }
+if (!GJ[G]) G = 'val';
+const LOGIN = /^[a-z0-9_]{3,25}$/, cl = o => JSON.parse(JSON.stringify(o));
+const loginOf = v => String(v || '').trim().toLowerCase().replace(/^https?:\/\/(www\.)?twitch\.tv\//, '').replace(/[/?#].*$/, '').replace(/^@/, '');
+const chGame = c => c.game || 'val';
+const sw = (on, fn) => `<label class="sw" title="${on ? 'Activé' : 'Désactivé'}"><input type="checkbox" ${on ? 'checked' : ''} onchange="${fn}"><i></i></label>`;
+const langSel = (v, fn) => `<select style="width:auto" onchange="${fn}"><option value="FR" ${v === 'FR' ? 'selected' : ''}>🇫🇷 FR</option><option value="EN" ${v === 'EN' ? 'selected' : ''}>🇬🇧 EN</option></select>`;
+
+async function gamesTab() {
+  CH = cl(S.channels || []); TC = cl(S.site.teamChannels || {}); const F = S.site.fortnite || {}; ST = cl(F.structures || []); SG = cl(F.suggest || []);
+  CS = {}; gRender(); gStatus();
+  try { TL = (await api('teams')).teams || []; } catch { TL = []; }
+  try { OSI = await api('osirion'); } catch { OSI = { set: false }; }
+  if (tab === 'games') gRender();
+}
+async function gStatus() {
+  const l = [...new Set([...CH.map(c => c.login), ...Object.values(TC).flat().map(c => c.login), ...ST.flatMap(x => (x.channels || []).map(c => c.login)), ...SG.map(c => c.login)])].filter(x => LOGIN.test(x)).slice(0, 60);
+  if (!l.length) return;
+  try { CS = await api('chanstatus?logins=' + encodeURIComponent(l.join(','))); } catch { CS = {}; }
+  if (tab === 'games') gRender();
+}
+function pickGame(g, sub) { G = g; GSUB = sub || 'comps'; try { localStorage.setItem('esp_game', G); localStorage.setItem('esp_sub', GSUB); } catch { /* sans mémoire */ } gRender(); }
+function pickSub(k) { GSUB = k; try { localStorage.setItem('esp_sub', k); } catch { /* sans mémoire */ } gRender(); }
+function gRender() {
+  if (tab !== 'games') return;
+  const y = scrollY, g = GJ[G], subs = g.subs; if (!subs.some(x => x[0] === GSUB)) GSUB = 'comps';
+  const live = gm => CH.filter(c => chGame(c) === gm && !c.off && CS[c.login] && CS[c.login].live).length;
+  const tiles = Object.entries(GJ).map(([id, x]) => {
+    const on = x.comps.filter(c => (S.site.comps || []).includes(c)).length, ch = CH.filter(c => chGame(c) === id && !c.off).length, lv = live(id);
+    return `<button class="gt ${id === G ? 'on' : ''}" style="--gc:${x.col}" onclick="pickGame('${id}')"><span class="mk">${x.mk}</span><span class="gtx"><b>${esc(x.name)}</b><small>${on}/${x.comps.length} compétitions · ${ch} chaînes${lv ? ' · <span style="color:var(--a2)">' + lv + ' en direct</span>' : ''}</small></span></button>`;
+  }).join('');
+  const body = { comps: gComps, chans: gChans, teams: gTeams, struct: gStruct, src: fnSrc }[GSUB]();
+  put(`<div class="gts">${tiles}</div><div class="sub" style="--gc:${g.col}">${subs.map(([k, n]) => `<button class="${k === GSUB ? 'on' : ''}" onclick="pickSub('${k}')">${n}</button>`).join('')}</div>${body}`);
+  scrollTo(0, y);
+}
+
+// -- compétitions : activer, renommer, décrire, logo
+function gComps() {
+  const g = GJ[G], CM = S.site.compMeta || {}, CN = S.site.catNames || {};
+  const rows = g.comps.map(id => {
+    const c = (S.data.comps || []).find(x => x.id === id) || { id, name: id, n: 0, live: 0 }, m = CM[id] || {}, on = (S.site.comps || []).includes(id);
+    return `<div class="cr ${on ? '' : 'off'}" data-id="${id}">
+      <div class="cr-h">${sw(on, `togComp('${id}',this.checked)`)}<span class="lgo" style="width:42px;height:42px">${m.logo ? `<img src="${esc(m.logo)}" alt="" onerror="this.remove()">` : esc(c.name.replace(/[^\w ]/g, '').trim().slice(0, 2))}</span>
+        <div class="d"><b>${esc(m.name || c.name)}</b><br><small>${c.n ? c.n + ' matchs' : 'aucun match pour le moment'}${c.live ? ' · <span style="color:var(--a2)">' + c.live + ' en direct</span>' : ''}</small></div></div>
+      <div class="cr-f"><div class="f"><label>Nom dans le catalogue</label><input class="cm_name" value="${esc(m.name || '')}" placeholder="${esc(c.name)}" maxlength="40"></div>
+        <div class="f"><label>Description (ajoutée sous le titre de chaque événement)</label><input class="cm_desc" value="${esc(m.desc || '')}" placeholder="Aucune" maxlength="200"></div>
+        <div class="f"><label>Logo (adresse https)</label><input class="cm_logo" value="${esc(m.logo || '')}" placeholder="Automatique" maxlength="300"></div></div></div>`;
+  }).join('');
+  return `<div class="box"><h3>Compétitions de ${esc(g.name)}<span class="sp"><button class="b pr" onclick="saveComps()">Enregistrer les noms</button></span></h3>
+    <p class="mut" style="margin-bottom:14px;font-size:.88rem">L'interrupteur affiche ou masque la compétition pour tout le monde. Un champ laissé vide garde la valeur automatique. Le nom change le titre du catalogue dans Stremio et sur la page de config.</p>${rows}</div>
+  <div class="box"><h3>Catalogues communs aux trois jeux<span class="sp"><button class="b pr" onclick="saveCats()">Enregistrer</button></span></h3>
+    <div class="two"><div class="f"><label>En direct et à venir</label><input id="cn_live" value="${esc(CN.live || '')}" placeholder="🔴 En direct & à venir" maxlength="40"></div>
+      <div class="f"><label>Mon équipe</label><input id="cn_team" value="${esc(CN.team || '')}" placeholder="⭐ Mon équipe" maxlength="40"></div>
+      <div class="f"><label>Rediffusions</label><input id="cn_replays" value="${esc(CN.replays || '')}" placeholder="📼 Rediffusions" maxlength="40"></div></div></div>`;
+}
+async function togComp(id, on) {
+  const cur = S.site.comps || [], next = on ? [...new Set([...cur, id])] : cur.filter(x => x !== id);
+  if (!next.length) { toast('Garde au moins une compétition', true); return gRender(); }
+  const r = await saveSite({ comps: next }); const c = (S.data.comps || []).find(x => x.id === id); if (c) c.on = on;
+  toast(r.ok === false ? 'Erreur' : on ? 'Compétition affichée' : 'Compétition masquée', r.ok === false); gRender();
+}
+async function saveComps() {
+  const CM = cl(S.site.compMeta || {});
+  document.querySelectorAll('.cr').forEach(r => { const id = r.dataset.id, v = { name: r.querySelector('.cm_name').value.trim(), desc: r.querySelector('.cm_desc').value.trim(), logo: r.querySelector('.cm_logo').value.trim() }; if (v.logo && !/^https:\/\//.test(v.logo)) { v.logo = ''; toast('Un logo doit commencer par https://', true); } if (v.name || v.desc || v.logo) CM[id] = v; else delete CM[id]; });
+  const r = await saveSite({ compMeta: CM }); toast(r.ok === false ? 'Erreur' : 'Noms enregistrés', r.ok === false); gRender();
+}
+async function saveCats() {
+  const r = await saveSite({ catNames: { live: $('#cn_live').value.trim(), team: $('#cn_team').value.trim(), replays: $('#cn_replays').value.trim() } });
+  toast(r.ok === false ? 'Erreur' : 'Enregistré', r.ok === false);
+}
+
+// -- chaînes du jeu : activer, renommer, ajouter, ordonner
+async function chSave(msg) { S.channels = cl(CH); const r = await saveSite({ channels: CH }); toast(r.ok === false ? 'Erreur' : msg || 'Enregistré', r.ok === false); }
+function statusPill(login) { const st = CS[login]; return st ? (st.live ? `<span class="pill live"><i class="dot live"></i>en direct · ${st.viewers} 👁${st.game ? ' · ' + esc(String(st.game).slice(0, 18)) : ''}</span>` : '<span class="pill">hors ligne</span>') : ''; }
+const avatar = (login, sz) => { const st = CS[login]; return `<span class="lgo" style="width:${sz || 40}px;height:${sz || 40}px;border-radius:50%">${st && st.avatar ? `<img src="${esc(st.avatar)}" alt="" style="padding:0">` : esc(login.slice(0, 2).toUpperCase())}</span>`; };
+function gChans() {
+  const g = GJ[G], list = CH.map((c, i) => ({ c, i })).filter(x => chGame(x.c) === G), n = list.filter(x => !x.c.off).length;
+  return `<div class="box"><h3>Ajouter un streamer pour ${esc(g.name)}</h3>
+    <div class="bar"><input id="nc" placeholder="Pseudo Twitch ou lien twitch.tv/… (ex : kameto)" onkeydown="if(event.key==='Enter')addChan()">
+      <select id="nl" style="width:auto"><option value="FR">🇫🇷 Français</option><option value="EN">🇬🇧 Anglais</option></select>
+      <select id="nr" style="width:auto"><option>Co-stream</option><option>Officiel</option></select><button class="b pr" onclick="addChan()">Ajouter</button></div>
+    <p class="mut" style="font-size:.84rem">Le nom et l'état (en direct ou non) sont lus sur Twitch. Un live n'est proposé dans Stremio que s'il diffuse bien ${esc(g.name)}.</p></div>
+  <div class="box"><h3>Chaînes de ${esc(g.name)} <span class="mut">(${n} actives sur ${list.length})</span><span class="sp"><button class="b sm" onclick="gStatus();toast('Actualisé')">Actualiser</button><button class="b sm dg" onclick="chReset()">Liste par défaut</button></span></h3>
+    ${list.map(({ c, i }) => `<div class="dg-row ${c.off ? 'offr' : ''}">${sw(!c.off, `chOff(${i},!this.checked)`)}${avatar(c.login)}
+      <div class="d"><b>${esc(c.label)}</b> ${statusPill(c.login)}<br><small class="mono">twitch.tv/${esc(c.login)}</small></div>
+      <input style="width:160px" value="${esc(c.label)}" onchange="CH[${i}].label=this.value.trim()||CH[${i}].login;chSave('Nom enregistré');gRender()" title="Nom affiché dans Stremio" maxlength="30">
+      ${langSel(c.lang, `CH[${i}].lang=this.value;chSave()`)}
+      <select style="width:auto" onchange="CH[${i}].role=this.value;chSave()"><option ${c.role === 'Co-stream' ? 'selected' : ''}>Co-stream</option><option ${c.role === 'Officiel' ? 'selected' : ''}>Officiel</option></select>
+      <button class="b sm" onclick="chMove(${i},-1)" title="Monter">↑</button><button class="b sm" onclick="chMove(${i},1)" title="Descendre">↓</button>
+      <button class="b sm dg" onclick="chDel(${i})" title="Supprimer">✕</button></div>`).join('') || '<div class="empty">Aucune chaîne pour ce jeu</div>'}
+    <p class="mut" style="font-size:.82rem;margin-top:10px">Une chaîne désactivée reste dans la liste mais disparaît des sources de Stremio.</p></div>`;
+}
+async function addChan() {
+  const v = loginOf($('#nc').value); if (!LOGIN.test(v)) return toast('Pseudo Twitch invalide', true);
+  if (CH.some(c => c.login === v && chGame(c) === G)) return toast('Cette chaîne est déjà dans la liste de ce jeu', true);
+  const r = await api('chanstatus?logins=' + v); if (!r[v]) return toast('Chaîne introuvable sur Twitch', true);
+  CH.push({ login: v, label: r[v].name || v, lang: $('#nl').value, role: $('#nr').value, game: G, off: false }); CS = { ...CS, ...r };
+  await chSave((r[v].name || v) + ' ajoutée'); gRender();
+}
+function chOff(i, off) { CH[i].off = !!off; chSave(off ? 'Chaîne désactivée' : 'Chaîne activée'); gRender(); }
+function chMove(i, d) { let j = i + d; while (j >= 0 && j < CH.length && chGame(CH[j]) !== chGame(CH[i])) j += d; if (j < 0 || j >= CH.length) return; [CH[i], CH[j]] = [CH[j], CH[i]]; chSave('Ordre enregistré'); gRender(); }
+function chDel(i) { const c = CH[i]; if (!confirm('Retirer ' + c.label + ' ?')) return; CH.splice(i, 1); chSave('Chaîne retirée'); gRender(); }
+async function chReset() { if (!confirm('Remettre les chaînes par défaut pour les trois jeux ?')) return; await saveSite({ channels: [] }); await load(); toast('Liste par défaut rétablie'); }
+
+// -- co-streams d'équipe (Valorant et LoL)
 async function tcSave(msg) { const r = await saveSite({ teamChannels: TC }); toast(r.ok === false ? 'Erreur' : msg || 'Enregistré', r.ok === false); }
+function gTeams() {
+  const tl = TL.filter(t => (t.games || ['val']).includes(G)), codes = new Set(tl.map(t => t.code || t.name));
+  const rows = Object.entries(TC).filter(([code]) => codes.has(code) || (G === 'val' && !TL.some(t => (t.code || t.name) === code)));
+  return `<div class="box"><h3>Co-streams par équipe · ${esc(GJ[G].name)}</h3>
+    <p class="mut" style="margin-bottom:12px;font-size:.88rem">Quand une équipe joue, ses co-streamers apparaissent dans les sources du match, et en premier si c'est l'équipe du spectateur. Exemple : Karmine Corp, puis Kameto.</p>
+    <div class="bar"><select id="tt_team" style="width:auto;min-width:200px"><option value="">Équipe…</option>${tl.map(t => `<option value="${esc(t.code || t.name)}">${esc(t.name)}${t.code ? ' (' + esc(t.code) + ')' : ''}</option>`).join('')}</select>
+      <input id="tt_login" placeholder="Pseudo Twitch du co-streamer" onkeydown="if(event.key==='Enter')tcAdd()"><select id="tt_lang" style="width:auto"><option value="FR">🇫🇷 FR</option><option value="EN">🇬🇧 EN</option></select><button class="b pr" onclick="tcAdd()">Ajouter</button></div>
+    ${rows.map(([code, list]) => `<div class="dg-row"><b style="min-width:70px">${esc(code)}</b><div class="d rp" style="margin:0">${list.map((c, i) => `<span class="pill ${CS[c.login] && CS[c.login].live ? 'live' : ''}">${CS[c.login] && CS[c.login].live ? '<i class="dot live"></i>' : ''}${esc(c.label)} · ${esc(c.lang)} <a href="#" onclick="tcDel('${esc(code)}',${i});return false" style="margin-left:6px;color:var(--ko)">✕</a></span>`).join('')}</div></div>`).join('') || '<div class="empty">Aucun co-stream configuré</div>'}</div>`;
+}
 async function tcAdd() {
-  const code = $('#tt_team').value, v = $('#tt_login').value.trim().toLowerCase().replace(/^https?:\/\/(www\.)?twitch\.tv\//, '').replace(/[/?#].*$/, '').replace(/^@/, '');
+  const code = $('#tt_team').value, v = loginOf($('#tt_login').value);
   if (!code) return toast('Choisis une équipe', true); if (!LOGIN.test(v)) return toast('Pseudo Twitch invalide', true);
   if ((TC[code] || []).some(c => c.login === v)) return toast('Déjà ajouté pour cette équipe', true);
   const r = await api('chanstatus?logins=' + v); if (!r[v]) return toast('Chaîne introuvable sur Twitch', true);
   (TC[code] ||= []).push({ login: v, label: r[v].name || v, lang: $('#tt_lang').value }); CS = { ...CS, ...r };
-  await tcSave((r[v].name || v) + ' ajouté pour ' + code); drawChans();
+  await tcSave((r[v].name || v) + ' ajouté pour ' + code); gRender();
 }
-function tcDel(code, i) { TC[code].splice(i, 1); if (!TC[code].length) delete TC[code]; tcSave('Retiré'); drawChans(); }
-async function chSave(msg) { const r = await saveSite({ channels: CH }); toast(r.ok === false ? 'Erreur' : msg || 'Enregistré', r.ok === false); }
-function drawChans() {
-  put(`<div class="box"><h3>Ajouter une chaîne Twitch</h3>
-    <div class="bar"><input id="nc" placeholder="Pseudo Twitch, ou lien twitch.tv/… (ex : kameto)" onkeydown="if(event.key==='Enter')addChan()">
-      <select id="nl" style="width:auto"><option value="FR">🇫🇷 Français</option><option value="EN">🇬🇧 Anglais</option></select>
-      <select id="nr" style="width:auto"><option>Co-stream</option><option>Officiel</option></select>
-      <select id="ng" style="width:auto"><option value="val">🎯 Valorant</option><option value="lol">⚔️ League of Legends</option></select>
-      <button class="b pr" onclick="addChan()">Ajouter</button></div>
-    <p class="mut" style="font-size:.84rem">Le nom, la photo et l'état (en direct ou non) sont lus automatiquement sur Twitch. Les chaînes en direct apparaissent dans les sources d'un match du même jeu, seulement si elles diffusent bien ce jeu.</p></div>
-  <div class="box"><h3>Co-streams par équipe</h3>
-    <p class="mut" style="margin-bottom:12px;font-size:.88rem">Quand une équipe joue, ses co-streamers apparaissent dans les sources du match (et en premier si c'est l'équipe du spectateur). Ex : Karmine Corp → Kameto.</p>
-    <div class="bar"><select id="tt_team" style="width:auto;min-width:200px"><option value="">Équipe…</option>${TL.map(t => `<option value="${esc(t.code || t.name)}">${esc(t.name)}${t.code ? ' (' + esc(t.code) + ')' : ''}</option>`).join('')}</select>
-      <input id="tt_login" placeholder="Pseudo Twitch du co-streamer" onkeydown="if(event.key==='Enter')tcAdd()"><select id="tt_lang" style="width:auto"><option value="FR">🇫🇷 FR</option><option value="EN">🇬🇧 EN</option></select><button class="b pr" onclick="tcAdd()">Ajouter</button></div>
-    ${Object.entries(TC).map(([code, list]) => `<div class="dg-row"><b style="min-width:70px">${esc(code)}</b><div class="d rp" style="margin:0">${list.map((c, i) => { const st = CS[c.login]; return `<span class="pill ${st && st.live ? 'live' : ''}">${st && st.live ? '<i class="dot live"></i>' : ''}${esc(c.label)} · ${esc(c.lang)} <a href="#" onclick="tcDel('${esc(code)}',${i});return false" style="margin-left:6px;color:var(--ko)">✕</a></span>`; }).join('')}</div></div>`).join('') || '<div class="empty">Aucun co-stream configuré</div>'}</div>
-  <div class="box"><h3>Chaînes surveillées <span class="mut">(${CH.length})</span><span class="sp"><button class="b sm" onclick="chStatus();toast('Actualisé')">Actualiser</button><button class="b sm dg" onclick="chReset()">Remettre la liste par défaut</button></span></h3>
-    ${CH.map((c, i) => { const st = CS[c.login]; return `<div class="dg-row"><span class="lgo" style="width:40px;height:40px;border-radius:50%">${st && st.avatar ? `<img src="${esc(st.avatar)}" alt="" style="padding:0">` : esc(c.login.slice(0, 2).toUpperCase())}</span>
-      <div class="d"><b>${esc(c.label)}</b> ${st ? (st.live ? '<span class="pill live"><i class="dot live"></i>en direct · ' + st.viewers + ' 👁</span>' : '<span class="pill">hors ligne</span>') : ''}<br><small class="mono">twitch.tv/${esc(c.login)}</small></div>
-      <input style="width:150px" value="${esc(c.label)}" onchange="CH[${i}].label=this.value.trim()||CH[${i}].login;chSave()" title="Nom affiché dans Stremio">
-      <select style="width:auto" onchange="CH[${i}].lang=this.value;chSave()"><option value="FR" ${c.lang === 'FR' ? 'selected' : ''}>🇫🇷 FR</option><option value="EN" ${c.lang === 'EN' ? 'selected' : ''}>🇬🇧 EN</option></select>
-      <select style="width:auto" onchange="CH[${i}].game=this.value;chSave()" title="Jeu"><option value="val" ${(c.game || 'val') === 'val' ? 'selected' : ''}>🎯 Valorant</option><option value="lol" ${c.game === 'lol' ? 'selected' : ''}>⚔️ LoL</option></select>
-      <select style="width:auto" onchange="CH[${i}].role=this.value;chSave()"><option ${c.role === 'Co-stream' ? 'selected' : ''}>Co-stream</option><option ${c.role === 'Officiel' ? 'selected' : ''}>Officiel</option></select>
-      <button class="b sm" onclick="chMove(${i},-1)" ${i ? '' : 'disabled'} title="Monter">↑</button><button class="b sm" onclick="chMove(${i},1)" ${i < CH.length - 1 ? '' : 'disabled'} title="Descendre">↓</button>
-      <button class="b sm dg" onclick="chDel(${i})" title="Supprimer">✕</button></div>`; }).join('') || '<div class="empty">Aucune chaîne</div>'}</div>`);
+function tcDel(code, i) { TC[code].splice(i, 1); if (!TC[code].length) delete TC[code]; tcSave('Retiré'); gRender(); }
+
+// -- Fortnite : structures esport (leurs chaînes d'abord) et co-casters habituels (ensuite)
+async function fnSave(msg) { const F = S.site.fortnite || {}; const r = await saveSite({ fortnite: { ...F, structures: ST, suggest: SG } }); toast(r.ok === false ? 'Erreur' : msg || 'Enregistré', r.ok === false); }
+function gStruct() {
+  return `<div class="box"><h3>Structures esport <span class="mut">(${ST.length})</span><span class="sp"><button class="b sm" onclick="stAdd()">+ Structure</button><button class="b pr sm" onclick="stSave()">Enregistrer</button></span></h3>
+    <p class="mut" style="margin-bottom:12px;font-size:.88rem">Les spectateurs choisissent ces structures dans la config. Leurs chaînes passent en premier dans les sources d'un tournoi Fortnite, puis viennent les co-casters ci-dessous, la chaîne officielle et la recherche par titre. Une chaîne = un pseudo Twitch ; sépare-les par des virgules.</p>
+    ${ST.map((x, i) => `<div class="cr"><div class="cr-f" style="grid-template-columns:1fr 1.2fr 1.6fr auto;align-items:end">
+      <div class="f"><label>Structure</label><input class="st_n" data-i="${i}" value="${esc(x.name)}" placeholder="Nom de la structure" maxlength="40"></div>
+      <div class="f"><label>Logo (adresse https)</label><input class="st_l" data-i="${i}" value="${esc(x.logo || '')}" placeholder="Facultatif"></div>
+      <div class="f"><label>Chaînes Twitch</label><input class="st_c" data-i="${i}" value="${esc((x.channels || []).map(c => c.login).join(', '))}" placeholder="pseudo1, pseudo2"></div>
+      <div class="f"><button class="b sm dg" onclick="stDel(${i})">✕</button></div></div>
+      ${(x.channels || []).length ? `<div class="rp">${x.channels.map(c => `<span class="pill ${CS[c.login] && CS[c.login].live ? 'live' : ''}">${CS[c.login] && CS[c.login].live ? '<i class="dot live"></i>' : ''}${esc(c.login)}</span>`).join('')}</div>` : ''}</div>`).join('') || '<div class="empty">Aucune structure. Ajoute celles que tu veux proposer.</div>'}</div>
+  <div class="box"><h3>Co-casters habituels <span class="mut">(${SG.length})</span></h3>
+    <p class="mut" style="margin-bottom:12px;font-size:.88rem">Toujours proposés sur les tournois Fortnite, juste après les structures choisies (ex : Leothecrack). Un live n'apparaît que s'il diffuse Fortnite.</p>
+    <div class="bar"><input id="sg_l" placeholder="Pseudo Twitch ou lien (ex : leothecrack)" onkeydown="if(event.key==='Enter')sgAdd()"><select id="sg_g" style="width:auto"><option value="FR">🇫🇷 Français</option><option value="EN">🇬🇧 Anglais</option></select><button class="b pr" onclick="sgAdd()">Ajouter</button></div>
+    ${SG.map((c, i) => `<div class="dg-row">${avatar(c.login)}<div class="d"><b>${esc(c.label)}</b> ${statusPill(c.login)}<br><small class="mono">twitch.tv/${esc(c.login)}</small></div>
+      <input style="width:160px" value="${esc(c.label)}" onchange="SG[${i}].label=this.value.trim()||SG[${i}].login;fnSave('Nom enregistré');gRender()" maxlength="30">${langSel(c.lang, `SG[${i}].lang=this.value;fnSave()`)}<button class="b sm dg" onclick="sgDel(${i})">✕</button></div>`).join('') || '<div class="empty">Aucun co-caster</div>'}</div>`;
 }
-async function addChan() {
-  let v = $('#nc').value.trim().toLowerCase().replace(/^https?:\/\/(www\.)?twitch\.tv\//, '').replace(/[/?#].*$/, '').replace(/^@/, '');
-  if (!LOGIN.test(v)) return toast('Pseudo Twitch invalide', true);
-  if (CH.some(c => c.login === v && (c.game || 'val') === $('#ng').value)) return toast('Cette chaîne est déjà dans la liste pour ce jeu', true);
-  const r = await api('chanstatus?logins=' + v);
-  if (!r[v]) return toast('Chaîne introuvable sur Twitch', true);
-  CH.push({ login: v, label: r[v].name || v, lang: $('#nl').value, role: $('#nr').value, game: $('#ng').value }); CS = { ...CS, ...r };
-  await chSave((r[v].name || v) + ' ajoutée'); drawChans();
+function stRead() { document.querySelectorAll('.st_n').forEach(e => { const i = +e.dataset.i, x = ST[i]; if (!x) return; x.name = e.value.trim(); x.logo = document.querySelector(`.st_l[data-i="${i}"]`).value.trim(); const logins = document.querySelector(`.st_c[data-i="${i}"]`).value.split(/[,\s]+/).map(loginOf).filter(Boolean); x.channels = logins.map(l => (x.channels || []).find(c => c.login === l) || { login: l, label: x.name || l, lang: 'FR' }); }); }
+function stAdd() { stRead(); ST.push({ name: '', logo: '', channels: [] }); gRender(); }
+function stDel(i) { stRead(); if (!confirm('Retirer cette structure ?')) return; ST.splice(i, 1); fnSave('Structure retirée'); gRender(); }
+async function stSave() {
+  stRead(); for (const x of ST) { if (x.logo && !/^https:\/\//.test(x.logo)) return toast('Logo de ' + (x.name || 'structure') + ' : adresse https obligatoire', true); for (const c of x.channels) if (!LOGIN.test(c.login)) return toast('Pseudo Twitch invalide : ' + c.login, true); }
+  ST = ST.filter(x => x.name); await fnSave('Structures enregistrées'); gStatus(); gRender();
 }
-function chMove(i, d) { const j = i + d; if (j < 0 || j >= CH.length) return; [CH[i], CH[j]] = [CH[j], CH[i]]; chSave('Ordre enregistré'); drawChans(); }
-function chDel(i) { const c = CH[i]; if (!confirm('Retirer ' + c.label + ' ?')) return; CH.splice(i, 1); chSave('Chaîne retirée'); drawChans(); }
-async function chReset() { if (!confirm('Remettre la liste par défaut ?')) return; await saveSite({ channels: [] }); await load(); go('chans'); toast('Liste par défaut rétablie'); }
+async function sgAdd() {
+  const v = loginOf($('#sg_l').value); if (!LOGIN.test(v)) return toast('Pseudo Twitch invalide', true);
+  if (SG.some(c => c.login === v)) return toast('Déjà dans la liste', true);
+  const r = await api('chanstatus?logins=' + v); if (!r[v]) return toast('Chaîne introuvable sur Twitch', true);
+  SG.push({ login: v, label: r[v].name || v, lang: $('#sg_g').value }); CS = { ...CS, ...r }; await fnSave((r[v].name || v) + ' ajouté'); gRender();
+}
+function sgDel(i) { SG.splice(i, 1); fnSave('Retiré'); gRender(); }
 
 // ---- réglages
 // ---- Fortnite
-let OSI = null;
-async function fnTab() {
-  put('<div class="empty">Chargement…</div>');
-  try { OSI = await api('osirion'); } catch { OSI = { set: false }; }
-  drawFn();
-}
+async function fnTab() { try { OSI = await api('osirion'); } catch { OSI = { set: false }; } gRender(); }
 const FNC = { fnmajor: 'FNCS Majors et Solo', fnworld: 'Championnat du monde', fnewc: 'Esports World Cup' };
-function drawFn() {
+function fnSrc() {
   const F = S.site.fortnite || { patterns: {}, regions: [], events: [], stats: true }, P = F.patterns || {};
-  put(`<div class="box"><h3>Osirion (calendrier Fortnite)</h3>
+  return `<div class="box"><h3>Osirion (calendrier Fortnite)</h3>
     <p class="mut" style="margin-bottom:12px;font-size:.88rem">Le calendrier des tournois, les logos et les classements viennent de l'API publique d'Osirion (fnapi.osirion.gg), qui marche sans clé pendant la bêta. Une clé est facultative : colle-la ici seulement si Osirion t'en donne une plus tard. Elle reste sur ton serveur et n'est jamais renvoyée au navigateur. Les résultats sont gardés en cache (30 min pour le calendrier, 24 h pour les classements).</p>
     <div class="bar"><input id="ok" type="password" autocomplete="off" placeholder="${OSI.set ? 'Clé enregistrée (••••' + esc(OSI.last4 || '') + ') · colle une nouvelle clé pour la remplacer' : 'Clé API Osirion (facultative)'}">
       <button class="b pr" onclick="osiSave()">Enregistrer</button><button class="b" onclick="osiTest()">Tester</button>${OSI.set ? '<button class="b dg" onclick="osiDel()">Supprimer</button>' : ''}</div>
@@ -300,9 +423,6 @@ function drawFn() {
     <div class="two">${Object.entries(FNC).map(([k, n]) => `<div class="f"><label>${n}</label><input id="fp_${k}" value="${esc(P[k] || '')}" placeholder="${esc({ fnmajor: 'major|fncs.?solo', fnworld: 'global.?champ|worlds', fnewc: 'ewc|esports.?world.?cup' }[k])}"></div>`).join('')}
     <div class="f"><label>Régions gardées (séparées par des virgules)</label><input id="fp_reg" value="${esc((F.regions || []).join(', '))}" placeholder="EU, ONSITE"></div></div>
     <label class="tg" style="margin-top:12px"><input type="checkbox" id="fp_stats" ${F.stats !== false ? 'checked' : ''}><span><b>Classement des sessions</b><br><span class="mut">Affiche le haut du classement dans la fiche d'une session terminée</span></span></label>
-    <div class="two" style="margin-top:14px">${Object.entries(FNC).map(([k, n]) => `<div class="f"><label>Logo · ${n} (adresse https)</label><input id="fl_${k}" value="${esc((F.logos || {})[k] || '')}" placeholder="https://…"></div>`).join('')}</div>
-    <div class="f" style="margin-top:12px"><label>Structures proposées (une ligne : <code>Nom | logo https (facultatif) | chaîne1, chaîne2</code>). Leurs chaînes passent en premier quand le spectateur les choisit.</label><textarea id="fp_st" rows="5" style="width:100%;font:inherit;color:inherit;background:var(--p2);border:1px solid var(--b);border-radius:9px;padding:10px" placeholder="Karmine Corp | | karminecorp, autrechaine">${esc((F.structures || []).map(x => x.name + ' | ' + (x.logo || '') + ' | ' + x.channels.map(c => c.login).join(', ')).join('\n'))}</textarea></div>
-    <div class="f" style="margin-top:12px"><label>Co-casters habituels, toujours proposés après les structures à la config (une ligne : <code>pseudo Twitch | nom | FR</code>)</label><textarea id="fp_sg" rows="4" style="width:100%;font:inherit;color:inherit;background:var(--p2);border:1px solid var(--b);border-radius:9px;padding:10px" placeholder="leothecrack | Leothecrack | FR">${esc((F.suggest || []).map(x => x.login + ' | ' + x.label + ' | ' + x.lang).join('\n'))}</textarea></div>
     <div class="bar" style="margin-top:14px"><button class="b pr" onclick="fnSaveSet()">Enregistrer</button></div></div>
   <div class="box"><h3>Événements ajoutés à la main <span class="mut">(${(F.events || []).length})</span></h3>
     <p class="mut" style="margin-bottom:12px;font-size:.88rem">Pour les dates à venir qu'Osirion ne connaît pas encore. Une session par ligne : <code>Nom | début | fin | phase</code> (heure de Paris, ex : <code>Finale | 2026-11-22 19:00 | 2026-11-22 22:30 | Europe</code>). La fin et la phase sont facultatives.</p>
@@ -312,7 +432,7 @@ function drawFn() {
       <div class="f"><label>Logo (adresse https, facultatif)</label><input id="fe_logo" placeholder="https://…"></div>
       <div class="f"><label>Chaînes Twitch en plus (séparées par des virgules)</label><input id="fe_ch" placeholder="fortnite, kamet0"></div></div>
     <div class="f"><label>Sessions</label><textarea id="fe_s" rows="5" style="width:100%;font:inherit;color:inherit;background:var(--p2);border:1px solid var(--b);border-radius:9px;padding:10px" placeholder="Jour 1 | 2026-11-21 18:00 | 2026-11-21 21:30\nFinale | 2026-11-22 19:00 | 2026-11-22 22:30 | Europe"></textarea></div>
-    <div class="bar" style="margin-top:12px"><button class="b pr" onclick="fnAdd()">Ajouter l'événement</button></div></div>`);
+    <div class="bar" style="margin-top:12px"><button class="b pr" onclick="fnAdd()">Ajouter l'événement</button></div></div>`;
 }
 async function osiSave() { const k = $('#ok').value.trim(); if (!k) return toast('Colle ta clé', true); const r = await api('osirion', { action: 'set', key: k }); toast(r.ok ? 'Clé enregistrée' : 'Erreur', !r.ok); fnTab(); }
 async function osiDel() { if (!confirm('Supprimer la clé Osirion ?')) return; await api('osirion', { action: 'set', key: '' }); toast('Clé supprimée'); fnTab(); }
@@ -324,10 +444,7 @@ async function osiTest() {
 async function fnSaveSet() {
   const F = S.site.fortnite || {}, patterns = {};
   for (const k of Object.keys(FNC)) { const v = $('#fp_' + k).value.trim(); if (v) { try { new RegExp(v); patterns[k] = v; } catch { return toast('Expression invalide : ' + FNC[k], true); } } }
-  const logos = {}; for (const k of Object.keys(FNC)) { const v = $('#fl_' + k).value.trim(); if (v) logos[k] = v; }
-  const suggest = $('#fp_sg').value.split('\n').map(l => l.split('|').map(x => x.trim())).filter(a => a[0]).map(a => ({ login: a[0], label: a[1] || a[0], lang: /^en$/i.test(a[2]) ? 'EN' : 'FR' }));
-  const structures = $('#fp_st').value.split('\n').map(l => l.split('|').map(x => x.trim())).filter(a => a[0]).map(a => ({ name: a[0], logo: a[1] || '', channels: (a[2] || '').split(/[,\s]+/).filter(Boolean).map(l => ({ login: l, label: a[0], lang: 'FR' })) }));
-  const r = await saveSite({ fortnite: { ...F, logos, suggest, structures, patterns, regions: $('#fp_reg').value.split(',').map(x => x.trim()).filter(Boolean), stats: $('#fp_stats').checked } });
+  const r = await saveSite({ fortnite: { ...F, patterns, regions: $('#fp_reg').value.split(',').map(x => x.trim()).filter(Boolean), stats: $('#fp_stats').checked } });
   toast(r.ok === false ? 'Erreur' : 'Enregistré', r.ok === false);
 }
 async function fnAdd() {
@@ -335,9 +452,9 @@ async function fnAdd() {
   const sessions = $('#fe_s').value.split('\n').map(l => l.split('|').map(x => x.trim())).filter(a => a[0] && a[1]).map(a => ({ name: a[0], start: a[1], end: a[2] || '', stage: a[3] || '' }));
   if (!name || !sessions.length) return toast('Nom et au moins une session (nom | début) obligatoires', true);
   const ev = { id: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30) + '-' + Date.now().toString(36).slice(-3), comp: $('#fe_comp').value, name, logo: $('#fe_logo').value.trim(), channels: $('#fe_ch').value.split(',').map(x => x.trim()).filter(Boolean), sessions };
-  const r = await saveSite({ fortnite: { ...F, events: [...(F.events || []), ev] } }); toast(r.ok === false ? 'Erreur' : 'Événement ajouté', r.ok === false); drawFn();
+  const r = await saveSite({ fortnite: { ...F, events: [...(F.events || []), ev] } }); toast(r.ok === false ? 'Erreur' : 'Événement ajouté', r.ok === false); gRender();
 }
-async function fnDel(id) { const F = S.site.fortnite; if (!confirm('Retirer cet événement ?')) return; await saveSite({ fortnite: { ...F, events: F.events.filter(e => e.id !== id) } }); toast('Événement retiré'); drawFn(); }
+async function fnDel(id) { const F = S.site.fortnite; if (!confirm('Retirer cet événement ?')) return; await saveSite({ fortnite: { ...F, events: F.events.filter(e => e.id !== id) } }); toast('Événement retiré'); gRender(); }
 async function saveSite(o) { const r = await api('site', o); if (r.site) S.site = r.site; return r; }
 function set() {
   const s = S.site, f = s.feat, tg = (k, n, d) => `<label class="tg"><input type="checkbox" id="f_${k}" ${f[k] ? 'checked' : ''}><span><b>${n}</b>${d ? '<br><span class="mut">' + d + '</span>' : ''}</span></label>`;

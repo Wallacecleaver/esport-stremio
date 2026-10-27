@@ -89,7 +89,7 @@ async function configPage() {
   // logo de chaque compétition : image de la ligue (Riot) ou logo choisi dans le dashboard (Fortnite)
   const logos = {}; try { for (const l of (await A.load(S)).leagues || []) if (l.image && !logos[l.comp]) logos[l.comp] = logoUrl(l.image); } catch { /* sans logos */ }
   for (const [k, v] of Object.entries((S.fortnite || {}).logos || {})) logos[k] = logoUrl(v);
-  const site = { needCode: !!S.code, open: S.open, comps: prefs.COMPS.filter(c => S.comps.includes(c.id)).map(c => ({ ...c, logo: logos[c.id] || null })), def: prefs.DEFAULTS, caps: prefs.CAPS, capMax: S.feat.capMax, fnSuggest: (S.fortnite || {}).suggest || [] };
+  const site = { needCode: !!S.code, open: S.open, comps: prefs.COMPS.filter(c => S.comps.includes(c.id)).map(c => { const m = (S.compMeta || {})[c.id] || {}; return { ...c, name: m.name || c.name, desc: m.desc || c.desc, logo: m.logo ? logoUrl(m.logo) : logos[c.id] || null }; }), def: prefs.DEFAULTS, caps: prefs.CAPS, capMax: S.feat.capMax, fnSuggest: (S.fortnite || {}).suggest || [] };
   return raw.replace(/\{\{NAME\}\}/g, S.name).replace(/\{\{COLOR\}\}/g, S.color).replace(/\{\{TITLE\}\}/g, S.title).replace(/\{\{TEXT\}\}/g, S.text).replace(/\{\{CREDIT\}\}/g, S.credit).replace(/\{\{V\}\}/g, String(S.logoV)).replace('{{SITE}}', JSON.stringify(site).replace(/</g, '\\u003c'));
 }
 
@@ -167,7 +167,7 @@ const adminRoute = makeAdmin({
       ['Version', require('./package.json').version, null], ['Stockage persistant (Upstash)', store.persistent ? (store.fileOn ? 'fichier data/' : 'Upstash') : 'mémoire temporaire', store.persistent],
       ['Source des matchs', val.BASE.replace(/^https:\/\//, ''), !error], ['Affiches (sharp)', poster.available() ? 'actives' : 'indisponibles', poster.available()],
       ['ADMIN_PASSWORD', process.env.ADMIN_PASSWORD ? 'défini' : 'absent', !!process.env.ADMIN_PASSWORD] ] },
-      data: { error, stale: data ? !!data.stale : null, at: data ? data.at : null, total: ms.length, live: by('live'), upcoming: by('upcoming'), done: by('done'), leagues: data ? data.leagues : [], errors: data ? data.errors || [] : [], comps }, site: S, channels: siteLib.channelsOf(S) };
+      data: { error, stale: data ? !!data.stale : null, at: data ? data.at : null, total: ms.length, live: by('live'), upcoming: by('upcoming'), done: by('done'), leagues: data ? data.leagues : [], errors: data ? data.errors || [] : [], comps }, site: S, channels: siteLib.channelsAll(S) };
   },
   async matches(force) {
     const S = await siteLib.load(), d = await A.load(S, { force });
