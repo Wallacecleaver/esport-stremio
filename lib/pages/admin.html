@@ -126,7 +126,7 @@ function head() {
   const c = (id, n, live) => { const e = document.getElementById('c_' + id); if (e) { e.hidden = !n; e.textContent = n; e.className = 'cnt' + (live ? ' live' : ''); } };
   c('matches', d.total || 0); c('prof', S.users.length);
 }
-function draw() { if (!S) return; const f = { over, matches, diag, teams, chans, fnTab, set, prof, logs }[tab] || over; $('#m').innerHTML = ''; document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.k === tab)); head(); f(); }
+function draw() { if (!S) return; const f = { over, matches, diag, teams, chans, fn: fnTab, set, prof, logs }[tab] || over; $('#m').innerHTML = ''; document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.k === tab)); head(); f(); }
 const put = h => { $('#m').innerHTML = h; };
 
 // ---- vue d'ensemble
